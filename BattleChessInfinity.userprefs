@@ -1,0 +1,14 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\BattleChessAsset\Script\ChessEngineManager.cs">
+    <Files>
+      <File FileName="Assets\BattleChessAsset\Script\ChessBoardData.cs" Line="27" Column="24" />
+      <File FileName="Assets\BattleChessAsset\Script\Board.cs" Line="29" Column="19" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessEngineManager.cs" Line="37" Column="2" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
