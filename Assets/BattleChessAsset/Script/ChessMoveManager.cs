@@ -982,7 +982,7 @@ public class ChessMoveManager {
 			bool bValidMove = movePos.MovePosition( nTempRank, nTempPile );
 			if( bValidMove ) {					
 				
-				UnityEngine.Debug.LogError( "GetStraightMoveList() - bValidMove - nTempRank, nTempPile " + nTempRank + " " + nTempPile );
+				//UnityEngine.Debug.LogError( "GetStraightMoveList() - bValidMove - nTempRank, nTempPile " + nTempRank + " " + nTempPile );
 				
 				ChessBoardSquare trgSquare = board.aBoardSquare[movePos.nPile, movePos.nRank];
 				// normal move				

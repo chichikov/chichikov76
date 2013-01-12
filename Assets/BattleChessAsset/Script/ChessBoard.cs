@@ -390,7 +390,7 @@ public class ChessBoard {
 			//UnityEngine.Debug.LogError( "AIMoveTo() - current turn = " + CurrTurn );						
 			if( srcSquare.IsBlank() == false ) {	
 				
-				UnityEngine.Debug.LogError( "AIMoveTo() - no blank" );
+				//UnityEngine.Debug.LogError( "AIMoveTo() - no blank" );
 				
 				List<ChessMoveManager.sMove> listAiMovable = new List<ChessMoveManager.sMove>();
 				bool bMoveList = ChessMoveManager.GetValidateMoveList( this, srcSquare, listAiMovable );
