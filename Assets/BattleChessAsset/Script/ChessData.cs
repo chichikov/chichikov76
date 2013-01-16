@@ -19,19 +19,19 @@ public enum PieceType {
 	e_None = -1,
 	e_King = 0,
 	e_Queen,
-	e_Look,
+	e_Rook,
 	e_Bishop,
 	e_Knight,
 	e_Pawn,		
 };	
 
-public enum PiecePlayerType : int {
+public enum PiecePlayerType {
 	
 	eNone_Piece = -1,
 	eWhite_King = 0,
 	eWhite_Queen,
-	eWhite_LookLeft,
-	eWhite_LookRight,
+	eWhite_RookLeft,
+	eWhite_RookRight,
 	eWhite_BishopLeft,
 	eWhite_BishopRight,
 	eWhite_KnightLeft,
@@ -47,8 +47,8 @@ public enum PiecePlayerType : int {
 	
 	eBlack_King,
 	eBlack_Queen,
-	eBlack_LookLeft,
-	eBlack_LookRight,
+	eBlack_RookLeft,
+	eBlack_RookRight,
 	eBlack_BishopLeft,
 	eBlack_BishopRight,
 	eBlack_KnightLeft,
@@ -111,7 +111,7 @@ public class ChessData {
 	
 	public static PiecePlayerType [,] aStartPiecePos = new PiecePlayerType[8,8] {
 		
-		{PiecePlayerType.eWhite_LookLeft, PiecePlayerType.eWhite_KnightLeft, PiecePlayerType.eWhite_BishopLeft, PiecePlayerType.eWhite_Queen, PiecePlayerType.eWhite_King, PiecePlayerType.eWhite_BishopRight, PiecePlayerType.eWhite_KnightRight, PiecePlayerType.eWhite_LookRight},
+		{PiecePlayerType.eWhite_RookLeft, PiecePlayerType.eWhite_KnightLeft, PiecePlayerType.eWhite_BishopLeft, PiecePlayerType.eWhite_Queen, PiecePlayerType.eWhite_King, PiecePlayerType.eWhite_BishopRight, PiecePlayerType.eWhite_KnightRight, PiecePlayerType.eWhite_RookRight},
 		{PiecePlayerType.eWhite_Pawn1, PiecePlayerType.eWhite_Pawn2, PiecePlayerType.eWhite_Pawn3, PiecePlayerType.eWhite_Pawn4, PiecePlayerType.eWhite_Pawn5, PiecePlayerType.eWhite_Pawn6, PiecePlayerType.eWhite_Pawn7, PiecePlayerType.eWhite_Pawn8},
 		
 		{PiecePlayerType.eNone_Piece, PiecePlayerType.eNone_Piece, PiecePlayerType.eNone_Piece, PiecePlayerType.eNone_Piece, PiecePlayerType.eNone_Piece, PiecePlayerType.eNone_Piece, PiecePlayerType.eNone_Piece, PiecePlayerType.eNone_Piece},
@@ -120,7 +120,7 @@ public class ChessData {
 		{PiecePlayerType.eNone_Piece, PiecePlayerType.eNone_Piece, PiecePlayerType.eNone_Piece, PiecePlayerType.eNone_Piece, PiecePlayerType.eNone_Piece, PiecePlayerType.eNone_Piece, PiecePlayerType.eNone_Piece, PiecePlayerType.eNone_Piece},
 		
 		{PiecePlayerType.eBlack_Pawn1, PiecePlayerType.eBlack_Pawn2, PiecePlayerType.eBlack_Pawn3, PiecePlayerType.eBlack_Pawn4, PiecePlayerType.eBlack_Pawn5, PiecePlayerType.eBlack_Pawn6, PiecePlayerType.eBlack_Pawn7, PiecePlayerType.eBlack_Pawn8},
-		{PiecePlayerType.eBlack_LookLeft, PiecePlayerType.eBlack_KnightLeft, PiecePlayerType.eBlack_BishopLeft, PiecePlayerType.eBlack_Queen, PiecePlayerType.eBlack_King, PiecePlayerType.eBlack_BishopRight, PiecePlayerType.eBlack_KnightRight, PiecePlayerType.eBlack_LookRight}
+		{PiecePlayerType.eBlack_RookLeft, PiecePlayerType.eBlack_KnightLeft, PiecePlayerType.eBlack_BishopLeft, PiecePlayerType.eBlack_Queen, PiecePlayerType.eBlack_King, PiecePlayerType.eBlack_BishopRight, PiecePlayerType.eBlack_KnightRight, PiecePlayerType.eBlack_RookRight}
 	};
 	
 	public static Dictionary<PiecePlayerType, string> pieceFenStringDic;	
@@ -182,8 +182,8 @@ public class ChessData {
 		
 		pieceFenStringDic[PiecePlayerType.eWhite_King] = "K";
 		pieceFenStringDic[PiecePlayerType.eWhite_Queen] = "Q";
-		pieceFenStringDic[PiecePlayerType.eWhite_LookLeft] = "R";
-		pieceFenStringDic[PiecePlayerType.eWhite_LookRight] = "R";
+		pieceFenStringDic[PiecePlayerType.eWhite_RookLeft] = "R";
+		pieceFenStringDic[PiecePlayerType.eWhite_RookRight] = "R";
 		pieceFenStringDic[PiecePlayerType.eWhite_BishopLeft] = "B";
 		pieceFenStringDic[PiecePlayerType.eWhite_BishopRight] = "B";
 		pieceFenStringDic[PiecePlayerType.eWhite_KnightLeft] = "N";
@@ -199,8 +199,8 @@ public class ChessData {
 		
 		pieceFenStringDic[PiecePlayerType.eBlack_King] = "k";
 		pieceFenStringDic[PiecePlayerType.eBlack_Queen] = "q";
-		pieceFenStringDic[PiecePlayerType.eBlack_LookLeft] = "r";
-		pieceFenStringDic[PiecePlayerType.eBlack_LookRight] = "r";
+		pieceFenStringDic[PiecePlayerType.eBlack_RookLeft] = "r";
+		pieceFenStringDic[PiecePlayerType.eBlack_RookRight] = "r";
 		pieceFenStringDic[PiecePlayerType.eBlack_BishopLeft] = "b";
 		pieceFenStringDic[PiecePlayerType.eBlack_BishopRight] = "b";
 		pieceFenStringDic[PiecePlayerType.eBlack_KnightLeft] = "n";

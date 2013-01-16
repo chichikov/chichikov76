@@ -37,14 +37,15 @@
     <Reference Include="System.XML" />
 	<Reference Include="System.Core" />
 	<Reference Include="UnityEngine">
-	  <HintPath>C:/Program Files/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	  <HintPath>F:/WorkUnity/Editor/Data/Managed/UnityEngine.dll</HintPath>
 	</Reference>
 	<Reference Include="UnityEditor">
-	  <HintPath>C:/Program Files/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	  <HintPath>F:/WorkUnity/Editor/Data/Managed/UnityEditor.dll</HintPath>
 	</Reference>
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\BattleChessAsset\Script\BattleChessMain.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessBitBoard.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\ChessBoard.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\ChessBoardSquare.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\ChessCastling.cs" />

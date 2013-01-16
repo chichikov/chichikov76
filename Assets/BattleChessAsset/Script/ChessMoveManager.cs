@@ -267,9 +267,9 @@ public class ChessMoveManager {
 			}	
 			break;
 			
-			case PieceType.e_Look:
+			case PieceType.e_Rook:
 			{
-				bRet = GetLookMoveList( board, selSquare, listRetBoardPos );			
+				bRet = GetRookMoveList( board, selSquare, listRetBoardPos );			
 			}
 			break;
 			
@@ -603,17 +603,17 @@ public class ChessMoveManager {
 				
 				if( bCalstling ) {
 					
-					// check look square blank
+					// check rook square blank
 					nTempRank = -1;		
 					nTempPile = 0;				
 						
-					ChessPosition moveLookPos = new ChessPosition(movePos.pos);						
+					ChessPosition moveRookPos = new ChessPosition(movePos.pos);						
 					
-					bValidCastlingMove = moveLookPos.MovePosition( nTempRank, nTempPile );
+					bValidCastlingMove = moveRookPos.MovePosition( nTempRank, nTempPile );
 					if( bValidCastlingMove ) {
 						
-						ChessBoardSquare lookTrgSquare = board.aBoardSquare[moveLookPos.nPile, moveLookPos.nRank];
-						if(	lookTrgSquare.IsBlank() ) {
+						ChessBoardSquare rookTrgSquare = board.aBoardSquare[moveRookPos.nPile, moveRookPos.nRank];
+						if(	rookTrgSquare.IsBlank() ) {
 							
 							sMove move = new sMove();
 							
@@ -659,16 +659,16 @@ public class ChessMoveManager {
 				
 				if( bCalstling ) {
 					
-					// check look square blank
+					// check rook square blank
 					nTempRank = 1;		
 					nTempPile = 0;				
 						
-					ChessPosition moveLookPos = new ChessPosition(movePos.pos);						
-					bValidCastlingMove = moveLookPos.MovePosition( nTempRank, nTempPile );
+					ChessPosition moveRookPos = new ChessPosition(movePos.pos);						
+					bValidCastlingMove = moveRookPos.MovePosition( nTempRank, nTempPile );
 					if( bValidCastlingMove ) {
 						
-						ChessBoardSquare lookTrgSquare = board.aBoardSquare[moveLookPos.nPile, moveLookPos.nRank];
-						if(	lookTrgSquare.IsBlank() ) {
+						ChessBoardSquare rookTrgSquare = board.aBoardSquare[moveRookPos.nPile, moveRookPos.nRank];
+						if(	rookTrgSquare.IsBlank() ) {
 							
 							sMove move = new sMove();
 							
@@ -714,7 +714,7 @@ public class ChessMoveManager {
 		return false;
 	}
 	
-	public static bool GetLookMoveList( ChessBoard board, ChessBoardSquare selSquare, List<sMove> listRetBoardPos ) {		
+	public static bool GetRookMoveList( ChessBoard board, ChessBoardSquare selSquare, List<sMove> listRetBoardPos ) {		
 		
 		// up
 		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_Up );

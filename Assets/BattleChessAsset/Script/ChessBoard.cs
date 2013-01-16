@@ -228,13 +228,13 @@ public class ChessBoard {
 			}
 			break;
 			
-			case PiecePlayerType.eWhite_LookLeft:
+			case PiecePlayerType.eWhite_RookLeft:
 			{
 				currCastlingState.CastlingWQSide = CastlingState.eCastling_Disable_State;
 			}
 			break;
 				
-			case PiecePlayerType.eWhite_LookRight:
+			case PiecePlayerType.eWhite_RookRight:
 			{
 				currCastlingState.CastlingWKSide = CastlingState.eCastling_Disable_State;
 			}
@@ -247,13 +247,13 @@ public class ChessBoard {
 			}
 			break;
 				
-			case PiecePlayerType.eBlack_LookLeft:
+			case PiecePlayerType.eBlack_RookLeft:
 			{
 				currCastlingState.CastlingBQSide = CastlingState.eCastling_Disable_State;
 			}
 			break;
 				
-			case PiecePlayerType.eBlack_LookRight:
+			case PiecePlayerType.eBlack_RookRight:
 			{
 				currCastlingState.CastlingBKSide = CastlingState.eCastling_Disable_State;
 			}
@@ -313,43 +313,43 @@ public class ChessBoard {
 		// castling move
 		if( ChessMoveManager.IsCastlingMove( move.moveType ) ) {
 			
-			int nDestLookRank = 0, nDestLookPile = 0;
-			nDestLookRank = move.trgSquare.position.nRank;
-			nDestLookPile = move.trgSquare.position.nPile;
+			int nDestRookRank = 0, nDestRookPile = 0;
+			nDestRookRank = move.trgSquare.position.nRank;
+			nDestRookPile = move.trgSquare.position.nPile;
 			// white king side castling
 			if( ChessMoveManager.IsWhiteKingSideCastlingMove( move.moveType ) ) {
 				
-				ChessBoardSquare lookSquare = aBoardSquare[0,7];				
-				nDestLookRank = nDestLookRank - 1;
-				aBoardSquare[nDestLookPile, nDestLookRank].SetPiece( lookSquare.piece );			
-				lookSquare.ClearPiece();
+				ChessBoardSquare rookSquare = aBoardSquare[0,7];				
+				nDestRookRank = nDestRookRank - 1;
+				aBoardSquare[nDestRookPile, nDestRookRank].SetPiece( rookSquare.piece );			
+				rookSquare.ClearPiece();
 			}				
 			
 			// white Queen side castling
 			if( ChessMoveManager.IsWhiteQueenSideCastlingMove( move.moveType ) ) {
 				
-				ChessBoardSquare lookSquare = aBoardSquare[0,0];				
-				nDestLookRank = nDestLookRank + 1;
-				aBoardSquare[nDestLookPile, nDestLookRank].SetPiece( lookSquare.piece );	
-				lookSquare.ClearPiece();				
+				ChessBoardSquare rookSquare = aBoardSquare[0,0];				
+				nDestRookRank = nDestRookRank + 1;
+				aBoardSquare[nDestRookPile, nDestRookRank].SetPiece( rookSquare.piece );	
+				rookSquare.ClearPiece();				
 			}	
 			
 			// black king side castling
 			if( ChessMoveManager.IsBlackKingSideCastlingMove( move.moveType ) ) {
 				
-				ChessBoardSquare lookSquare = aBoardSquare[7, 7];				
-				nDestLookRank = nDestLookRank - 1;
-				aBoardSquare[nDestLookPile, nDestLookRank].SetPiece( lookSquare.piece );	
-				lookSquare.ClearPiece();
+				ChessBoardSquare rookSquare = aBoardSquare[7, 7];				
+				nDestRookRank = nDestRookRank - 1;
+				aBoardSquare[nDestRookPile, nDestRookRank].SetPiece( rookSquare.piece );	
+				rookSquare.ClearPiece();
 			}	
 			
 			// black queen side castling
 			if( ChessMoveManager.IsBlackQueenSideCastlingMove( move.moveType ) ) {
 				
-				ChessBoardSquare lookSquare = aBoardSquare[7, 0];				
-				nDestLookRank = nDestLookRank + 1;
-				aBoardSquare[nDestLookPile, nDestLookRank].SetPiece( lookSquare.piece );	
-				lookSquare.ClearPiece();
+				ChessBoardSquare rookSquare = aBoardSquare[7, 0];				
+				nDestRookRank = nDestRookRank + 1;
+				aBoardSquare[nDestRookPile, nDestRookRank].SetPiece( rookSquare.piece );	
+				rookSquare.ClearPiece();
 			}	
 		}		
 		

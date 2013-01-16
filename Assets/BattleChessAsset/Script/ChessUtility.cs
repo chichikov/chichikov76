@@ -21,9 +21,9 @@ public class ChessUtility {
 				case PiecePlayerType.eWhite_Queen:
 					return PieceType.e_Queen;				
 				
-				case PiecePlayerType.eWhite_LookLeft:				
-				case PiecePlayerType.eWhite_LookRight:
-					return PieceType.e_Look;
+				case PiecePlayerType.eWhite_RookLeft:				
+				case PiecePlayerType.eWhite_RookRight:
+					return PieceType.e_Rook;
 								
 				case PiecePlayerType.eWhite_BishopLeft:
 				case PiecePlayerType.eWhite_BishopRight:
@@ -54,9 +54,9 @@ public class ChessUtility {
 				case PiecePlayerType.eBlack_Queen:
 					return PieceType.e_Queen;				
 				
-				case PiecePlayerType.eBlack_LookLeft:				
-				case PiecePlayerType.eBlack_LookRight:
-					return PieceType.e_Look;				
+				case PiecePlayerType.eBlack_RookLeft:				
+				case PiecePlayerType.eBlack_RookRight:
+					return PieceType.e_Rook;				
 				
 				case PiecePlayerType.eBlack_BishopLeft:
 				case PiecePlayerType.eBlack_BishopRight:
