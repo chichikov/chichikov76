@@ -14,7 +14,7 @@ using System.Collections;
   southwest    south   southeast
 */
 
-public class ChessBitBoard {		
+public class ChessBitBoard {	
 	
 	public const ulong ulUniverseBB = 0xffffffffffffffff;
 	
@@ -63,7 +63,7 @@ public class ChessBitBoard {
 	}
 	
 	// initialize game start state
-	public void Start() {
+	public void Init() {
 		
 		// bit board state init	
 		pieceBB[(int)PieceBBType.eWhite] = 0x00000000000000FF;
@@ -97,6 +97,24 @@ public class ChessBitBoard {
 		InitPawnAttackPattern();		
 	}
 	
+	public void InitKingAttackPattern() {	
+		
+		ulong sqBB = 1;
+		for( int sq = 0; sq < 64; sq++, sqBB <<= 1 )
+		   arrKingAttacksBB[sq] = KingAttacks(sqBB);
+	}
+	
+	public void InitKnightAttackPattern() {			
+		
+	}
+	
+	public void InitPawnAttackPattern() {			
+		
+	}
+	
+	
+	
+	/*
 	public void InitKingAttackPattern() {		
 		
 		arrKingAttacksBB = new ulong[64];						
@@ -301,8 +319,44 @@ public class ChessBitBoard {
 			}
 		}		
 	}
+	*/
 	
+	// king move/attack
+	public ulong KingMovesBB( PlayerSide playerSide, ulong kingSet ) {
 		
+		if( playerSide == PlayerSide.e_White ) {
+			
+			return KingAttacks( pieceBB[(int)PieceBBType.eWhite_King] ) & emptyBB;
+		}
+		else {
+			
+			return KingAttacks( pieceBB[(int)PieceBBType.eWhite_King] ) & emptyBB;
+		}
+		
+		return (ulong)0;
+	}
+	
+	public ulong KingAttacksBB( PlayerSide playerSide, ulong kingSet ) {
+		
+		if( playerSide == PlayerSide.e_White ) {
+			
+			return KingAttacks( pieceBB[(int)PieceBBType.eWhite_King] ) & pieceBB[(int)PieceBBType.eBlack];
+		}
+		else {
+			
+			return KingAttacks( pieceBB[(int)PieceBBType.eWhite_King] ) & pieceBB[(int)PieceBBType.eWhite];
+		}
+		
+		return (ulong)0;
+	}
+	
+	ulong KingAttacks(ulong kingSet) {
+		
+		ulong attacks = EastOne(kingSet) | WestOne(kingSet);
+		kingSet    |= attacks;
+		attacks    |= NortOne(kingSet) | SoutOne(kingSet);
+		return attacks;
+	}
 	
 	// pawn move/attack
 	ulong SoutOne (ulong b) {return  b >> 8;}

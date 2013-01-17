@@ -257,7 +257,7 @@ public class ChessMoveManager {
 			
 			case PieceType.e_King:
 			{
-				bRet = GetKingMoveList( board, selSquare, listRetBoardPos );							
+				bRet = GetKingMoveList( board, selSquare, listRetBoardPos );				
 			}
 			break;
 			
@@ -298,9 +298,148 @@ public class ChessMoveManager {
 		}		
 		
 		return bRet;
-	}	
+	}
+	
+	public static void BitBoardToMoveList( ulong ulBitboard, MoveType moveType,
+		ChessBoard board, ChessBoardSquare srcSquare, List<sMove> listRetBoardPos ) {
+		
+		for( int i=0; i<ChessData.nNumBoardSquare; i++ ) {
+			
+			ulong ulCurrMask = (ulong)1 << i;
+			ulong ulCurrPosition = ulBitboard & ulCurrMask;
+			if( ulCurrPosition > 0 ) {
+				
+				int nCurrRank, nCurrFile;
+				nCurrRank = i % ChessData.nNumRank;
+				nCurrFile = i / ChessData.nNumPile;
+				
+				ChessBoardSquare trgSquare = board.aBoardSquare[nCurrFile, nCurrRank];
+				
+				sMove move = new sMove();
+				// normal move
+				move.moveType = moveType;						
+			
+				move.srcSquare = srcSquare;
+				move.trgSquare = trgSquare;
+				
+				listRetBoardPos.Add( move );				
+			}
+		}
+	}
+	
+	public static bool GetKingMoveList( ChessBoard board, ChessBoardSquare selSquare, List<sMove> listRetBoardPos ) {
+		
+		PlayerSide srcPlayerSide = selSquare.piece.playerSide;	
+		
+		// attack/move!!!!
+		
+		// calc viable king move
+		ulong viableKingMove = board.bitBoard.KingMovesBB( srcPlayerSide );
+		if( viableKingMove > 0 ) {
+			
+			MoveType moveType = MoveType.eNormal_Move;
+			// convert move list
+			BitBoardToMoveList( viableKingMove, moveType, board, selSquare, listRetBoardPos );
+		}
+		
+		ulong viableKingAttack = board.bitBoard.KingAttacksBB( srcPlayerSide );
+		if( viableKingAttack > 0 ) {
+			
+			MoveType moveType = MoveType.eCapture_Move;
+			// convert move list
+			BitBoardToMoveList( viableKingAttack, moveType, board, selSquare, listRetBoardPos );
+		}		
+		
+		
+		// castling!!!!		
+		// king side castling	
+		int nCastlingTrgRank, nCastlingTrgFile;
+		
+		if( srcPlayerSide == PlayerSide.e_White ) {
+					
+			if( board.currCastlingState.IsWhiteKingSideAvailable() ) {											
+				
+				nCastlingTrgRank = selSquare.position.nRank + 2;
+				nCastlingTrgFile = selSquare.position.nPile;
+				
+				ChessBoardSquare trgSquare = board.aBoardSquare[nCastlingTrgFile, nCastlingTrgRank];					
+				
+				sMove move = new sMove();				
+				
+				move.moveType = MoveType.eCastling_Move | MoveType.eCastling_White_KingSide_Move;						
+			
+				move.srcSquare = selSquare;
+				move.trgSquare = trgSquare;
+				
+				listRetBoardPos.Add( move );								
+			}
+		}
+		else {
+			
+			if( board.currCastlingState.IsBlackKingSideAvailable() ) {	
+				
+				nCastlingTrgRank = selSquare.position.nRank + 2;
+				nCastlingTrgFile = selSquare.position.nPile;
+				
+				ChessBoardSquare trgSquare = board.aBoardSquare[nCastlingTrgFile, nCastlingTrgRank];					
+				
+				sMove move = new sMove();				
+				
+				move.moveType = MoveType.eCastling_Move | MoveType.eCastling_Black_KingSide_Move;						
+			
+				move.srcSquare = selSquare;
+				move.trgSquare = trgSquare;
+				
+				listRetBoardPos.Add( move );					
+			}
+		}
+		
+		
+		// queen side castling
+		if( srcPlayerSide == PlayerSide.e_White ) {
+					
+			if( board.currCastlingState.IsWhiteQueenSideAvailable() ) {											
+				
+				nCastlingTrgRank = selSquare.position.nRank - 2;
+				nCastlingTrgFile = selSquare.position.nPile;
+				
+				ChessBoardSquare trgSquare = board.aBoardSquare[nCastlingTrgFile, nCastlingTrgRank];					
+				
+				sMove move = new sMove();				
+				
+				move.moveType = MoveType.eCastling_Move | MoveType.eCastling_White_QueenSide_Move;						
+			
+				move.srcSquare = selSquare;
+				move.trgSquare = trgSquare;
+				
+				listRetBoardPos.Add( move );								
+			}
+		}
+		else {
+			
+			if( board.currCastlingState.IsBlackQueenSideAvailable() ) {	
+				
+				nCastlingTrgRank = selSquare.position.nRank - 2;
+				nCastlingTrgFile = selSquare.position.nPile;
+				
+				ChessBoardSquare trgSquare = board.aBoardSquare[nCastlingTrgFile, nCastlingTrgRank];					
+				
+				sMove move = new sMove();				
+				
+				move.moveType = MoveType.eCastling_Move | MoveType.eCastling_Black_QueenSide_Move;						
+			
+				move.srcSquare = selSquare;
+				move.trgSquare = trgSquare;
+				
+				listRetBoardPos.Add( move );					
+			}
+		}		
+		
+		return listRetBoardPos.Count > 0;
+	}
 	
 	
+	/*
 	public static bool GetPawnMoveList( ChessBoard board, ChessBoardSquare selSquare, List<sMove> listRetBoardPos ) {				
 		
 		//UnityEngine.Debug.LogError( "GetPawnMoveList - start" + " " + piece.position + " " + piece.playerSide );
@@ -1084,6 +1223,7 @@ public class ChessMoveManager {
 		
 		return false;
 	}	
+	*/
 	
 	
 	

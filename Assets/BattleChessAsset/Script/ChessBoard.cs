@@ -10,6 +10,8 @@ using System.Collections.Generic;
 public class ChessBoard {
 	
 	// board
+	// bitboard
+	public ChessBitBoard bitBoard;
 	// 8 x 8, pile x rank
 	public ChessBoardSquare[,] aBoardSquare;	
 	
@@ -55,6 +57,7 @@ public class ChessBoard {
 	// constructor
 	public ChessBoard() {			
 		
+		bitBoard = new ChessBitBoard();
 	}
 	
 	
@@ -83,6 +86,8 @@ public class ChessBoard {
 		listCurrMovable = new List<ChessMoveManager.sMove>();
 		
 		// init board
+		bitBoard.Init();
+		
 		// piece list
 		listPiece = new List<ChessPiece>();		
 		aBoardSquare = new ChessBoardSquare[ChessData.nNumPile,ChessData.nNumRank];
@@ -217,6 +222,15 @@ public class ChessBoard {
 	}
 	
 	public void UpdateCastlingState( ChessBoardSquare srcSquare ) {
+		
+		// possible castling condition
+		//1.The king has not previously moved.
+		//2.The chosen rook has not previously moved.
+		//3.There are no pieces between the king and the chosen rook.
+		//4.The king is not currently in check.
+		//5.The king does not pass through a square that is under attack by enemy pieces.[2]
+		//6.The king does not end up in check (true of any legal move).
+		//여기부터...
 		
 		// disable castling state
 		switch( srcSquare.piece.piecePlayerType ) 						
@@ -622,7 +636,7 @@ public class ChessBoard {
 		
 		targetMove.Clear();
 		return false;
-	}
+	}	
 }
 	
 //}
