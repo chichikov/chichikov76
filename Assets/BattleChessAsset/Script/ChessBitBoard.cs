@@ -19,14 +19,35 @@ public class ChessBitBoard {
 	public const ulong ulUniverseBB = 0xffffffffffffffff;
 	
 	const ulong notAFile = 0xfefefefefefefefe; // ~0x0101010101010101
-	const ulong notHFile = 0x7f7f7f7f7f7f7f7f; // ~0x8080808080808080
+	const ulong notHFile = 0x7f7f7f7f7f7f7f7f; // ~0x8080808080808080	
 	
-	public const int NumPieceBB = 14;
+	// check for castling
+	const ulong ulWKBlankCastlingMask = 0x0000000000000006;
+	const ulong ulWQBlankCastlingMask = 0x0000000000000070;
+	const ulong ulBKBlankCastlingMask = 0x6000000000000000;
+	const ulong ulBQBlankCastlingMask = 0x0700000000000000;
+	
+	
+	public const int NumPieceBB = 14;	
+	
+	public enum RayDirBBType : int {
+		
+		eNorth = 0,
+		eNorthEast,
+		eEast,
+		eSouthEast,
+		eSouth,	
+		eSouthWest,
+		eWest,
+		eNorthWest,
+		
+		eNumRayDir
+	}
 	
 	public enum PieceBBType : int {
 		
 		eWhite = 0,
-		eBlack,	
+		eBlack,
 		eWhite_King,
 		eBlack_King,
 		eWhite_Queen,
@@ -50,6 +71,9 @@ public class ChessBitBoard {
 	ulong [] arrKingAttacksBB;		
 	ulong [] arrKnightAttacksBB;	
 	ulong [,] arrPawnAttacksBB;
+	
+	ulong [,] rayAttacks;
+
 
 	
 	
@@ -59,7 +83,7 @@ public class ChessBitBoard {
 		emptyBB = 0;
 		occupiedBB = 0;
 		
-		InitAttackPattern();
+		InitAttackPattern();		
 	}
 	
 	// initialize game start state
@@ -94,232 +118,112 @@ public class ChessBitBoard {
 		InitKnightAttackPattern();
 		
 		// pawn attack
-		InitPawnAttackPattern();		
+		InitPawnAttackPattern();
+		
+		// ray attack = queen/bishop/rook
+		InitRayAttackPattern();
 	}
 	
 	public void InitKingAttackPattern() {	
 		
+		arrKingAttacksBB = new ulong[BoardPosition.NumOfBoardPosition];
+		
 		ulong sqBB = 1;
-		for( int sq = 0; sq < 64; sq++, sqBB <<= 1 )
+		for( BoardPosition sq = 0; sq < BoardPosition.NumOfBoardPosition; sq++, sqBB <<= 1 )
 		   arrKingAttacksBB[sq] = KingAttacks(sqBB);
 	}
 	
-	public void InitKnightAttackPattern() {			
+	public void InitKnightAttackPattern() {	
 		
-	}
+	}	
 	
 	public void InitPawnAttackPattern() {			
 		
-	}
-	
-	
-	
-	/*
-	public void InitKingAttackPattern() {		
+		arrPawnAttacksBB = new ulong[PlayerSide.e_NumOfPlayerSide][BoardPosition.NumOfBoardPosition];		
 		
-		arrKingAttacksBB = new ulong[64];						
-		for( int j=0; j<ChessData.nNumPile; j++ ) {
-			for( int k=0; k<ChessData.nNumRank; k++ ) {								
-					
-				int nPos = j * ChessData.nNumRank + k;
-				ulong ulCurr = (ulong)1 << nPos;					
+		for( int playerSide=0; playerSide<PlayerSide.e_NumOfPlayerSide; ++playerSide ) {
+			
+			ulong sqBB = 1;			
+			for( BoardPosition sq = 0; sq <= BoardPosition.NumOfBoardPosition; sq++, sqBB <<= 1 ) {
 				
-				// left/bottom 기준 counter-clockwise order
-				ulong [] aAttackCandi = new ulong[8];						
-				aAttackCandi[0] = ulCurr >> (ChessData.nNumRank + 1);
-				aAttackCandi[1] = ulCurr >> ChessData.nNumRank;
-				aAttackCandi[2] = ulCurr >> (ChessData.nNumRank - 1);
-				aAttackCandi[3] = ulCurr << 1;
-				aAttackCandi[4] = ulCurr << (ChessData.nNumRank + 1);
-				aAttackCandi[5] = ulCurr << ChessData.nNumRank;
-				aAttackCandi[6] = ulCurr >> 1;
-				aAttackCandi[7] = ulCurr << (ChessData.nNumRank + 1);					
-				
-				// 4 corner
-				// left/bottom
-				if( k == 0 && j == 0 ) {
-					
-					arrKingAttacksBB[nPos] = aAttackCandi[3] | aAttackCandi[4] | aAttackCandi[5];
-				}
-				// right/bottom
-				else if( k == 7 && j == 0 ) {
-					
-					arrKingAttacksBB[nPos] = aAttackCandi[5] | aAttackCandi[6] | aAttackCandi[7];
-				}
-				// left/top
-				else if( k == 0 && j == 7 ) {
-					
-					arrKingAttacksBB[nPos] = aAttackCandi[1] | aAttackCandi[2] | aAttackCandi[3];
-				}
-				// right/top
-				else if( k == 7 && j == 7 ) {
-					
-					arrKingAttacksBB[nPos] = aAttackCandi[7] | aAttackCandi[0] | aAttackCandi[1];
-				}
-				// bottom
-				else if( j == 0 ) {
-					
-					arrKingAttacksBB[nPos] = aAttackCandi[3] | aAttackCandi[4] | aAttackCandi[5] | aAttackCandi[6] | aAttackCandi[7];
-				}
-				// left
-				else if( k == 0 ) {
-					
-					arrKingAttacksBB[nPos] = aAttackCandi[1] | aAttackCandi[2] | aAttackCandi[3] | aAttackCandi[4] | aAttackCandi[5];
-				}
-				// right
-				else if( k == 7 ) {
-					
-					arrKingAttacksBB[nPos] = aAttackCandi[5] | aAttackCandi[6] | aAttackCandi[7] | aAttackCandi[0] | aAttackCandi[1];
-				}
-				// top
-				else if( j == 7 ) {
-					
-					arrKingAttacksBB[nPos] = aAttackCandi[3] | aAttackCandi[4] | aAttackCandi[5] | aAttackCandi[6] | aAttackCandi[7];
-				}									
+				arrPawnAttacksBB[playerSide][sq] = playerSide == eWhite? WPawnAnyAttacks( sqBB ) : BPawnAnyAttacks( sqBB );				
 			}
 		}
-				
 	}
 	
-	public void InitKnightAttackPattern() {		
+	public void InitRayAttackPattern() {	
 		
-		arrKnightAttacksBB = new ulong[64];						
-		for( int j=0; j<ChessData.nNumPile; j++ ) {
-			for( int k=0; k<ChessData.nNumRank; k++ ) {												
-					
-				int nPos = j * ChessData.nNumRank + k;
-				ulong ulCurr = (ulong)1 << nPos;
+		rayAttacks = new ulong[RayDirBBType.eNumRayDir, BoardPosition.NumOfBoardPosition];		
+		
+		ulong sqBB = 1;		
+		for( BoardPosition sq = 0; sq < BoardPosition.NumOfBoardPosition; sq++, sqBB <<= 1 ) {
+		 
+			for( int i=0; i<RayDirBBType.eNumRayDir; ++i ) {
 				
-				arrKingAttacksBB[nPos] = 0;
-				
-				// left/bottom 기준 counter-clockwise order
-				ulong [] aAttackCandi = new ulong[8];						
-				aAttackCandi[0] = ulCurr - 17;
-				aAttackCandi[1] = ulCurr - 15;
-				aAttackCandi[2] = ulCurr - 6;
-				aAttackCandi[3] = ulCurr + 10;
-				aAttackCandi[4] = ulCurr + 17;
-				aAttackCandi[5] = ulCurr + 15;
-				aAttackCandi[6] = ulCurr + 6;
-				aAttackCandi[7] = ulCurr - 10;
-				
-				int nAttackPile, nAttackRank;
-				
-				nAttackRank = k - 1;
-				nAttackPile = j - 2;					
-				if( nAttackRank >= 0 && nAttackPile >= 0 ) {
-					
-					arrKingAttacksBB[nPos] |= aAttackCandi[0];
-				}
-				
-				nAttackRank = k + 1;
-				nAttackPile = j - 2;					
-				if( nAttackRank < ChessData.nNumRank && nAttackPile >= 0 ) {
-					
-					arrKingAttacksBB[nPos] |= aAttackCandi[1];
-				}
-				
-				nAttackRank = k + 2;
-				nAttackPile = j - 1;					
-				if( nAttackRank < ChessData.nNumRank && nAttackPile >= 0 ) {
-					
-					arrKingAttacksBB[nPos] |= aAttackCandi[2];
-				}
-				
-				nAttackRank = k + 2;
-				nAttackPile = j + 1;					
-				if( nAttackRank < ChessData.nNumRank && nAttackPile < ChessData.nNumPile ) {
-					
-					arrKingAttacksBB[nPos] |= aAttackCandi[3];
-				}
-				
-				nAttackRank = k + 1;
-				nAttackPile = j + 2;					
-				if( nAttackRank < ChessData.nNumRank && nAttackPile < ChessData.nNumPile ) {
-					
-					arrKingAttacksBB[nPos] |= aAttackCandi[4];
-				}
-				
-				nAttackRank = k - 1;
-				nAttackPile = j + 2;					
-				if( nAttackRank >= 0 && nAttackPile < ChessData.nNumPile ) {
-					
-					arrKingAttacksBB[nPos] |= aAttackCandi[5];
-				}
-				
-				nAttackRank = k - 2;
-				nAttackPile = j + 1;					
-				if( nAttackRank >= 0 && nAttackPile < ChessData.nNumPile ) {
-					
-					arrKingAttacksBB[nPos] |= aAttackCandi[6];
-				}
-				
-				nAttackRank = k - 2;
-				nAttackPile = j - 1;					
-				if( nAttackRank >= 0 && nAttackPile >= 0 ) {
-					
-					arrKingAttacksBB[nPos] |= aAttackCandi[7];
-				}
+				rayAttacks[i][sq] = KingAttacks(sqBB);
 			}
 		}
-		
 	}
 	
-	public void InitPawnAttackPattern() {		
+	// square attack by any other square
+	ulong AttacksTo(ulong occupied, BoardPosition sq) {
 		
-		arrPawnAttacksBB = new ulong[2,64];		
-		for( int i=0; i<2; i++ ) {			
-			for( int j=0; j<ChessData.nNumPile; j++ ) {
-				for( int k=0; k<ChessData.nNumRank; k++ ) {					
-						
-					int nPos = j * ChessData.nNumRank + k;
-					ulong ulCurr = (ulong)1 << nPos;
-					
-					arrPawnAttacksBB[i, nPos] = 0;
-					
-					// white pawn
-					if( i == (int)PieceBBType.eWhite ) {					
-						
-						// 0 pile, 7 pile
-						if( j != 0 && j != 7 ) {
-							
-							// east attack
-							// check border
-							if( k != ChessData.nNumRank - 1 ) {
-								
-								arrPawnAttacksBB[i, nPos] = ulCurr << (ChessData.nNumRank + 1);								
-							}
-							// west attack
-							if( k != 0 ) {
-								
-								arrPawnAttacksBB[i, nPos] |= ulCurr << (ChessData.nNumRank - 1);								
-							}														
-						}						
-					}
-					// black pawn
-					else {
-						
-						// 0 pile, 7 pile
-						if( j != 0 && j != 7 ) {
-							
-							// east attack
-							// check border
-							if( k != ChessData.nNumRank - 1 ) {
-								
-								arrPawnAttacksBB[i, nPos] = ulCurr >> (ChessData.nNumRank - 1);								
-							}
-							// west attack
-							if( k != 0 ) {
-								
-								arrPawnAttacksBB[i, nPos] |= ulCurr >> (ChessData.nNumRank + 1);								
-							}														
-						}	
-					}
-				}
-			}
-		}		
+		ulong knights, kings, bishopsQueens, rooksQueens;
+		knights        = pieceBB[PieceBBType.eWhite_Knight] | pieceBB[PieceBBType.eBlack_Knight];
+		kings          = pieceBB[PieceBBType.eWhite_King]   | pieceBB[PieceBBType.eBlack_King];
+		rooksQueens    =
+		bishopsQueens  = pieceBB[PieceBBType.eWhite_Queen]  | pieceBB[PieceBBType.eBlack_Queen];
+		rooksQueens   |= pieceBB[PieceBBType.eWhite_Rook]   | pieceBB[PieceBBType.eBlack_Rook];
+		bishopsQueens |= pieceBB[PieceBBType.eWhite_Bishop] | pieceBB[PieceBBType.eBlack_Bishop];
+		
+		return (arrPawnAttacks[PlayerSide.e_White][sq]	& pieceBB[PieceBBType.eBlack_Pawn])
+		    | (arrPawnAttacks[PlayerSide.e_Black][sq] 	& pieceBB[PieceBBType.eWhite_Pawn])
+		    | (arrKnightAttacks[sq] 	 	& knights)
+		    | (arrKingAttacks[sq] 			& kings)
+		    | (bishopAttacks(occupied,sq) 	& bishopsQueens)
+		    | (rookAttacks(occupied,sq)		& rooksQueens);
 	}
-	*/
+	
+	// 
+	bool Attacked(ulong occupied, BoardPosition square, PlayerSide bySide) {
+		
+		ulong pawns   = pieceBB[PieceBBType.eWhite_Pawn + bySide];
+		ulong knights = pieceBB[PieceBBType.eWhite_Knight + bySide];
+		ulong king    = pieceBB[PieceBBType.eWhite_King   + bySide];
+		
+		if ( arrPawnAttacks[1-bySide][square]    & pawns )         return true;
+		if ( arrKnightAttacks[square]            & knights )       return true;
+		if ( arrKingAttacks[square]              & king )          return true;
+		
+		ulong bishopsQueens = pieceBB[PieceBBType.eWhite_Queen  + bySide]
+		                 | pieceBB[PieceBBType.eWhite_Bishop + bySide];
+		
+		if ( bishopAttacks(occupied, square) & bishopsQueens ) return true;
+		
+		ulong rooksQueens = pieceBB[PieceBBType.eWhite_Queen  + bySide]
+		                 | pieceBB[PieceBBType.eWhite_Rook + bySide];
+		
+		if ( rookAttacks(occupied, square) & rooksQueens )   return true;
+		return false;
+	}
+	
+	ulong AttacksToKing(BoardPosition squareOfKing, enumColor colorOfKing) {
+		
+		ulong opPawns, opKnights, opRQ, opBQ;
+			
+		opPawns     = pieceBB[nBlackPawn   - colorOfKing];
+		opKnights   = pieceBB[nBlackKnight - colorOfKing];
+		opRQ = opBQ = pieceBB[nBlackQueen  - colorOfKing];
+		opRQ       |= pieceBB[nBlackRook   - colorOfKing];
+		opBQ       |= pieceBB[nBlackBishop - colorOfKing];
+			
+		return (arrPawnAttacks[colorOfKing][squareOfKing] & opPawns)
+		    | (arrKnightAttacks[squareOfKing]            & opKnights)
+		    | (bishopAttacks (occupiedBB, squareOfKing)  & opBQ)
+		    | (rookAttacks   (occupiedBB, squareOfKing)  & opRQ)
+		    ;
+	}
+	
 	
 	// king move/attack
 	public ulong KingMovesBB( PlayerSide playerSide, ulong kingSet ) {
@@ -398,9 +302,83 @@ public class ChessBitBoard {
 	   return WPawnsAble2Push(wpawns, emptyRank3);
 	}
 	
+	ulong WPawnEastAttacks(ulong wpawns) {return NoEaOne(wpawns);}
+	ulong WPawnWestAttacks(ulong wpawns) {return NoWeOne(wpawns);}	 
+	ulong BPawnEastAttacks(ulong bpawns) {return SoEaOne(bpawns);}
+	ulong BPawnWestAttacks(ulong bpawns) {return SoWeOne(bpawns);}
+	
+	ulong WPawnAnyAttacks(ulong wpawns) {
+	   return WPawnEastAttacks(wpawns) | WPawnWestAttacks(wpawns);
+	}
+	 
+	ulong WPawnDblAttacks(ulong wpawns) {
+	   return WPawnEastAttacks(wpawns) & WPawnWestAttacks(wpawns);
+	}
+	 
+	ulong WPawnSingleAttacks(ulong wpawns) {
+	   return WPawnEastAttacks(wpawns) ^ WPawnWestAttacks(wpawns);
+	}
+	
+	ulong BPawnAnyAttacks(ulong bpawns) {
+	   return BPawnEastAttacks(bpawns) | BPawnWestAttacks(bpawns);
+	}
+	 
+	ulong BPawnDblAttacks(ulong bpawns) {
+	   return BPawnEastAttacks(bpawns) & BPawnWestAttacks(bpawns);
+	}
+	 
+	ulong BPawnSingleAttacks(ulong bpawns) {
+	   return BPawnEastAttacks(bpawns) ^ BPawnWestAttacks(bpawns);
+	}
 	
 	
 	
+	
+	
+	// ray move/attack
+	ulong EastMaskEx(int sq) {
+		
+	   const ulong one = 1;
+	   return 2*( (one << (sq|7)) - (one << sq) );
+	}
+	 
+	ulong NortMaskEx(int sq) {
+		
+	   return (ulong)0x0101010101010100 << sq;
+	}
+	
+	ulong WestMaskEx(int sq) {
+		
+	   const ulong one = 1;
+	   return (one << sq) - (one << (sq&56));
+	}
+	 
+	ulong SoutMaskEx(int sq) {
+		
+	   return (ulong)0x0080808080808080 >> (sq ^ 63);
+	}
+	
+	ulong NortEastMaskEx(int sq) {
+		
+	   const ulong one = 1;
+	   return 2*( (one << (sq|7)) - (one << sq) );
+	}
+	 
+	ulong NortWestMaskEx(int sq) {
+		
+	   return (ulong)0x0101010101010100 << sq;
+	}
+	
+	ulong SoutEastMaskEx(int sq) {
+		
+	   const ulong one = 1;
+	   return (one << sq) - (one << (sq&56));
+	}
+	 
+	ulong SoutWestMaskEx(int sq) {
+		
+	   return (ulong)0x0080808080808080 >> (sq ^ 63);
+	}
 	
 	
 	ulong RankMask(int sq) {return  (ulong)0xff << (sq & 56);}
@@ -436,7 +414,7 @@ public class ChessBitBoard {
 	ulong BishopMaskEx(int sq) {return DiagonalMask(sq) ^ AntiDiagMask(sq);}
 	 
 	ulong QueenMask   (int sq) {return RookMask(sq)     | BishopMask(sq);}
-	ulong QueenMaskEx (int sq) {return RookMask(sq)     ^ BishopMask(sq);}
+	ulong QueenMaskEx (int sq) {return RookMask(sq)     ^ BishopMask(sq);}	
 }
 
 

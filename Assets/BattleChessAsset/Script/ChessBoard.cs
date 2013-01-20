@@ -77,10 +77,10 @@ public class ChessBoard {
 		currMove = new ChessMoveManager.sMove();
 		currCastlingState = new ChessCastling() {
 			
-			CastlingWKSide = CastlingState.eCastling_Enable_State,
-			CastlingWQSide = CastlingState.eCastling_Enable_State,
-			CastlingBKSide = CastlingState.eCastling_Enable_State,
-			CastlingBQSide = CastlingState.eCastling_Enable_State
+			CastlingWKSide = CastlingState.eCastling_Potentially_Enable_State,
+			CastlingWQSide = CastlingState.eCastling_Potentially_Enable_State,
+			CastlingBKSide = CastlingState.eCastling_Potentially_Enable_State,
+			CastlingBQSide = CastlingState.eCastling_Potentially_Enable_State
 		};	
 		
 		listCurrMovable = new List<ChessMoveManager.sMove>();
@@ -221,7 +221,7 @@ public class ChessBoard {
 			nCurrHalfMove++;		
 	}
 	
-	public void UpdateCastlingState( ChessBoardSquare srcSquare ) {
+	public void UpdateCastlingState( ChessMoveManager.sMove move ) {
 		
 		// possible castling condition
 		//1.The king has not previously moved.
@@ -229,11 +229,10 @@ public class ChessBoard {
 		//3.There are no pieces between the king and the chosen rook.
 		//4.The king is not currently in check.
 		//5.The king does not pass through a square that is under attack by enemy pieces.[2]
-		//6.The king does not end up in check (true of any legal move).
-		//여기부터...
+		//6.The king does not end up in check (true of any legal move).		
 		
-		// disable castling state
-		switch( srcSquare.piece.piecePlayerType ) 						
+		// 1 and 2 case, disable castling state
+		switch( move.srcSquare.piece.piecePlayerType ) 						
 		{
 			case PiecePlayerType.eWhite_King:
 			{
@@ -272,13 +271,16 @@ public class ChessBoard {
 				currCastlingState.CastlingBKSide = CastlingState.eCastling_Disable_State;
 			}
 			break;									
-		}		
+		}	
+		
+		// 3 case
+		
 	}
 	
 	public void UpdateMove( ChessMoveManager.sMove move ) {
 		
 		UpdateMoveCount();
-		UpdateCastlingState( move.srcSquare );					
+		UpdateCastlingState( move );					
 		
 		// normal move
 		if( ChessMoveManager.IsNormalMove( move.moveType ) ) {			

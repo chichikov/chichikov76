@@ -12,7 +12,8 @@ using System.Collections.Generic;
 public enum PlayerSide {
 	e_NoneSide = 0,
 	e_White,
-	e_Black	
+	e_Black,
+	e_NumOfPlayerSide = 2
 };
 
 public enum PieceType {
@@ -74,7 +75,7 @@ public enum BoardPositionType {
 	eBottom = 0x10
 };
 
-public enum BoardPosition : byte {
+public enum BoardPosition : int {
 
     //BoardPositions   
     A1 = 0x00, B1 = 0x01, C1 = 0x02, D1 = 0x03, E1 = 0x04, F1 = 0x05, G1 = 0x06, H1 = 0x07,
@@ -85,14 +86,14 @@ public enum BoardPosition : byte {
     A6 = 0x28, B6 = 0x29, C6 = 0x2A, D6 = 0x2B, E6 = 0x2C, F6 = 0x2D, G6 = 0x2E, H6 = 0x2F,
     A7 = 0x30, B7 = 0x31, C7 = 0x32, D7 = 0x33, E7 = 0x34, F7 = 0x35, G7 = 0x36, H7 = 0x37,
     A8 = 0x38, B8 = 0x39, C8 = 0x3A, D8 = 0x3B, E8 = 0x3C, F8 = 0x3D, G8 = 0x3E, H8 = 0x3F,
-    BoardBits = 0x3F, InvalidPosition = 0x40
+    BoardBits = 0x3F, NumOfBoardPosition = 0x40, InvalidPosition = 0x40
 };
 
 public enum CastlingState : byte {
 	
-	eCastling_Init_State = 0,
-	eCastling_Enable_State,
-	eCastling_Disable_State,
+	eCastling_Potentially_Enable_State,
+	eCastling_Enable_State,	
+	eCastling_Disable_State,	
 }
 	
 public class ChessData {

@@ -2,20 +2,20 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\BattleChessAsset\Script\ChessBitBoard.cs">
     <Files>
-      <File FileName="Assets\BattleChessAsset\Script\BattleChessMain.cs" Line="70" Column="8" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessBoard.cs" Line="234" Column="3" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessBitBoard.cs" Line="105" Column="3" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMoveManager.cs" Line="344" Column="3" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessData.cs" Line="14" Column="9" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessCastling.cs" Line="16" Column="3" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessEnPassant.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessUtility.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\BattleChessMain.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessBoard.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessBitBoard.cs" Line="338" Column="20" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessData.cs" Line="97" Column="2" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessMoveManager.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessCastling.cs" Line="1" Column="1" />
       <File FileName="Assets\BattleChessAsset\Script\ChessBoardSquare.cs" Line="1" Column="1" />
       <File FileName="Assets\BattleChessAsset\Script\ChessEngineConfig.cs" Line="1" Column="1" />
       <File FileName="Assets\BattleChessAsset\Script\ChessEngineCmdParser.cs" Line="1" Column="1" />
       <File FileName="Assets\BattleChessAsset\Script\ChessEngineManager.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessEnPassant.cs" Line="1" Column="1" />
       <File FileName="Assets\BattleChessAsset\Script\ChessPiece.cs" Line="1" Column="1" />
       <File FileName="Assets\BattleChessAsset\Script\ChessPosition.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessUtility.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
