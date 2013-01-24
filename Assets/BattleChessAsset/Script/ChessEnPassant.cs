@@ -3,17 +3,20 @@ using System.Collections;
 
 public struct ChessEnPassant {
 
-	public int Rank { get; set; }
-	public int Pile { get; set; }
-	public bool Available { get; set; }	
-	
+	public ulong enpassantCapturSqBB { get; set; }	
 	
 	public string GetFenString() {		
 		
 		string strRetFen = " ";
-		if( Available ) {
+		if( enpassantCapturSqBB > 0 ) {
 			
-			strRetFen += ChessData.GetRankPileToString( Rank, Pile );
+			int nSquare = ChessBitBoard.BitScanForward( enpassantCapturSqBB );
+			
+			int nECTSRank, nECTSFile;
+			nECTSRank = nSquare % ChessData.nNumRank;
+			nECTSFile = nSquare / ChessData.nNumPile;
+			
+			strRetFen += ChessData.GetRankPileToString( nECTSRank, nECTSFile );
 		}
 		else {
 			

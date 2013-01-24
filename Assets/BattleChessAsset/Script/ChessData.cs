@@ -10,10 +10,10 @@ using System.Collections.Generic;
 	
 // Chess Data, Type, Enum, Etc....	
 public enum PlayerSide {
-	e_NoneSide = 0,
-	e_White,
+	e_NoneSide = -1,
+	e_White =0,
 	e_Black,
-	e_NumOfPlayerSide = 2
+	e_NumOfPlayerSide
 };
 
 public enum PieceType {
@@ -91,7 +91,7 @@ public enum BoardPosition : int {
 
 public enum CastlingState : byte {
 	
-	eCastling_Potentially_Enable_State,
+	eCastling_Temporary_Disable_State,
 	eCastling_Enable_State,	
 	eCastling_Disable_State,	
 }

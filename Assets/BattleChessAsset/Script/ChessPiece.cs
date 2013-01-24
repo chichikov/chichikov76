@@ -10,9 +10,8 @@ public class ChessPiece {
 	
 	public PlayerSide playerSide;
 	public PieceType pieceType;
-	public PiecePlayerType piecePlayerType;		
+	public PiecePlayerType piecePlayerType;			
 	
-	public bool bEnPassantCapture;
 	
 	public ParticleSystem movablePSystem;
 	
@@ -22,8 +21,7 @@ public class ChessPiece {
 		gameObject = null;		
 		playerSide = PlayerSide.e_NoneSide;
 		pieceType = PieceType.e_None;
-		piecePlayerType = PiecePlayerType.eNone_Piece;		
-		bEnPassantCapture = false;
+		piecePlayerType = PiecePlayerType.eNone_Piece;				
 	}	
 			
 	public ChessPiece( GameObject gameObject, PlayerSide playerSide, 
@@ -32,9 +30,7 @@ public class ChessPiece {
 		this.gameObject = gameObject;
 		this.playerSide = playerSide;
 		this.pieceType = ChessUtility.GetPieceType( piecePlayerType );
-		this.piecePlayerType = piecePlayerType;	
-		
-		this.bEnPassantCapture = false;		
+		this.piecePlayerType = piecePlayerType;				
 	}	
 	
 	public void SetPiece( ChessPiece chessPiece ) {
@@ -42,16 +38,13 @@ public class ChessPiece {
 		this.gameObject = chessPiece.gameObject;
 		this.playerSide = chessPiece.playerSide;
 		this.pieceType = chessPiece.pieceType;
-		this.piecePlayerType = chessPiece.piecePlayerType;
-		this.bEnPassantCapture = chessPiece.bEnPassantCapture;		
+		this.piecePlayerType = chessPiece.piecePlayerType;			
 	}	
 	
 	public void Clear( bool bClearGameObject = false ) {	
 		
 		if( bClearGameObject && gameObject )
-			gameObject.transform.position = new Vector3(0.0f, -10.0f, 0.0f);		
-							
-		bEnPassantCapture = false;		
+			gameObject.transform.position = new Vector3(0.0f, -10.0f, 0.0f);				
 	}		
 	
 	public void CopyFrom( ChessPiece chessPiece ) {
@@ -59,8 +52,7 @@ public class ChessPiece {
 		this.gameObject = chessPiece.gameObject;
 		this.playerSide = chessPiece.playerSide;
 		this.pieceType = chessPiece.pieceType;
-		this.piecePlayerType = chessPiece.piecePlayerType;		
-		this.bEnPassantCapture = chessPiece.bEnPassantCapture;
+		this.piecePlayerType = chessPiece.piecePlayerType;				
 	}
 	
 	public void SetPosition( Vector3 vPos ) {

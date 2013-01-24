@@ -26,10 +26,13 @@ public class ChessBoard {
 	ParticleSystem selectPiecePSystem;	
 	
 	// movable board pos
-	List<ChessMoveManager.sMove> listCurrMovable;			
+	List<ChessMoveManager.sMove> listCurrMovable;	
 	
 	// current move, en passant target move
 	ChessMoveManager.sMove currMove;
+	
+	// captured piece list
+	List<ChessPiece> listCapturedPiece;
 	
 	// half move
 	int nCurrHalfMove;
@@ -46,11 +49,7 @@ public class ChessBoard {
 	public bool Ready { get; set; }
 	
 	// player turn
-	public PlayerSide CurrTurn { get; set; }
-	
-	// castling
-	public ChessCastling currCastlingState;
-	
+	public PlayerSide CurrTurn { get; set; }	
 	
 	
 	
@@ -74,16 +73,10 @@ public class ChessBoard {
 		Ready = false;
 		
 		// move
-		currMove = new ChessMoveManager.sMove();
-		currCastlingState = new ChessCastling() {
-			
-			CastlingWKSide = CastlingState.eCastling_Potentially_Enable_State,
-			CastlingWQSide = CastlingState.eCastling_Potentially_Enable_State,
-			CastlingBKSide = CastlingState.eCastling_Potentially_Enable_State,
-			CastlingBQSide = CastlingState.eCastling_Potentially_Enable_State
-		};	
-		
+		currMove = new ChessMoveManager.sMove();		
 		listCurrMovable = new List<ChessMoveManager.sMove>();
+		
+		listCapturedPiece = new List<ChessPiece>();
 		
 		// init board
 		bitBoard.Init();
@@ -209,6 +202,12 @@ public class ChessBoard {
 		return null;
 	}	
 	
+	public void CaptureSquare( ChessBoardSquare capturedSquare ) {
+		
+		listCapturedPiece.Add( capturedSquare.piece );
+		capturedSquare.ClearPiece(true);		
+	}
+	
 	public void UpdateMoveCount() {
 		
 		// increase half move and total move
@@ -219,111 +218,52 @@ public class ChessBoard {
 			nCurrHalfMove = 0;	
 		else						
 			nCurrHalfMove++;		
-	}
+	}	
 	
-	public void UpdateCastlingState( ChessMoveManager.sMove move ) {
+	public void MoveUpdate( ChessMoveManager.sMove move ) {
 		
-		// possible castling condition
-		//1.The king has not previously moved.
-		//2.The chosen rook has not previously moved.
-		//3.There are no pieces between the king and the chosen rook.
-		//4.The king is not currently in check.
-		//5.The king does not pass through a square that is under attack by enemy pieces.[2]
-		//6.The king does not end up in check (true of any legal move).		
+		bitBoard.MoveUpdate( move );
 		
-		// 1 and 2 case, disable castling state
-		switch( move.srcSquare.piece.piecePlayerType ) 						
-		{
-			case PiecePlayerType.eWhite_King:
-			{
-				currCastlingState.CastlingWKSide = CastlingState.eCastling_Disable_State;
-				currCastlingState.CastlingWQSide = CastlingState.eCastling_Disable_State;
-			}
-			break;
-			
-			case PiecePlayerType.eWhite_RookLeft:
-			{
-				currCastlingState.CastlingWQSide = CastlingState.eCastling_Disable_State;
-			}
-			break;
-				
-			case PiecePlayerType.eWhite_RookRight:
-			{
-				currCastlingState.CastlingWKSide = CastlingState.eCastling_Disable_State;
-			}
-			break;
-				
-			case PiecePlayerType.eBlack_King:
-			{
-				currCastlingState.CastlingBKSide = CastlingState.eCastling_Disable_State;
-				currCastlingState.CastlingBQSide = CastlingState.eCastling_Disable_State;
-			}
-			break;
-				
-			case PiecePlayerType.eBlack_RookLeft:
-			{
-				currCastlingState.CastlingBQSide = CastlingState.eCastling_Disable_State;
-			}
-			break;
-				
-			case PiecePlayerType.eBlack_RookRight:
-			{
-				currCastlingState.CastlingBKSide = CastlingState.eCastling_Disable_State;
-			}
-			break;									
-		}	
-		
-		// 3 case
-		
-	}
-	
-	public void UpdateMove( ChessMoveManager.sMove move ) {
-		
-		UpdateMoveCount();
-		UpdateCastlingState( move );					
+		UpdateMoveCount();						
 		
 		// normal move
 		if( ChessMoveManager.IsNormalMove( move.moveType ) ) {			
 			
-			// pawn move
-			if( ChessMoveManager.IsPawnMove( move.moveType ) ) {
+			// promote move
+			if( ChessMoveManager.IsPromoteMove( move.moveType ) ) {						
 				
-				// two square move
-				if( ChessMoveManager.IsPawnTwoMove( move.moveType ) ) {					
-					
-					move.srcSquare.piece.bEnPassantCapture = true;					
-				}				
-				
-				// promote move
-				if( ChessMoveManager.IsPromoteMove( move.moveType ) ) {
-					
-				}				
 			}
-		}
-		
+			else {
+			
+				move.trgSquare.SetPiece( move.srcSquare.piece );			
+				move.srcSquare.ClearPiece();	
+			}
+		}		
 		// capture move
-		if( ChessMoveManager.IsCaptureMove( move.moveType ) ) {
+		else if( ChessMoveManager.IsCaptureMove( move.moveType ) ) {			
 			
-			// pawn move
-			if( ChessMoveManager.IsPawnMove( move.moveType ) ) {
+			// promote move
+			if( ChessMoveManager.IsPromoteMove( move.moveType ) ) {
 				
-				// promote move
-				if( ChessMoveManager.IsPromoteMove( move.moveType ) ) {
-					
-				}				
 			}
+			else {			
 			
-			move.trgSquare.ClearPiece(true);
+				CaptureSquare( move.trgSquare );
+				
+				move.trgSquare.SetPiece( move.srcSquare.piece );			
+				move.srcSquare.ClearPiece();			
+			}
 		}	
 		
 		
 		// enpassantmove
 		if( ChessMoveManager.IsEnpassantMove( move.moveType ) ) {
 			
-			// pawn move
-			if( ChessMoveManager.IsPawnMove( move.moveType ) ) {				
-							
-			}			
+			move.trgSquare.SetPiece( move.srcSquare.piece );			
+			move.srcSquare.ClearPiece();
+			
+			// remove captured pawn
+			CaptureSquare( move.capturedSquare );
 		}
 		
 		// castling move
@@ -388,7 +328,7 @@ public class ChessBoard {
 				if( IsValidMove( trgSquare, currMove ) ) {									
 					
 					//UnityEngine.Debug.LogError( "ChessBoard::MoveTo() - IsValidMove" );
-					UpdateMove( currMove );
+					MoveUpdate( currMove );
 					
 					return true;
 				}					
@@ -417,7 +357,7 @@ public class ChessBoard {
 						
 						//UnityEngine.Debug.LogError( "AIMoveTo() - IsValidAIMove()" );					
 						
-						UpdateMove( aIMove );
+						MoveUpdate( aIMove );
 							
 						return true;					
 					}
@@ -494,10 +434,10 @@ public class ChessBoard {
 		strResFen = strPosFen + strTurn;
 		
 		// cstling
-		string strCastling = currCastlingState.GetFenString();		
+		string strCastling = bitBoard.currCastlingState.GetFenString();		
 		
 		// en passant target square
-		string strEnPassant = currMove.enPassantTargetSquare.GetFenString();
+		string strEnPassant = bitBoard.currEnPassantTrgSq.GetFenString();
 		
 		strResFen = strPosFen + strCastling + strEnPassant;
 		

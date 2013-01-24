@@ -39,12 +39,13 @@ public class ChessMoveManager {
 		eEnPassan_Move = 0x04,
 		ePromote_Move = 0x08,		
 		ePawn_Move = 0x10,
-		ePawn_Two_Move = 0x20,
-		eCastling_Move = 0x40,
-		eCastling_White_KingSide_Move = 0x80,
-		eCastling_White_QueenSide_Move = 0x100,
-		eCastling_Black_KingSide_Move = 0x200,
-		eCastling_Black_QueenSide_Move = 0x400,
+		ePawn_One_Move = 0x20,
+		ePawn_Two_Move = 0x40,
+		eCastling_Move = 0x80,
+		eCastling_White_KingSide_Move = 0x100,
+		eCastling_White_QueenSide_Move = 0x200,
+		eCastling_Black_KingSide_Move = 0x400,
+		eCastling_Black_QueenSide_Move = 0x800,
 	}	
 	
 	public static bool IsNormalMove( MoveType moveType ) {
@@ -74,6 +75,14 @@ public class ChessMoveManager {
 	public static bool IsPawnMove( MoveType moveType ) {
 		
 		if( (moveType & MoveType.ePawn_Move) > 0 )
+			return true;
+	
+		return false;		
+	}
+	
+	public static bool IsPawnOneMove( MoveType moveType ) {
+		
+		if( (moveType & MoveType.ePawn_One_Move) > 0 )
 			return true;
 	
 		return false;		
@@ -141,9 +150,8 @@ public class ChessMoveManager {
 		public MoveType moveType;			
 		
 		public ChessBoardSquare trgSquare;
-		public ChessBoardSquare srcSquare;
-		
-		public ChessEnPassant enPassantTargetSquare;
+		public ChessBoardSquare srcSquare;		
+		public ChessBoardSquare capturedSquare;		
 		
 		public sMove() {
 			
@@ -151,51 +159,26 @@ public class ChessMoveManager {
 			
 			this.trgSquare = null;
 			this.srcSquare = null;
-			
-			this.enPassantTargetSquare = new ChessEnPassant() {
-				
-				Rank = -1,
-				Pile = -1,
-				Available = false				
-			};
+			this.capturedSquare = null;			
 		}	
 		
-		public sMove( ChessBoardSquare srcSquare, ChessBoardSquare trgSquare, MoveType moveType ) {
+		public sMove( ChessBoardSquare srcSquare, ChessBoardSquare trgSquare, MoveType moveType, ChessBoardSquare capturedSquare = null ) {
 			
 			this.moveType = moveType;			
 			
 			this.trgSquare = trgSquare;
 			this.srcSquare = srcSquare;
-			
-			this.enPassantTargetSquare = new ChessEnPassant() {
-				
-				Rank = -1,
-				Pile = -1,
-				Available = false				
-			};
+			this.capturedSquare = capturedSquare;			
 		}			
 		
-		public void Set( ChessBoardSquare srcSquare, ChessBoardSquare trgSquare, MoveType moveType ) {
+		public void Set( ChessBoardSquare srcSquare, ChessBoardSquare trgSquare, MoveType moveType, ChessBoardSquare capturedSquare = null ) {
 			
 			this.moveType = moveType;			
 			
 			this.trgSquare = trgSquare;
 			this.srcSquare = srcSquare;
-			
-			this.enPassantTargetSquare.Rank = -1;
-			this.enPassantTargetSquare.Pile = -1;
-			this.enPassantTargetSquare.Available = false;
-		}	
-		
-		public void Set( ChessBoardSquare srcSquare, ChessBoardSquare trgSquare, MoveType moveType, ChessEnPassant enPassantTrgSquare ) {
-			
-			this.moveType = moveType;			
-			
-			this.trgSquare = trgSquare;
-			this.srcSquare = srcSquare;
-			
-			this.enPassantTargetSquare = enPassantTrgSquare;
-		}
+			this.capturedSquare = capturedSquare;			
+		}		
 		
 		public void Set( sMove move ) {
 			
@@ -203,8 +186,7 @@ public class ChessMoveManager {
 			
 			this.trgSquare = move.trgSquare;
 			this.srcSquare = move.srcSquare;
-			
-			this.enPassantTargetSquare = move.enPassantTargetSquare;
+			this.capturedSquare = move.capturedSquare;			
 		}
 		
 		public void Clear() {
@@ -213,10 +195,7 @@ public class ChessMoveManager {
 			
 			this.trgSquare = null;
 			this.srcSquare = null;
-			
-			this.enPassantTargetSquare.Rank = -1; 
-			this.enPassantTargetSquare.Pile = -1; 
-			this.enPassantTargetSquare.Available = false;			
+			this.capturedSquare = null;			
 		}
 		
 		// is Increse half move
@@ -315,12 +294,42 @@ public class ChessMoveManager {
 				
 				ChessBoardSquare trgSquare = board.aBoardSquare[nCurrFile, nCurrRank];
 				
+				ChessBoardSquare capturedSquare = null;
+				// check capture move
+				if( moveType == MoveType.eCapture_Move ) {
+					
+					if( moveType == MoveType.eEnPassan_Move ) {
+						
+						int nCapturedPawnRank, nCapturedPawnFile;	
+						nCapturedPawnRank = nCurrRank;
+						nCapturedPawnFile = srcSquare.piece.playerSide == PlayerSide.e_White ? nCurrFile - ChessData.nNumPile : nCurrFile + ChessData.nNumPile;
+						capturedSquare = board.aBoardSquare[nCapturedPawnFile, nCapturedPawnRank];
+					}
+					else
+						capturedSquare = trgSquare;
+				}
+				
+				// check pawn promote move
+				if( moveType == MoveType.ePawn_Move ) {
+					// promote move	check
+					if( srcSquare.piece.playerSide == PlayerSide.e_White ) {
+						if( ulCurrMask & ChessBitBoard.firstRank )
+							move.moveType |= MoveType.ePromote_Move;								
+					}
+					else {
+						
+						if( ulCurrMask & ChessBitBoard.lastRank )
+							move.moveType |= MoveType.ePromote_Move;
+					}	
+				}
+				
 				sMove move = new sMove();
 				// normal move
-				move.moveType = moveType;						
+				move.moveType = moveType;				
 			
 				move.srcSquare = srcSquare;
 				move.trgSquare = trgSquare;
+				move.capturedSquare = capturedSquare;
 				
 				listRetBoardPos.Add( move );				
 			}
@@ -345,7 +354,7 @@ public class ChessMoveManager {
 		ulong viableKingAttack = board.bitBoard.KingAttacksBB( srcPlayerSide );
 		if( viableKingAttack > 0 ) {
 			
-			MoveType moveType = MoveType.eCapture_Move;
+			MoveType moveType = MoveType.eCapture_Move;			
 			// convert move list
 			BitBoardToMoveList( viableKingAttack, moveType, board, selSquare, listRetBoardPos );
 		}		
@@ -353,317 +362,82 @@ public class ChessMoveManager {
 		
 		// castling!!!!		
 		// king side castling	
-		int nCastlingTrgRank, nCastlingTrgFile;
-		
-		if( srcPlayerSide == PlayerSide.e_White ) {
-					
-			if( board.currCastlingState.IsWhiteKingSideAvailable() ) {											
-				
-				nCastlingTrgRank = selSquare.position.nRank + 2;
-				nCastlingTrgFile = selSquare.position.nPile;
-				
-				ChessBoardSquare trgSquare = board.aBoardSquare[nCastlingTrgFile, nCastlingTrgRank];					
-				
-				sMove move = new sMove();				
-				
-				move.moveType = MoveType.eCastling_Move | MoveType.eCastling_White_KingSide_Move;						
+		ulong viableKingCastling = board.bitBoard.KingAttacksBB( srcPlayerSide );
+		if( viableKingCastling > 0 ) {
 			
-				move.srcSquare = selSquare;
-				move.trgSquare = trgSquare;
-				
-				listRetBoardPos.Add( move );								
+			MoveType moveType = MoveType.eCastling_Move;
+			
+			if( srcPlayerSide == PlayerSide.e_White ) {
+				if( board.bitBoard.currCastlingState.IsWhiteKingSideAvailable() )
+					moveType |= MoveType.eCastling_White_KingSide_Move;
+				if( board.bitBoard.currCastlingState.IsWhiteQueenSideAvailable() )
+					moveType |= MoveType.eCastling_White_QueenSide_Move;
 			}
-		}
-		else {
-			
-			if( board.currCastlingState.IsBlackKingSideAvailable() ) {	
-				
-				nCastlingTrgRank = selSquare.position.nRank + 2;
-				nCastlingTrgFile = selSquare.position.nPile;
-				
-				ChessBoardSquare trgSquare = board.aBoardSquare[nCastlingTrgFile, nCastlingTrgRank];					
-				
-				sMove move = new sMove();				
-				
-				move.moveType = MoveType.eCastling_Move | MoveType.eCastling_Black_KingSide_Move;						
-			
-				move.srcSquare = selSquare;
-				move.trgSquare = trgSquare;
-				
-				listRetBoardPos.Add( move );					
+			else{
+				if( board.bitBoard.currCastlingState.IsBlackKingSideAvailable() )
+					moveType |= MoveType.eCastling_Black_KingSide_Move;
+				if( board.bitBoard.currCastlingState.IsWhiteQueenSideAvailable() )
+					moveType |= MoveType.eCastling_Black_QueenSide_Move;
 			}
-		}
-		
-		
-		// queen side castling
-		if( srcPlayerSide == PlayerSide.e_White ) {
-					
-			if( board.currCastlingState.IsWhiteQueenSideAvailable() ) {											
-				
-				nCastlingTrgRank = selSquare.position.nRank - 2;
-				nCastlingTrgFile = selSquare.position.nPile;
-				
-				ChessBoardSquare trgSquare = board.aBoardSquare[nCastlingTrgFile, nCastlingTrgRank];					
-				
-				sMove move = new sMove();				
-				
-				move.moveType = MoveType.eCastling_Move | MoveType.eCastling_White_QueenSide_Move;						
 			
-				move.srcSquare = selSquare;
-				move.trgSquare = trgSquare;
-				
-				listRetBoardPos.Add( move );								
-			}
-		}
-		else {
-			
-			if( board.currCastlingState.IsBlackQueenSideAvailable() ) {	
-				
-				nCastlingTrgRank = selSquare.position.nRank - 2;
-				nCastlingTrgFile = selSquare.position.nPile;
-				
-				ChessBoardSquare trgSquare = board.aBoardSquare[nCastlingTrgFile, nCastlingTrgRank];					
-				
-				sMove move = new sMove();				
-				
-				move.moveType = MoveType.eCastling_Move | MoveType.eCastling_Black_QueenSide_Move;						
-			
-				move.srcSquare = selSquare;
-				move.trgSquare = trgSquare;
-				
-				listRetBoardPos.Add( move );					
-			}
-		}		
+			// convert move list
+			BitBoardToMoveList( viableKingCastling, moveType, board, selSquare, listRetBoardPos );
+		}			
 		
 		return listRetBoardPos.Count > 0;
 	}
 	
 	
-	/*
+	
 	public static bool GetPawnMoveList( ChessBoard board, ChessBoardSquare selSquare, List<sMove> listRetBoardPos ) {				
 		
 		//UnityEngine.Debug.LogError( "GetPawnMoveList - start" + " " + piece.position + " " + piece.playerSide );
 		
-		ChessPosition srcPos = selSquare.position;		
-		PlayerSide srcPlayerSide = selSquare.piece.playerSide;					
+		PlayerSide srcPlayerSide = selSquare.piece.playerSide;	
+		int nSrcPawnSq = (int)selSquare.position.pos;
 		
-		ChessPosition movePos = new ChessPosition(srcPos.pos);	
-		// pure move
-		// pure move - one pile move
-		int nTempRank, nTempPile;
-		nTempRank = 0;		
-		nTempPile = srcPlayerSide == PlayerSide.e_White ? 1 : -1;
-		
-		bool bValidMove = movePos.MovePosition( nTempRank, nTempPile );
-		if( bValidMove ) {			
+		// attack/move!!!!		
+		// calc viable Pawn one move
+		ulong viablePawnOneMove = board.bitBoard.PawnOneMovesBB( srcPlayerSide, nSrcPawnSq );
+		if( viablePawnOneMove > 0 ) {
 			
-			ChessBoardSquare trgSquare = board.aBoardSquare[movePos.nPile, movePos.nRank];
-			// check already existing piece				
-			if( trgSquare.IsBlank() ) {																															
-				
-				// normal move
-				sMove move = new sMove();	
-				move.moveType = MoveType.eNormal_Move | MoveType.ePawn_Move;
-				// promote move	
-				if( srcPlayerSide == PlayerSide.e_White ) {
-					if( movePos.IsTopBoundary() )
-						move.moveType |= MoveType.ePromote_Move;								
-				}
-				else {
-					
-					if( movePos.IsBottomBoundary() )
-						move.moveType |= MoveType.ePromote_Move;
-				}				
-			
-				move.srcSquare = selSquare;
-				move.trgSquare = trgSquare;								
-				
-				listRetBoardPos.Add( move );
-			}	
-		}				
-		
-		// pure move - two pile move		
-		if( ( srcPos.nPile == 1 && srcPlayerSide == PlayerSide.e_White ) || 
-			( srcPos.nPile == 6 && srcPlayerSide == PlayerSide.e_Black ) ) {
-			
-			movePos.SetPosition( srcPos );
-			
-			nTempRank = 0;		
-			nTempPile = srcPlayerSide == PlayerSide.e_White ? 2 : -2;
-			
-			bValidMove = movePos.MovePosition( nTempRank, nTempPile );
-			if( bValidMove ) {							
-					
-				ChessBoardSquare trgSquare = board.aBoardSquare[movePos.nPile, movePos.nRank];
-				if(	trgSquare.IsBlank() ) {														
-					
-					sMove move = new sMove();
-					move.moveType = MoveType.eNormal_Move | MoveType.ePawn_Move | MoveType.ePawn_Two_Move ;					
-				
-					move.srcSquare = selSquare;
-					move.trgSquare = trgSquare;			
-					
-					// en passant target move check					
-					move.enPassantTargetSquare.Rank = movePos.nRank;
-					move.enPassantTargetSquare.Pile = movePos.nPile;
-					move.enPassantTargetSquare.Available = true;					
-					
-					listRetBoardPos.Add( move );													
-				}				
-			}	
+			MoveType moveType = MoveType.eNormal_Move | MoveType.ePawn_Move;			
+			// convert move list
+			BitBoardToMoveList( viablePawnOneMove, moveType, board, selSquare, listRetBoardPos );
 		}
 		
-	
-		// capture move
-		// left diagonal capture	
-		// check left boundary
-		movePos.SetPosition( srcPos );
-		
-		nTempRank = -1;		
-		nTempPile = srcPlayerSide == PlayerSide.e_White ? 1 : -1;
-		
-		bValidMove = movePos.MovePosition( nTempRank, nTempPile );					
-		if( bValidMove ) {					
-		
-			ChessBoardSquare trgSquare = board.aBoardSquare[movePos.nPile, movePos.nRank];
-			if(	trgSquare.IsEnemy( srcPlayerSide ) ) {														
-				
-				sMove move = new sMove();
-				// capture move
-				move.moveType = MoveType.eCapture_Move | MoveType.ePawn_Move;
+		// calc viable Pawn two move
+		ulong viablePawnTwoMove = board.bitBoard.PawnTwoMovesBB( srcPlayerSide, nSrcPawnSq );
+		if( viablePawnTwoMove > 0 ) {
 			
-				// promote move	
-				if( srcPlayerSide == PlayerSide.e_White ) {
-					
-					if( movePos.IsTopBoundary() )
-						move.moveType |= MoveType.ePromote_Move;
-				}
-				else {
-					
-					if( movePos.IsBottomBoundary() )
-						move.moveType |= MoveType.ePromote_Move;
-				}				
+			MoveType moveType = MoveType.eNormal_Move | MoveType.ePawn_Move | MoveType.ePawn_Two_Move;		
+			// convert move list
+			BitBoardToMoveList( viablePawnTwoMove, moveType, board, selSquare, listRetBoardPos );
+		}		
+		
+		// calc viable Pawn attack move
+		ulong viablePawnAttackMove = board.bitBoard.PawnAttackMovesBB( srcPlayerSide, nSrcPawnSq );
+		if( viablePawnAttackMove > 0 ) {
 			
-				move.srcSquare = selSquare;
-				move.trgSquare = trgSquare;	
-				
-				listRetBoardPos.Add( move );
-			}
-		}	
-	
-		// right diagonal capture	
-		// check right boundary
-		movePos.SetPosition( srcPos );
-		
-		nTempRank = 1;		
-		nTempPile = srcPlayerSide == PlayerSide.e_White ? 1 : -1;
-		
-		bValidMove = movePos.MovePosition( nTempRank, nTempPile );					
-		if( bValidMove ) {					
-		
-			ChessBoardSquare trgSquare = board.aBoardSquare[movePos.nPile, movePos.nRank];
-			if(	trgSquare.IsEnemy( srcPlayerSide ) ) {														
-				
-				sMove move = new sMove();
-				// capture move
-				move.moveType = MoveType.eCapture_Move | MoveType.ePawn_Move;
-			
-				// promote move	
-				if( srcPlayerSide == PlayerSide.e_White ) {
-					
-					if( movePos.IsTopBoundary() )
-						move.moveType |= MoveType.ePromote_Move;
-				}
-				else {
-					
-					if( movePos.IsBottomBoundary() )
-						move.moveType |= MoveType.ePromote_Move;
-				}				
-			
-				move.srcSquare = selSquare;
-				move.trgSquare = trgSquare;	
-				
-				listRetBoardPos.Add( move );
-			}
-		}					
-	
-		// en-passant move
-		// left en passant move check
-		movePos.SetPosition( srcPos );
-		
-		nTempRank = -1;		
-		nTempPile = 0;
-		
-		bValidMove = movePos.MovePosition( nTempRank, nTempPile );					
-		if( bValidMove ) {					
-		
-			ChessBoardSquare trgSquare = board.aBoardSquare[movePos.nPile, movePos.nRank];
-			if(	trgSquare.IsEnemy( srcPlayerSide ) &&
-				trgSquare.piece.bEnPassantCapture ) {														
-				
-				if( srcPlayerSide == PlayerSide.e_White )
-					bValidMove = movePos.MovePosition( 0, 1 );	
-				else
-					bValidMove = movePos.MovePosition( 0, -1 );
-				
-				if( bValidMove ) {
-					
-					ChessBoardSquare finalTrgSquare = board.aBoardSquare[movePos.nPile, movePos.nRank];					
-					if(	finalTrgSquare.IsBlank() ) {	
-						
-						sMove move = new sMove();
-						// capture move
-						move.moveType = MoveType.eEnPassan_Move | MoveType.ePawn_Move;						
-					
-						move.srcSquare = selSquare;
-						move.trgSquare = finalTrgSquare;	
-						
-						listRetBoardPos.Add( move );
-					}
-				}
-			}
+			MoveType moveType = MoveType.eCapture_Move | MoveType.ePawn_Move;	
+			// convert move list
+			BitBoardToMoveList( viablePawnAttackMove, moveType, board, selSquare, listRetBoardPos );
 		}
-	
-		// right en passant move check
-		movePos.SetPosition( srcPos );
 		
-		nTempRank = 1;		
-		nTempPile = 0;
+		// calc viable Pawn attack move
+		ulong viablePawnEnpassantMove = board.bitBoard.PawnEnpassantMovesBB( srcPlayerSide, nSrcPawnSq );
+		if( viablePawnEnpassantMove > 0 ) {
+			
+			MoveType moveType = MoveType.eEnPassan_Move | MoveType.ePawn_Move;	
+			// convert move list
+			BitBoardToMoveList( viablePawnEnpassantMove, moveType, board, selSquare, listRetBoardPos );
+		}
 		
-		bValidMove = movePos.MovePosition( nTempRank, nTempPile );					
-		if( bValidMove ) {					
-		
-			ChessBoardSquare trgSquare = board.aBoardSquare[movePos.nPile, movePos.nRank];
-			if(	trgSquare.IsEnemy( srcPlayerSide ) &&
-				trgSquare.piece.bEnPassantCapture ) {														
-				
-				if( srcPlayerSide == PlayerSide.e_White )
-					bValidMove = movePos.MovePosition( 0, 1 );	
-				else
-					bValidMove = movePos.MovePosition( 0, -1 );
-				
-				if( bValidMove ) {				
-				
-					ChessBoardSquare finalTrgSquare = board.aBoardSquare[movePos.nPile, movePos.nRank];
-					if(	finalTrgSquare.IsBlank() ) {	
-						
-						sMove move = new sMove();
-						// capture move
-						move.moveType = MoveType.eEnPassan_Move | MoveType.ePawn_Move;						
-					
-						move.srcSquare = selSquare;
-						move.trgSquare = finalTrgSquare;
-						
-						listRetBoardPos.Add( move );
-					}
-				}
-			}
-		}				
-		
-		return true;
+		return listRetBoardPos.Count > 0;	
 	}	
 	
 	
+	/*
 	public static bool GetKingMoveList( ChessBoard board, ChessBoardSquare selSquare, List<sMove> listRetBoardPos ) {	
 		
 		ChessPosition srcPos = selSquare.position;		
