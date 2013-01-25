@@ -810,6 +810,18 @@ public class ChessBitBoard {
 		return (h1<<16) | (h1>>16) | (h2<<8) | (h2>>8);
 	}
 	
+	public ulong KnightAttacksBB(int nPlayerSide, int nSq) {		
+		
+		return (pieceBB[WhitePBB + 1 - nPlayerSide] & arrKnightAttacksBB[nSq]);
+	}
+	
+	public ulong KnightMovesBB(int nSq) {		
+		
+		return (emptyBB & arrKnightAttacksBB[nSq]);
+	}
+	
+	
+	
 	
 	
 	// ray move/attack
@@ -1032,7 +1044,7 @@ public class ChessBitBoard {
 		return GetPositiveRayAttacks(occ, NorthDir, sq) | GetNegativeRayAttacks(occ, SouthDir, sq); // ^ +
 	}
 	 
-	ulong RankAttacks (ulong occ, int sq) {
+	ulong RankAttacks(ulong occ, int sq) {
 		
 		return GetPositiveRayAttacks(occ, EastDir, sq) | GetNegativeRayAttacks(occ, WestDir, sq); // ^ +
 	}
@@ -1052,8 +1064,41 @@ public class ChessBitBoard {
 		return RookAttacks(occ, sq) | BishopAttacks(occ, sq); // ^ +
 	}
 	
+	public ulong RookAttacksBB(int nPlayerSide, int sq) {
+		
+		return FileAttacks(pieceBB[WhitePBB + 1 - nPlayerSide], sq) | RankAttacks(pieceBB[WhitePBB + 1 - nPlayerSide], sq); // ^ +
+	}
+	 
+	public ulong BishopAttacksBB(int nPlayerSide, int sq) {
+		
+		return DiagonalAttacks(pieceBB[WhitePBB + 1 - nPlayerSide], sq) | AntiDiagAttacks(pieceBB[WhitePBB + 1 - nPlayerSide], sq); // ^ +
+	}
+	 
+	public ulong QueenAttacksBB(int nPlayerSide, int sq) {
+		
+		return RookAttacks(pieceBB[WhitePBB + 1 - nPlayerSide], sq) | BishopAttacks(pieceBB[WhitePBB + 1 - nPlayerSide], sq); // ^ +
+	}
 	
-	// ray attack	
+	public ulong RookMovesBB(int sq) {
+		
+		return FileAttacks(emptyBB, sq) | RankAttacks(emptyBB, sq); // ^ +
+	}
+	 
+	public ulong BishopMovesBB(int sq) {
+		
+		return DiagonalAttacks(emptyBB, sq) | AntiDiagAttacks(emptyBB, sq); // ^ +
+	}
+	 
+	public ulong QueenMovesBB(int sq) {
+		
+		return RookAttacks(emptyBB, sq) | BishopAttacks(emptyBB, sq); // ^ +
+	}
+	
+	
+	
+	
+	
+	
 	static int [] index64ForBSF;
 	/**
 	* bitScanForward

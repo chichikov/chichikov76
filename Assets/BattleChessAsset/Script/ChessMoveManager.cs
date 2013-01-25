@@ -294,7 +294,10 @@ public class ChessMoveManager {
 				
 				ChessBoardSquare trgSquare = board.aBoardSquare[nCurrFile, nCurrRank];
 				
-				ChessBoardSquare capturedSquare = null;
+				ChessBoardSquare capturedSquare = null;				
+				
+				sMove move = new sMove();
+				
 				// check capture move
 				if( moveType == MoveType.eCapture_Move ) {
 					
@@ -313,17 +316,16 @@ public class ChessMoveManager {
 				if( moveType == MoveType.ePawn_Move ) {
 					// promote move	check
 					if( srcSquare.piece.playerSide == PlayerSide.e_White ) {
-						if( ulCurrMask & ChessBitBoard.firstRank )
+						if( (ulCurrMask & ChessBitBoard.firstRank) > 0 )
 							move.moveType |= MoveType.ePromote_Move;								
 					}
 					else {
 						
-						if( ulCurrMask & ChessBitBoard.lastRank )
+						if( (ulCurrMask & ChessBitBoard.lastRank) > 0 )
 							move.moveType |= MoveType.ePromote_Move;
 					}	
 				}
 				
-				sMove move = new sMove();
 				// normal move
 				move.moveType = moveType;				
 			
@@ -343,7 +345,7 @@ public class ChessMoveManager {
 		// attack/move!!!!
 		
 		// calc viable king move
-		ulong viableKingMove = board.bitBoard.KingMovesBB( srcPlayerSide );
+		ulong viableKingMove = board.bitBoard.KingMovesBB( (int)srcPlayerSide );
 		if( viableKingMove > 0 ) {
 			
 			MoveType moveType = MoveType.eNormal_Move;
@@ -351,7 +353,7 @@ public class ChessMoveManager {
 			BitBoardToMoveList( viableKingMove, moveType, board, selSquare, listRetBoardPos );
 		}
 		
-		ulong viableKingAttack = board.bitBoard.KingAttacksBB( srcPlayerSide );
+		ulong viableKingAttack = board.bitBoard.KingAttacksBB( (int)srcPlayerSide );
 		if( viableKingAttack > 0 ) {
 			
 			MoveType moveType = MoveType.eCapture_Move;			
@@ -362,7 +364,7 @@ public class ChessMoveManager {
 		
 		// castling!!!!		
 		// king side castling	
-		ulong viableKingCastling = board.bitBoard.KingAttacksBB( srcPlayerSide );
+		ulong viableKingCastling = board.bitBoard.KingAttacksBB( (int)srcPlayerSide );
 		if( viableKingCastling > 0 ) {
 			
 			MoveType moveType = MoveType.eCastling_Move;
@@ -398,7 +400,7 @@ public class ChessMoveManager {
 		
 		// attack/move!!!!		
 		// calc viable Pawn one move
-		ulong viablePawnOneMove = board.bitBoard.PawnOneMovesBB( srcPlayerSide, nSrcPawnSq );
+		ulong viablePawnOneMove = board.bitBoard.PawnOneMovesBB( (int)srcPlayerSide, nSrcPawnSq );
 		if( viablePawnOneMove > 0 ) {
 			
 			MoveType moveType = MoveType.eNormal_Move | MoveType.ePawn_Move;			
@@ -407,7 +409,7 @@ public class ChessMoveManager {
 		}
 		
 		// calc viable Pawn two move
-		ulong viablePawnTwoMove = board.bitBoard.PawnTwoMovesBB( srcPlayerSide, nSrcPawnSq );
+		ulong viablePawnTwoMove = board.bitBoard.PawnTwoMovesBB( (int)srcPlayerSide, nSrcPawnSq );
 		if( viablePawnTwoMove > 0 ) {
 			
 			MoveType moveType = MoveType.eNormal_Move | MoveType.ePawn_Move | MoveType.ePawn_Two_Move;		
@@ -416,7 +418,7 @@ public class ChessMoveManager {
 		}		
 		
 		// calc viable Pawn attack move
-		ulong viablePawnAttackMove = board.bitBoard.PawnAttackMovesBB( srcPlayerSide, nSrcPawnSq );
+		ulong viablePawnAttackMove = board.bitBoard.PawnAttackMovesBB( (int)srcPlayerSide, nSrcPawnSq );
 		if( viablePawnAttackMove > 0 ) {
 			
 			MoveType moveType = MoveType.eCapture_Move | MoveType.ePawn_Move;	
@@ -425,7 +427,7 @@ public class ChessMoveManager {
 		}
 		
 		// calc viable Pawn attack move
-		ulong viablePawnEnpassantMove = board.bitBoard.PawnEnpassantMovesBB( srcPlayerSide, nSrcPawnSq );
+		ulong viablePawnEnpassantMove = board.bitBoard.PawnEnpassantMovesBB( (int)srcPlayerSide, nSrcPawnSq );
 		if( viablePawnEnpassantMove > 0 ) {
 			
 			MoveType moveType = MoveType.eEnPassan_Move | MoveType.ePawn_Move;	
@@ -434,573 +436,115 @@ public class ChessMoveManager {
 		}
 		
 		return listRetBoardPos.Count > 0;	
-	}	
-	
-	
-	/*
-	public static bool GetKingMoveList( ChessBoard board, ChessBoardSquare selSquare, List<sMove> listRetBoardPos ) {	
-		
-		ChessPosition srcPos = selSquare.position;		
-		PlayerSide srcPlayerSide = selSquare.piece.playerSide;					
-		
-		ChessPosition movePos = new ChessPosition(srcPos.pos);					
-		
-		// all(radial) direction one move		
-		int nTempRank, nTempPile;
-		
-		for( int nMovePile=-1; nMovePile<=1; nMovePile++ ) {
-			for( int nMoveRank=-1; nMoveRank<=1; nMoveRank++ ) {
-			
-				nTempRank = nMoveRank;		
-				nTempPile = nMovePile;				
-				
-				movePos.SetPosition( srcPos );				
-				bool bValidMove = movePos.MovePosition( nTempRank, nTempPile );
-				if( bValidMove ) {					
-					
-					ChessBoardSquare trgSquare = board.aBoardSquare[movePos.nPile, movePos.nRank];
-					// normal move				
-					if( trgSquare.IsBlank() ) {																																											
-						
-						sMove move = new sMove();
-						// normal move
-						move.moveType = MoveType.eNormal_Move;						
-					
-						move.srcSquare = selSquare;
-						move.trgSquare = trgSquare;
-						
-						listRetBoardPos.Add( move );
-					}
-					// capture move
-					else if( trgSquare.IsEnemy( srcPlayerSide ) ) {
-						
-						sMove move = new sMove();
-						// normal move
-						move.moveType = MoveType.eCapture_Move;					
-					
-						move.srcSquare = selSquare;
-						move.trgSquare = trgSquare;
-						
-						listRetBoardPos.Add( move );
-					}
-				}
-			}
-		}
-		
-		// castling move
-		// king side castling			
-		movePos.SetPosition( srcPos );
-		
-		nTempRank = 2;		
-		nTempPile = 0;
-		
-		bool bValidCastlingMove = movePos.MovePosition( nTempRank, nTempPile );
-		if( bValidCastlingMove ) {
-		
-			ChessBoardSquare trgSquare = board.aBoardSquare[movePos.nPile, movePos.nRank];
-			if(	trgSquare.IsBlank() ) {
-				
-				// position check castling
-				bool bCalstling = false;
-				if( srcPlayerSide == PlayerSide.e_White ) {
-					
-					if( board.currCastlingState.CastlingWKSide == CastlingState.eCastling_Enable_State ) {											
-						bCalstling = true;
-					}
-				}
-				else {
-					if( board.currCastlingState.CastlingBKSide == CastlingState.eCastling_Enable_State ) {											
-						bCalstling = true;
-					}
-				}
-				
-				if( bCalstling ) {
-					
-					// check rook square blank
-					nTempRank = -1;		
-					nTempPile = 0;				
-						
-					ChessPosition moveRookPos = new ChessPosition(movePos.pos);						
-					
-					bValidCastlingMove = moveRookPos.MovePosition( nTempRank, nTempPile );
-					if( bValidCastlingMove ) {
-						
-						ChessBoardSquare rookTrgSquare = board.aBoardSquare[moveRookPos.nPile, moveRookPos.nRank];
-						if(	rookTrgSquare.IsBlank() ) {
-							
-							sMove move = new sMove();
-							
-							MoveType castlingSideType = srcPlayerSide == 
-								PlayerSide.e_White ? MoveType.eCastling_White_KingSide_Move : MoveType.eCastling_Black_KingSide_Move;
-							move.moveType = MoveType.eCastling_Move | castlingSideType;						
-						
-							move.srcSquare = selSquare;
-							move.trgSquare = trgSquare;
-							
-							listRetBoardPos.Add( move );
-						}
-					}					
-				}																
-			}
-		}
-		
-		// queen side castling		
-		movePos.SetPosition( srcPos );
-		
-		nTempRank = -2;		
-		nTempPile = 0;
-		
-		bValidCastlingMove = movePos.MovePosition( nTempRank, nTempPile );
-		if( bValidCastlingMove ) {
-		
-			ChessBoardSquare trgSquare = board.aBoardSquare[movePos.nPile, movePos.nRank];
-			if(	trgSquare.IsBlank() ) {
-				
-				// position check castling
-				bool bCalstling = false;
-				if( srcPlayerSide == PlayerSide.e_White ) {
-					
-					if( board.currCastlingState.CastlingWQSide == CastlingState.eCastling_Enable_State ) {											
-						bCalstling = true;
-					}
-				}
-				else {
-					if( board.currCastlingState.CastlingBQSide == CastlingState.eCastling_Enable_State ) {											
-						bCalstling = true;
-					}
-				}
-				
-				if( bCalstling ) {
-					
-					// check rook square blank
-					nTempRank = 1;		
-					nTempPile = 0;				
-						
-					ChessPosition moveRookPos = new ChessPosition(movePos.pos);						
-					bValidCastlingMove = moveRookPos.MovePosition( nTempRank, nTempPile );
-					if( bValidCastlingMove ) {
-						
-						ChessBoardSquare rookTrgSquare = board.aBoardSquare[moveRookPos.nPile, moveRookPos.nRank];
-						if(	rookTrgSquare.IsBlank() ) {
-							
-							sMove move = new sMove();
-							
-							MoveType castlingSideType = srcPlayerSide == PlayerSide.e_White ? 
-								MoveType.eCastling_White_QueenSide_Move : MoveType.eCastling_Black_QueenSide_Move;
-							move.moveType = MoveType.eCastling_Move | castlingSideType;							
-						
-							move.srcSquare = selSquare;
-							move.trgSquare = trgSquare;
-							
-							listRetBoardPos.Add( move );
-						}
-					}					
-				}																
-			}
-		}		
-		
-		return true;
-	}
+	}		
 	
 	public static bool GetQueenMoveList( ChessBoard board, ChessBoardSquare selSquare, List<sMove> listRetBoardPos ) {		
 		
-		// up
-		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_Up );
-		// down
-		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_Down );
-		// left
-		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_Left );
-		// right
-		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_Right );
-		// left-up - diagonal
-		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_LeftUp_Diagonal );
-		// left-down - diagonal
-		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_LeftDown_Diagonal );
-		// right-up - diagonal
-		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_RightUp_Diagonal );
-		// right-down - diagonal
-		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_RightDown_Diagonal );
+		PlayerSide srcPlayerSide = selSquare.piece.playerSide;	
+		int nSrcQeenSq = (int)selSquare.position.pos;
 		
-		if( listRetBoardPos.Count > 0 )
-			return true;
+		// attack/move!!!!		
+		// calc viable queen move
+		ulong viableQueenMove = board.bitBoard.QueenMovesBB( nSrcQeenSq );
+		if( viableQueenMove > 0 ) {
+			
+			MoveType moveType = MoveType.eNormal_Move;
+			// convert move list
+			BitBoardToMoveList( viableQueenMove, moveType, board, selSquare, listRetBoardPos );
+		}
 		
-		return false;
+		// calc viable queen attack
+		ulong viableQueenAttack = board.bitBoard.QueenAttacksBB( (int)srcPlayerSide, nSrcQeenSq );
+		if( viableQueenAttack > 0 ) {
+			
+			MoveType moveType = MoveType.eCapture_Move;
+			// convert move list
+			BitBoardToMoveList( viableQueenAttack, moveType, board, selSquare, listRetBoardPos );
+		}
+		
+		return listRetBoardPos.Count > 0;	
 	}
 	
 	public static bool GetRookMoveList( ChessBoard board, ChessBoardSquare selSquare, List<sMove> listRetBoardPos ) {		
 		
-		// up
-		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_Up );
-		// down
-		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_Down );
-		// left
-		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_Left );
-		// right
-		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_Right );
+		PlayerSide srcPlayerSide = selSquare.piece.playerSide;	
+		int nSrcRookSq = (int)selSquare.position.pos;
 		
-		if( listRetBoardPos.Count > 0 )
-			return true;
+		// attack/move!!!!		
+		// calc viable queen move
+		ulong viableRookMove = board.bitBoard.RookMovesBB( nSrcRookSq );
+		if( viableRookMove > 0 ) {
+			
+			MoveType moveType = MoveType.eNormal_Move;
+			// convert move list
+			BitBoardToMoveList( viableRookMove, moveType, board, selSquare, listRetBoardPos );
+		}
 		
-		return false;
+		// calc viable queen attack
+		ulong viableRookAttack = board.bitBoard.RookAttacksBB( (int)srcPlayerSide, nSrcRookSq );
+		if( viableRookAttack > 0 ) {
+			
+			MoveType moveType = MoveType.eCapture_Move;
+			// convert move list
+			BitBoardToMoveList( viableRookAttack, moveType, board, selSquare, listRetBoardPos );
+		}
+		
+		return listRetBoardPos.Count > 0;			
 	}
 	
 	public static bool GetBishopMoveList( ChessBoard board, ChessBoardSquare selSquare, List<sMove> listRetBoardPos ) {		
 		
-		// left-up - diagonal
-		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_LeftUp_Diagonal );
-		// left-down - diagonal
-		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_LeftDown_Diagonal );
-		// right-up - diagonal
-		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_RightUp_Diagonal );
-		// right-down - diagonal
-		GetStraightMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_RightDown_Diagonal );
+		PlayerSide srcPlayerSide = selSquare.piece.playerSide;	
+		int nSrcBishopSq = (int)selSquare.position.pos;
 		
-		if( listRetBoardPos.Count > 0 )
-			return true;
+		// attack/move!!!!		
+		// calc viable queen move
+		ulong viableBishopMove = board.bitBoard.BishopMovesBB( nSrcBishopSq );
+		if( viableBishopMove > 0 ) {
+			
+			MoveType moveType = MoveType.eNormal_Move;
+			// convert move list
+			BitBoardToMoveList( viableBishopMove, moveType, board, selSquare, listRetBoardPos );
+		}
 		
-		return false;
+		// calc viable queen attack
+		ulong viableBishopAttack = board.bitBoard.BishopAttacksBB( (int)srcPlayerSide, nSrcBishopSq );
+		if( viableBishopAttack > 0 ) {
+			
+			MoveType moveType = MoveType.eCapture_Move;
+			// convert move list
+			BitBoardToMoveList( viableBishopAttack, moveType, board, selSquare, listRetBoardPos );
+		}
+		
+		return listRetBoardPos.Count > 0;	
 	}
 	
 	public static bool GetKnightMoveList( ChessBoard board, ChessBoardSquare selSquare, List<sMove> listRetBoardPos ) {	
 		
-		// left-up - steep diagonal
-		GetLeapMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_Steep_LeftUp_Leap );
-		// left-down - steep diagonal
-		GetLeapMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_Steep_LeftDown_Leap );
-		// right-up - steep diagonal
-		GetLeapMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_Steep_RightUp_Leap );
-		// right-down - steep diagonal
-		GetLeapMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_Steep_RightDown_Leap );
+		PlayerSide srcPlayerSide = selSquare.piece.playerSide;	
+		int nSrcKnightSq = (int)selSquare.position.pos;
 		
-		// left-up - non-steep diagonal
-		GetLeapMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_NonSteep_LeftUp_Leap );
-		// left-down - on-steep diagonal
-		GetLeapMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_NonSteep_LeftDown_Leap );
-		// right-up - on-steep diagonal
-		GetLeapMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_NonSteep_RightUp_Leap );
-		// right-down - on-steep diagonal
-		GetLeapMoveList( board, selSquare, listRetBoardPos, MoveDirectionType.eDirection_Move_NonSteep_RightDown_Leap );
-		
-		if( listRetBoardPos.Count > 0 )
-			return true;
-		
-		return false;	
-	}
-	
-	// sub move method
-	// helper method
-	public static int GetNumDirectionIterCount( int nCurrRank, int nCurrPile, MoveDirectionType moveDirection ) {
-		
-		int nNumRamnatSqure = 0, nNumRamnatRank, nNumRamnatPile;		
-		switch( moveDirection ) {
+		// attack/move!!!!		
+		// calc viable queen move
+		ulong viableKnightMove = board.bitBoard.KnightMovesBB( nSrcKnightSq );
+		if( viableKnightMove > 0 ) {
 			
-			case MoveDirectionType.eDirection_Move_Left:
-			{
-				nNumRamnatSqure = nCurrRank;
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_Right:
-			{
-				nNumRamnatSqure = ChessData.nNumRank - (nCurrRank + 1);
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_Up:
-			{
-				nNumRamnatSqure = ChessData.nNumPile - (nCurrPile + 1);
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_Down:
-			{				
-				nNumRamnatSqure = nCurrPile;
-			}
-			break;	
-			
-			case MoveDirectionType.eDirection_Move_LeftUp_Diagonal:
-			{
-				nNumRamnatRank = nCurrRank;
-				nNumRamnatPile = ChessData.nNumPile - (nCurrPile + 1);
-				nNumRamnatSqure = Math.Min( nNumRamnatRank, nNumRamnatPile );
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_LeftDown_Diagonal:
-			{
-				nNumRamnatRank = nCurrRank;
-				nNumRamnatPile = nCurrPile;
-				nNumRamnatSqure = Math.Min( nNumRamnatRank, nNumRamnatPile );
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_RightUp_Diagonal:
-			{
-				nNumRamnatRank = ChessData.nNumRank - (nCurrRank + 1);
-				nNumRamnatPile = ChessData.nNumPile - (nCurrPile + 1);
-				nNumRamnatSqure = Math.Min( nNumRamnatRank, nNumRamnatPile );
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_RightDown_Diagonal:
-			{
-				nNumRamnatRank = ChessData.nNumRank - (nCurrRank + 1);
-				nNumRamnatPile = nCurrPile;
-				nNumRamnatSqure = Math.Min( nNumRamnatRank, nNumRamnatPile );
-			}
-			break;		
+			MoveType moveType = MoveType.eNormal_Move;
+			// convert move list
+			BitBoardToMoveList( viableKnightMove, moveType, board, selSquare, listRetBoardPos );
 		}
 		
-		return nNumRamnatSqure;
-	}
-	
-	public static void GetNextDirectionRankPile( ref int nNextRank, ref int nNextPile, MoveDirectionType moveDirection, int nCurrIter ) {
+		// calc viable queen attack
+		ulong viableKnightAttack = board.bitBoard.KnightAttacksBB( (int)srcPlayerSide, nSrcKnightSq );
+		if( viableKnightAttack > 0 ) {
 			
-		switch( moveDirection ) {
-			
-			case MoveDirectionType.eDirection_Move_Left:
-			{
-				nNextRank = -nCurrIter;
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_Right:
-			{
-				nNextRank = nCurrIter;
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_Up:
-			{
-				nNextPile = nCurrIter;
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_Down:
-			{				
-				nNextPile = -nCurrIter;
-			}
-			break;	
-			
-			case MoveDirectionType.eDirection_Move_LeftUp_Diagonal:
-			{
-				nNextRank = -nCurrIter;
-				nNextPile = nCurrIter;
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_LeftDown_Diagonal:
-			{
-				nNextRank = -nCurrIter;
-				nNextPile = -nCurrIter;
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_RightUp_Diagonal:
-			{
-				nNextRank = nCurrIter;
-				nNextPile = nCurrIter;
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_RightDown_Diagonal:
-			{
-				nNextRank = nCurrIter;
-				nNextPile = -nCurrIter;
-			}
-			break;
-			
-			case MoveDirectionType.eDirection_Move_Steep_LeftUp_Leap:
-			{
-				nNextRank = -1;
-				nNextPile = 2;
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_Steep_LeftDown_Leap:
-			{
-				nNextRank = -1;
-				nNextPile = -2;
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_Steep_RightUp_Leap:
-			{
-				nNextRank = 1;
-				nNextPile = 2;
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_Steep_RightDown_Leap:
-			{
-				nNextRank = 1;
-				nNextPile = -2;
-			}
-			break;
-			
-			case MoveDirectionType.eDirection_Move_NonSteep_LeftUp_Leap:
-			{
-				nNextRank = -2;
-				nNextPile = 1;
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_NonSteep_LeftDown_Leap:
-			{
-				nNextRank = -2;
-				nNextPile = -1;
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_NonSteep_RightUp_Leap:
-			{
-				nNextRank = 2;
-				nNextPile = 1;
-			}
-			break;
-				
-			case MoveDirectionType.eDirection_Move_NonSteep_RightDown_Leap:
-			{
-				nNextRank = 2;
-				nNextPile = -1;
-			}
-			break;
-		}	
-	}
-	
-	// stright line move
-	public static bool GetStraightMoveList( ChessBoard board, ChessBoardSquare selSquare, List<sMove> listRetBoardPos, MoveDirectionType moveDirection ) {	
-		
-		ChessPosition srcPos = selSquare.position;		
-		PlayerSide srcPlayerSide = selSquare.piece.playerSide;				
-		
-		ChessPosition movePos = new ChessPosition(srcPos.pos);	
-		
-		// all(radial) direction one move		
-		int nTempRank, nTempPile;
-		
-		int nIterCount;		
-		nIterCount = GetNumDirectionIterCount( movePos.nRank, movePos.nPile, moveDirection );
-		//UnityEngine.Debug.LogError( "GetStraightMoveList() - nIterCount = " + nIterCount + " movePos.nRank, movePos.nPile " + movePos.nRank + " " + movePos.nPile );
-		
-		for( int nCurrIter=1; nCurrIter<=nIterCount; nCurrIter++ ) {
-			
-			nTempRank = 0;		
-			nTempPile = 0;
-			
-			GetNextDirectionRankPile( ref nTempRank, ref nTempPile, moveDirection, nCurrIter );						
-			//UnityEngine.Debug.LogError( "GetStraightMoveList() - nTempRank, nTempPile " + nTempRank + " " + nTempPile );
-			
-			movePos.SetPosition( srcPos );				
-			bool bValidMove = movePos.MovePosition( nTempRank, nTempPile );
-			if( bValidMove ) {					
-				
-				//UnityEngine.Debug.LogError( "GetStraightMoveList() - bValidMove - nTempRank, nTempPile " + nTempRank + " " + nTempPile );
-				
-				ChessBoardSquare trgSquare = board.aBoardSquare[movePos.nPile, movePos.nRank];
-				// normal move				
-				if( trgSquare.IsBlank() ) {																																											
-					
-					sMove move = new sMove();
-					
-					// normal move
-					move.moveType = MoveType.eNormal_Move;				
-				
-					move.srcSquare = selSquare;
-					move.trgSquare = trgSquare;					
-					
-					listRetBoardPos.Add( move );					
-				}				
-				// capture move
-				else if( trgSquare.IsEnemy( srcPlayerSide ) ) {
-					
-					sMove move = new sMove();
-					
-					// normal move
-					move.moveType = MoveType.eCapture_Move;											
-				
-					move.srcSquare = selSquare;
-					move.trgSquare = trgSquare;		
-					
-					listRetBoardPos.Add( move );
-					
-					return true;
-				}				
-				// our piece
-				else {
-					
-					if( nCurrIter > 1 )
-						return true;
-					return false;
-				}
-			}			
+			MoveType moveType = MoveType.eCapture_Move;
+			// convert move list
+			BitBoardToMoveList( viableKnightAttack, moveType, board, selSquare, listRetBoardPos );
 		}
 		
-		return false;
+		return listRetBoardPos.Count > 0;
 	}	
-	
-	
-	// leap move
-	public static bool GetLeapMoveList( ChessBoard board, ChessBoardSquare selSquare, List<sMove> listRetBoardPos, MoveDirectionType moveDirection ) {	
-		
-		ChessPosition srcPos = selSquare.position;		
-		PlayerSide srcPlayerSide = selSquare.piece.playerSide;							
-		
-		ChessPosition movePos = new ChessPosition(srcPos.pos);		
-		
-		// all(radial) direction one move		
-		int nTempRank = 0, nTempPile = 0;			
-		
-		GetNextDirectionRankPile( ref nTempRank, ref nTempPile, moveDirection, 0 );						
-		
-		movePos.SetPosition( srcPos );				
-		bool bValidMove = movePos.MovePosition( nTempRank, nTempPile );
-		if( bValidMove ) {					
-			
-			ChessBoardSquare trgSquare = board.aBoardSquare[movePos.nPile, movePos.nRank];
-			// normal move				
-			if( trgSquare.IsBlank() ) {																																											
-				
-				sMove move = new sMove();
-				
-				// normal move
-				move.moveType = MoveType.eNormal_Move;			
-			
-				move.srcSquare = selSquare;
-				move.trgSquare = trgSquare;	
-				
-				listRetBoardPos.Add( move );
-				
-				return true;
-			}				
-			// capture move
-			else if( trgSquare.IsEnemy( srcPlayerSide ) ) {
-				
-				sMove move = new sMove();
-				
-				// normal move
-				move.moveType = MoveType.eCapture_Move;				
-			
-				move.srcSquare = selSquare;
-				move.trgSquare = trgSquare;	
-				
-				listRetBoardPos.Add( move );
-				
-				return true;
-			}				
-			// our piece
-			else {				
-				
-				return false;
-			}
-		}			
-		
-		return false;
-	}	
-	*/
-	
-	
-	
 	
 	static ChessMoveManager() {
 	}
