@@ -340,12 +340,13 @@ public class ChessMoveManager {
 	
 	public static bool GetKingMoveList( ChessBoard board, ChessBoardSquare selSquare, List<sMove> listRetBoardPos ) {
 		
-		PlayerSide srcPlayerSide = selSquare.piece.playerSide;	
+		PlayerSide srcPlayerSide = selSquare.piece.playerSide;
+		int nSrcKingSq = (int)selSquare.position.pos;
 		
 		// attack/move!!!!
 		
 		// calc viable king move
-		ulong viableKingMove = board.bitBoard.KingMovesBB( (int)srcPlayerSide );
+		ulong viableKingMove = board.bitBoard.KingMovesBB( (int)srcPlayerSide, nSrcKingSq );
 		if( viableKingMove > 0 ) {
 			
 			MoveType moveType = MoveType.eNormal_Move;
@@ -353,7 +354,7 @@ public class ChessMoveManager {
 			BitBoardToMoveList( viableKingMove, moveType, board, selSquare, listRetBoardPos );
 		}
 		
-		ulong viableKingAttack = board.bitBoard.KingAttacksBB( (int)srcPlayerSide );
+		ulong viableKingAttack = board.bitBoard.KingAttacksBB( (int)srcPlayerSide, nSrcKingSq );
 		if( viableKingAttack > 0 ) {
 			
 			MoveType moveType = MoveType.eCapture_Move;			
@@ -364,7 +365,7 @@ public class ChessMoveManager {
 		
 		// castling!!!!		
 		// king side castling	
-		ulong viableKingCastling = board.bitBoard.KingAttacksBB( (int)srcPlayerSide );
+		ulong viableKingCastling = board.bitBoard.KingCastlingBB( (int)srcPlayerSide );
 		if( viableKingCastling > 0 ) {
 			
 			MoveType moveType = MoveType.eCastling_Move;

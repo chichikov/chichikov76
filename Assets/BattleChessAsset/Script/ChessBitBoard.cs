@@ -123,8 +123,8 @@ public class ChessBitBoard {
 		pieceBB[WhitePawnPBB] = 0x00000000000000F0;
 		pieceBB[BlackPawnPBB] = 0x0F00000000000000;
 		
-		emptyBB = 0x00FFFFFFFFFFFF00;
-		occupiedBB = 0xFF000000000000FF;
+		emptyBB = 0x0000FFFFFFFF0000;
+		occupiedBB = 0xFFFF00000000FFFF;
 		
 		currEnPassantTrgSq.enpassantCapturSqBB = 0;
 		
@@ -172,14 +172,15 @@ public class ChessBitBoard {
 	
 	public void InitPawnAttackPattern() {			
 		
-		arrPawnAttacksBB = new ulong[2,64];		
+		arrPawnAttacksBB = new ulong[2,64];				
 		
 		for( int playerSide=0; playerSide<2; ++playerSide ) {
 			
 			ulong sqBB = 1;			
-			for( int sq = 0; sq <= 64; sq++, sqBB <<= 1 ) {
+			for( int sq = 0; sq < 64; sq++, sqBB <<= 1 ) {				
 				
-				arrPawnAttacksBB[playerSide,sq] = playerSide == WhitePBB? WPawnAnyAttacks( sqBB ) : BPawnAnyAttacks( sqBB );				
+				//arrPawnAttacksBB[playerSide,sq] = playerSide == WhitePBB? WPawnAnyAttacks( sqBB ) : BPawnAnyAttacks( sqBB );
+				arrPawnAttacksBB[playerSide,sq] = playerSide == WhitePBB? BPawnAnyAttacks( sqBB ) : WPawnAnyAttacks( sqBB );				
 			}
 		}
 	}
@@ -423,7 +424,7 @@ public class ChessBitBoard {
 				currCastlingState.CastlingWKSide = CastlingState.eCastling_Temporary_Disable_State;			
 			
 			// 5,6 case
-			if( IsRangeNoneAttackBySquare( nWhiteKingSquare, nWhiteKSideRookSquare, WhitePBB ) == false )
+			if( IsRangeNoneAttackBySquare( nWhiteKingSquare, nWhiteKSideRookSquare, BlackPBB ) == false )
 				currCastlingState.CastlingWKSide = CastlingState.eCastling_Temporary_Disable_State;
 		}
 		// white queen side check
@@ -438,7 +439,7 @@ public class ChessBitBoard {
 				currCastlingState.CastlingWQSide = CastlingState.eCastling_Temporary_Disable_State;	
 			
 			// 5,6 case				
-			if( IsRangeNoneAttackBySquare( nWhiteKingSquare, nWhiteQSideRookSquare, WhitePBB ) == false )
+			if( IsRangeNoneAttackBySquare( nWhiteKingSquare, nWhiteQSideRookSquare, BlackPBB ) == false )
 				currCastlingState.CastlingWQSide = CastlingState.eCastling_Temporary_Disable_State;			
 		}
 		// black king side check
@@ -453,7 +454,7 @@ public class ChessBitBoard {
 				currCastlingState.CastlingBKSide = CastlingState.eCastling_Temporary_Disable_State;
 			
 			// 5,6 case		
-			if( IsRangeNoneAttackBySquare( nBlackKingSquare, nBlackKSideRookSquare, BlackPBB ) == false )
+			if( IsRangeNoneAttackBySquare( nBlackKingSquare, nBlackKSideRookSquare, WhitePBB ) == false )
 				currCastlingState.CastlingBKSide = CastlingState.eCastling_Temporary_Disable_State;
 		}
 		// black queen side	check	
@@ -468,7 +469,7 @@ public class ChessBitBoard {
 				currCastlingState.CastlingBQSide = CastlingState.eCastling_Temporary_Disable_State;	
 			
 			// 5,6 case		
-			if( IsRangeNoneAttackBySquare( nBlackKingSquare, nBlackQSideRookSquare, BlackPBB ) == false )
+			if( IsRangeNoneAttackBySquare( nBlackKingSquare, nBlackQSideRookSquare, WhitePBB ) == false )
 				currCastlingState.CastlingBQSide = CastlingState.eCastling_Temporary_Disable_State;
 		}					
 	}
@@ -587,7 +588,7 @@ public class ChessBitBoard {
 		if( (arrKnightAttacksBB[square] & knights) > 0 )       return true;
 		if( (arrKingAttacksBB[square] & king) > 0 )          return true;
 		
-		ulong bishopsQueens = pieceBB[WhiteQueenPBB  + bySide]
+		ulong bishopsQueens = pieceBB[WhiteQueenPBB + bySide]
 		                 | pieceBB[WhiteBishopPBB + bySide];
 		
 		if( (BishopAttacks(occupied, square) & bishopsQueens) > 0 ) return true;
@@ -617,14 +618,14 @@ public class ChessBitBoard {
 	
 	
 	// king move/attack
-	public ulong KingMovesBB( int playerSide ) {	
+	public ulong KingMovesBB( int playerSide, int nSrcKingSq ) {				
 		
-		return KingAttacks( pieceBB[WhiteKingPBB + playerSide] ) & emptyBB;		
+		return arrKingAttacksBB[nSrcKingSq] & emptyBB;
 	}
 	
-	public ulong KingAttacksBB( int playerSide ) {
+	public ulong KingAttacksBB( int playerSide, int nSrcKingSq ) {		
 		
-		return KingAttacks( pieceBB[WhiteKingPBB + playerSide] ) & pieceBB[WhiteKingPBB + 1 - playerSide];				
+		return arrKingAttacksBB[nSrcKingSq] & pieceBB[BlackPBB - playerSide];				
 	}
 	
 	public ulong KingCastlingBB( int playerSide ) {
@@ -820,7 +821,7 @@ public class ChessBitBoard {
 		return (emptyBB & arrKnightAttacksBB[nSq]);
 	}
 	
-	
+		
 	
 	
 	
@@ -930,7 +931,7 @@ public class ChessBitBoard {
 		switch( nDir ) {			
 		
 			case NorthDir:
-				ulRet = EastMaskEx(sq);
+				ulRet = NortMaskEx(sq);
 			break;
 			
 			case NorthEastDir:
@@ -1006,13 +1007,13 @@ public class ChessBitBoard {
 			
 	ulong GetPositiveRayAttacks(ulong occupied, int nDir, int square) {
 		
-		ulong attacks = rayAttacks[nDir,square];
+		ulong attacks = rayAttacks[square, nDir];
 		ulong blocker = attacks & occupied;
 		
 		if( blocker > 0 ) {
 			
 		  square = BitScanForward(blocker);
-		  attacks ^= rayAttacks[nDir,square];
+		  attacks ^= rayAttacks[square, nDir];
 		}
 		
 		return attacks;
@@ -1020,11 +1021,11 @@ public class ChessBitBoard {
 	
 	ulong GetNegativeRayAttacks(ulong occupied, int nDir, int square) {
 		
-		ulong attacks = rayAttacks[nDir,square];
+		ulong attacks = rayAttacks[square, nDir];
 		ulong blocker = attacks & occupied;
 		if ( blocker > 0 ) {
 		  square = BitScanReverse(blocker);
-		  attacks ^= rayAttacks[nDir,square];
+		  attacks ^= rayAttacks[square, nDir];
 		}
 		return attacks;
 	}	
@@ -1064,34 +1065,34 @@ public class ChessBitBoard {
 		return RookAttacks(occ, sq) | BishopAttacks(occ, sq); // ^ +
 	}
 	
-	public ulong RookAttacksBB(int nPlayerSide, int sq) {
+	public ulong RookAttacksBB(int nPlayerSide, int sq) {		
 		
-		return FileAttacks(pieceBB[WhitePBB + 1 - nPlayerSide], sq) | RankAttacks(pieceBB[WhitePBB + 1 - nPlayerSide], sq); // ^ +
+		return ((FileAttacks(occupiedBB, sq) | RankAttacks(occupiedBB, sq)) & pieceBB[BlackPBB - nPlayerSide] ); // ^ +
 	}
 	 
 	public ulong BishopAttacksBB(int nPlayerSide, int sq) {
 		
-		return DiagonalAttacks(pieceBB[WhitePBB + 1 - nPlayerSide], sq) | AntiDiagAttacks(pieceBB[WhitePBB + 1 - nPlayerSide], sq); // ^ +
+		return ((DiagonalAttacks(occupiedBB, sq) | AntiDiagAttacks(occupiedBB, sq)) & pieceBB[BlackPBB - nPlayerSide] ); // ^ +
 	}
 	 
 	public ulong QueenAttacksBB(int nPlayerSide, int sq) {
 		
-		return RookAttacks(pieceBB[WhitePBB + 1 - nPlayerSide], sq) | BishopAttacks(pieceBB[WhitePBB + 1 - nPlayerSide], sq); // ^ +
+		return RookAttacksBB(nPlayerSide, sq) | BishopAttacksBB(nPlayerSide, sq); // ^ +
 	}
 	
 	public ulong RookMovesBB(int sq) {
 		
-		return FileAttacks(emptyBB, sq) | RankAttacks(emptyBB, sq); // ^ +
+		return ((FileAttacks(occupiedBB, sq) | RankAttacks(occupiedBB, sq)) & emptyBB); // ^ +
 	}
 	 
 	public ulong BishopMovesBB(int sq) {
 		
-		return DiagonalAttacks(emptyBB, sq) | AntiDiagAttacks(emptyBB, sq); // ^ +
+		return ((DiagonalAttacks(occupiedBB, sq) | AntiDiagAttacks(occupiedBB, sq)) & emptyBB); // ^ +
 	}
 	 
 	public ulong QueenMovesBB(int sq) {
 		
-		return RookAttacks(emptyBB, sq) | BishopAttacks(emptyBB, sq); // ^ +
+		return (RookMovesBB(sq) | BishopMovesBB(sq)); // ^ +
 	}
 	
 	

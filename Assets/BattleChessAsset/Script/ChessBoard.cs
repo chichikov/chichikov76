@@ -222,9 +222,7 @@ public class ChessBoard {
 	
 	public void MoveUpdate( ChessMoveManager.sMove move ) {
 		
-		bitBoard.MoveUpdate( move );
-		
-		UpdateMoveCount();						
+		bitBoard.MoveUpdate( move );								
 		
 		// normal move
 		if( ChessMoveManager.IsNormalMove( move.moveType ) ) {			
@@ -307,12 +305,12 @@ public class ChessBoard {
 				aBoardSquare[nDestRookPile, nDestRookRank].SetPiece( rookSquare.piece );	
 				rookSquare.ClearPiece();
 			}	
-		}		
+			
+			move.trgSquare.SetPiece( move.srcSquare.piece );			
+			move.srcSquare.ClearPiece();
+		}			
 		
-		
-		// move real board piece
-		move.trgSquare.SetPiece( move.srcSquare.piece );			
-		move.srcSquare.ClearPiece();		
+		UpdateMoveCount();
 	}
 	
 	public bool MoveTo( Vector3 vPos ) {		
