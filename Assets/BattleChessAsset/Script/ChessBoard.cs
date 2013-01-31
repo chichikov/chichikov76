@@ -7,36 +7,33 @@ using System.Collections.Generic;
 //namespace BattleChess {	
 	
 	
-public class ChessBoard {
+public class ChessBoard {	
 	
-	// board
 	// bitboard
 	public ChessBitBoard bitBoard;
-	// 8 x 8, pile x rank
+	// board square, 8 x 8, pile x rank
 	public ChessBoardSquare[,] aBoardSquare;	
 	
-	public List<ChessPiece> listPiece;
-	
-	// board material
-	Material matBoard1;	
-	Material matBoard2;	
-	
-	// selected square
-	ChessBoardSquare selectSquare;		
-	ParticleSystem selectPiecePSystem;	
-	
-	// movable board pos
+	// current live piece list	
+	List<ChessPiece> listLivePiece;
+	// current captured piece list
+	List<ChessPiece> listCapturedPiece;		
+	// current movable board position move list
 	List<ChessMoveManager.sMove> listCurrMovable;	
 	
-	// current move, en passant target move
-	ChessMoveManager.sMove currMove;
+	// current selected square
+	ChessBoardSquare currSelectedSquare;	
 	
-	// captured piece list
-	List<ChessPiece> listCapturedPiece;
+	// current move, en passant target move
+	ChessMoveManager.sMove currWhiteMove;
+	ChessMoveManager.sMove currBlackMove;	
+	
+	List<ChessMoveManager.sMove> listWhiteMoveHistory;	
+	List<ChessMoveManager.sMove> listBlackMoveHistory;	
+	
 	
 	// half move
-	int nCurrHalfMove;
-	
+	int nCurrHalfMove;	
 	// total move
 	int nCurrTotalMove;
 	
@@ -51,6 +48,15 @@ public class ChessBoard {
 	// player turn
 	public PlayerSide CurrTurn { get; set; }	
 	
+	
+	
+	
+	// unity object
+	// board material
+	Material matBoard1;	
+	Material matBoard2;	
+	
+	ParticleSystem selectPiecePSystem;	
 	
 	
 	// constructor
@@ -73,7 +79,12 @@ public class ChessBoard {
 		Ready = false;
 		
 		// move
-		currMove = new ChessMoveManager.sMove();		
+		currWhiteMove = new ChessMoveManager.sMove();
+		currBlackMove = new ChessMoveManager.sMove();
+		
+		listWhiteMoveHistory = new List<ChessMoveManager.sMove>();
+		listBlackMoveHistory = new List<ChessMoveManager.sMove>();
+		
 		listCurrMovable = new List<ChessMoveManager.sMove>();
 		
 		listCapturedPiece = new List<ChessPiece>();
@@ -82,7 +93,7 @@ public class ChessBoard {
 		bitBoard.Init();
 		
 		// piece list
-		listPiece = new List<ChessPiece>();		
+		listLivePiece = new List<ChessPiece>();		
 		aBoardSquare = new ChessBoardSquare[ChessData.nNumPile,ChessData.nNumRank];
 		
 		ChessPiece currPiece = null;
@@ -107,14 +118,14 @@ public class ChessBoard {
 					if( i == 0 || i == 1 ) {																						
 						
 						currPiece = new ChessPiece( currPieceObject.gameObject, PlayerSide.e_White,	ChessData.aStartPiecePos[i,j] );
-						listPiece.Add( currPiece );
+						listLivePiece.Add( currPiece );
 						
 						aBoardSquare[i,j] = new ChessBoardSquare( currPiece, movablePiecePSystem, i, j );
 					}
 					else if( i == 6 || i == 7 ) {						
 						
 						currPiece = new ChessPiece( currPieceObject.gameObject, PlayerSide.e_Black,	ChessData.aStartPiecePos[i,j] );
-						listPiece.Add( currPiece );
+						listLivePiece.Add( currPiece );
 						
 						aBoardSquare[i,j] = new ChessBoardSquare( currPiece, movablePiecePSystem, i, j );
 					}									
@@ -142,7 +153,7 @@ public class ChessBoard {
 		}	
 		
 		// particle effect
-		selectSquare = null;
+		currSelectedSquare = null;
 		selectPiecePSystem = MonoBehaviour.Instantiate( selectPSystemRef, Vector3.zero, Quaternion.identity ) as ParticleSystem;				
 		selectPiecePSystem.Stop();
 	}
@@ -154,7 +165,7 @@ public class ChessBoard {
 			if( selSquare.piece.playerSide == UserPlayerSide ) {
 				
 				PlaySelectEffect( selSquare.piece.gameObject.transform.position, selSquare.piece.gameObject.transform.rotation );				
-				selectSquare = selSquare;		
+				currSelectedSquare = selSquare;		
 				return;
 			}
 						
@@ -162,7 +173,7 @@ public class ChessBoard {
 			
 		// movable pos	
 		StopSelectEffect();
-		selectSquare = null;			
+		currSelectedSquare = null;			
 	}
 	
 	public ChessPiece GetPiece( Vector3 vPos ) {	
@@ -204,7 +215,12 @@ public class ChessBoard {
 	
 	public void CaptureSquare( ChessBoardSquare capturedSquare ) {
 		
+		//if( capturedSquare.IsBlank() )
+		//	UnityEngine.Debug.LogError( "ChessBoard::CaptureSquare() - File : " + capturedSquare.position.nPile + "   Rank : " + capturedSquare.position.nRank );
+		
+		listLivePiece.Remove( capturedSquare.piece );
 		listCapturedPiece.Add( capturedSquare.piece );
+		
 		capturedSquare.ClearPiece(true);		
 	}
 	
@@ -214,7 +230,7 @@ public class ChessBoard {
 		if( CurrTurn == PlayerSide.e_Black )
 			nCurrTotalMove++;					
 		
-		if( currMove.IsResetHalfMove() )						
+		if( currWhiteMove.IsResetHalfMove() )						
 			nCurrHalfMove = 0;	
 		else						
 			nCurrHalfMove++;		
@@ -222,6 +238,12 @@ public class ChessBoard {
 	
 	public void MoveUpdate( ChessMoveManager.sMove move ) {
 		
+		if( move.srcSquare.piece.playerSide == PlayerSide.e_White )
+			listWhiteMoveHistory.Add( move );
+		else if( move.srcSquare.piece.playerSide == PlayerSide.e_Black )
+			listBlackMoveHistory.Add( move );
+		
+		// bit board update
 		bitBoard.MoveUpdate( move );								
 		
 		// normal move
@@ -230,9 +252,11 @@ public class ChessBoard {
 			// promote move
 			if( ChessMoveManager.IsPromoteMove( move.moveType ) ) {						
 				
+				UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Normal Move(promote)" );				
 			}
 			else {
 			
+				UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Normal Move" );
 				move.trgSquare.SetPiece( move.srcSquare.piece );			
 				move.srcSquare.ClearPiece();	
 			}
@@ -243,9 +267,12 @@ public class ChessBoard {
 			// promote move
 			if( ChessMoveManager.IsPromoteMove( move.moveType ) ) {
 				
+				UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Capture Move(promote)" );
 			}
 			else {			
 			
+				UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Capture Move" );
+				
 				CaptureSquare( move.trgSquare );
 				
 				move.trgSquare.SetPiece( move.srcSquare.piece );			
@@ -257,6 +284,8 @@ public class ChessBoard {
 		// enpassantmove
 		if( ChessMoveManager.IsEnpassantMove( move.moveType ) ) {
 			
+			UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - en passant move" );
+			
 			move.trgSquare.SetPiece( move.srcSquare.piece );			
 			move.srcSquare.ClearPiece();
 			
@@ -266,6 +295,8 @@ public class ChessBoard {
 		
 		// castling move
 		if( ChessMoveManager.IsCastlingMove( move.moveType ) ) {
+			
+			UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - castling move" );
 			
 			int nDestRookRank = 0, nDestRookPile = 0;
 			nDestRookRank = move.trgSquare.position.nRank;
@@ -311,6 +342,12 @@ public class ChessBoard {
 		}			
 		
 		UpdateMoveCount();
+		
+		// for debugging
+		if( bitBoard.CheckPositionSync( this ) == false ) {
+			
+			UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Position Sync Broken!!!!!!!!" );
+		}			
 	}
 	
 	public bool MoveTo( Vector3 vPos ) {		
@@ -323,16 +360,17 @@ public class ChessBoard {
 			if( bValidPos ) {					
 				
 				ChessBoardSquare trgSquare = aBoardSquare[nTrgPile, nTrgRank];
-				if( IsValidMove( trgSquare, currMove ) ) {									
+				if( IsValidMove( currSelectedSquare, trgSquare, currWhiteMove ) ) {									
 					
 					//UnityEngine.Debug.LogError( "ChessBoard::MoveTo() - IsValidMove" );
-					MoveUpdate( currMove );
+					MoveUpdate( currWhiteMove );
 					
 					return true;
 				}					
 			}	
 		}
 		
+		UnityEngine.Debug.LogError( "ChessBoard::MoveTo() - MoveTo" );
 		return false;
 	}
 	
@@ -349,13 +387,12 @@ public class ChessBoard {
 				List<ChessMoveManager.sMove> listAiMovable = new List<ChessMoveManager.sMove>();
 				bool bMoveList = ChessMoveManager.GetValidateMoveList( this, srcSquare, listAiMovable );
 				if( bMoveList ) {
-					//UnityEngine.Debug.LogError( "AIMoveTo() - no blank" + " " + bMoveList );
-					ChessMoveManager.sMove aIMove = new ChessMoveManager.sMove();
-					if( IsValidAIMove( trgSquare, listAiMovable, aIMove ) ) {
+					//UnityEngine.Debug.LogError( "AIMoveTo() - no blank" + " " + bMoveList );					
+					if( IsValidAIMove( srcSquare, trgSquare, listAiMovable, currBlackMove ) ) {
 						
 						//UnityEngine.Debug.LogError( "AIMoveTo() - IsValidAIMove()" );					
 						
-						MoveUpdate( aIMove );
+						MoveUpdate( currBlackMove );
 							
 						return true;					
 					}
@@ -374,8 +411,8 @@ public class ChessBoard {
 		
 		listCurrMovable.Clear();
 		
-		if( selectSquare != null )
-			ChessMoveManager.GetValidateMoveList( this, selectSquare, listCurrMovable );
+		if( currSelectedSquare != null )
+			ChessMoveManager.GetValidateMoveList( this, currSelectedSquare, listCurrMovable );
 		
 		// movable effect start
 		PlayMovableEffect();			
@@ -548,33 +585,33 @@ public class ChessBoard {
 		}	
 	}
 	
-	bool IsValidMove( ChessBoardSquare trgSquare, ChessMoveManager.sMove targetMove ) {
+	bool IsValidMove( ChessBoardSquare srcSquare, ChessBoardSquare trgSquare, ChessMoveManager.sMove userMove ) {
 		
 		foreach( ChessMoveManager.sMove move in listCurrMovable ) {
 			
-			if( move.trgSquare.position == trgSquare.position ) {
+			if( move.srcSquare == srcSquare && move.trgSquare == trgSquare ) {
 				
-				targetMove.Set( move );
+				userMove.Set( move );
 				return true;
 			}
 		}
 		
-		targetMove.Clear();
+		userMove.Clear();
 		return false;
 	}
 		
-	bool IsValidAIMove( ChessBoardSquare trgSquare, List<ChessMoveManager.sMove> listMove, ChessMoveManager.sMove targetMove ) {
+	bool IsValidAIMove( ChessBoardSquare srcSquare, ChessBoardSquare trgSquare, List<ChessMoveManager.sMove> listMove, ChessMoveManager.sMove aiMove ) {
 		
 		foreach( ChessMoveManager.sMove move in listMove ) {			
 			
-			if( move.trgSquare.position == trgSquare.position ) {
+			if( move.srcSquare == srcSquare && move.trgSquare == trgSquare ) {
 				
-				targetMove.Set( move );
+				aiMove.Set( move );
 				return true;
 			}
 		}
 		
-		targetMove.Clear();
+		aiMove.Clear();
 		return false;
 	}	
 }

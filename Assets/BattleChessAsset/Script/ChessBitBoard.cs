@@ -28,10 +28,10 @@ public class ChessBitBoard {
 	public const ulong lastRank = 0xff00000000000000;
 	
 	// check for castling
-	public const ulong ulWKBlankCastlingMask = 0x0000000000000006;
-	public const ulong ulWQBlankCastlingMask = 0x0000000000000070;
+	public const ulong ulWKBlankCastlingMask = 0x0000000000000060;
+	public const ulong ulWQBlankCastlingMask = 0x000000000000000e;
 	public const ulong ulBKBlankCastlingMask = 0x6000000000000000;
-	public const ulong ulBQBlankCastlingMask = 0x0700000000000000;	
+	public const ulong ulBQBlankCastlingMask = 0x0e00000000000000;	
 	
 	public const ulong ulWKCastlingKingSqBB = 0x0000000000000040;
 	public const ulong ulWQCastlingKingSqBB = 0x0000000000000004;
@@ -73,8 +73,8 @@ public class ChessBitBoard {
 	
 	
 	ulong [] pieceBB;
-	ulong emptyBB;
-	ulong occupiedBB;	
+	public ulong emptyBB;
+	public ulong occupiedBB;	
 	
 	// attack map
 	ulong [] arrKingAttacksBB;		
@@ -108,8 +108,8 @@ public class ChessBitBoard {
 	public void Init() {
 		
 		// bit board state init	
-		pieceBB[WhitePBB] = 0x00000000000000FF;
-		pieceBB[BlackPBB] = 0xFF00000000000000;
+		pieceBB[WhitePBB] = 0x000000000000FFFF;
+		pieceBB[BlackPBB] = 0xFFFF000000000000;
 		pieceBB[WhiteKingPBB] = 0x0000000000000010;
 		pieceBB[BlackKingPBB] = 0x1000000000000000;
 		pieceBB[WhiteQueenPBB] = 0x0000000000000008;
@@ -120,8 +120,8 @@ public class ChessBitBoard {
 		pieceBB[BlackBishopPBB] = 0x2400000000000000;
 		pieceBB[WhiteKnightPBB] = 0x0000000000000042;
 		pieceBB[BlackKnightPBB] = 0x4200000000000000;
-		pieceBB[WhitePawnPBB] = 0x00000000000000F0;
-		pieceBB[BlackPawnPBB] = 0x0F00000000000000;
+		pieceBB[WhitePawnPBB] = 0x000000000000FF00;
+		pieceBB[BlackPawnPBB] = 0x00FF000000000000;
 		
 		emptyBB = 0x0000FFFFFFFF0000;
 		occupiedBB = 0xFFFF00000000FFFF;
@@ -179,8 +179,8 @@ public class ChessBitBoard {
 			ulong sqBB = 1;			
 			for( int sq = 0; sq < 64; sq++, sqBB <<= 1 ) {				
 				
-				//arrPawnAttacksBB[playerSide,sq] = playerSide == WhitePBB? WPawnAnyAttacks( sqBB ) : BPawnAnyAttacks( sqBB );
-				arrPawnAttacksBB[playerSide,sq] = playerSide == WhitePBB? BPawnAnyAttacks( sqBB ) : WPawnAnyAttacks( sqBB );				
+				arrPawnAttacksBB[playerSide,sq] = playerSide == WhitePBB? WPawnAnyAttacks( sqBB ) : BPawnAnyAttacks( sqBB );
+				//arrPawnAttacksBB[playerSide,sq] = playerSide == WhitePBB? BPawnAnyAttacks( sqBB ) : WPawnAnyAttacks( sqBB );				
 			}
 		}
 	}
@@ -198,6 +198,63 @@ public class ChessBitBoard {
 		}
 	}
 	
+	public bool CheckPositionSync( ChessBoard chessBoard )	{		
+		
+		bool bSync = true;
+		
+		for( int nFile = 0; nFile < ChessData.nNumPile; nFile++ ) {
+			for( int nRank = 0; nRank < ChessData.nNumRank; nRank++ ) {
+			
+				ChessBoardSquare currBoardSquare = chessBoard.aBoardSquare[nFile, nRank];
+				//int nCurrSquare = (int)currBoardSquare.position.pos;
+				int nCurrSquare = nFile * ChessData.nNumRank + nRank;
+				ulong ulCurrSqBB = (ulong)1<<nCurrSquare;
+				// empty/occupy check
+				bool bEmpty = currBoardSquare.IsBlank();
+				if( bEmpty ) {
+					
+					// Sync Broken!!!!!
+					if( (ulCurrSqBB & emptyBB) == 0 ) {
+						
+						UnityEngine.Debug.LogError( "ChessBitBoard::CheckPositionSync() - Empty BB Sync Broken" + " File : " + nFile + " Rank : " + nRank );
+						bSync = false;
+					}
+				}
+				else {
+					
+					int nPlayerSide = (int)currBoardSquare.piece.playerSide;
+					int nPieceType = (int)currBoardSquare.piece.pieceType;
+					
+					// occupied check
+					if( (ulCurrSqBB & occupiedBB) == 0 ) {
+						
+						UnityEngine.Debug.LogError( "ChessBitBoard::CheckPositionSync() - Occupied BB Sync Broken" + " File : " + nFile + " Rank : " + nRank );
+						bSync = false;
+					}
+					
+					// piece check
+					// white side check						
+					// whole piece bb check
+					if( (ulCurrSqBB & pieceBB[WhitePBB + nPlayerSide]) == 0 ) {						
+						
+						UnityEngine.Debug.LogError( "ChessBitBoard::CheckPositionSync() - Whole Piece BB Sync Broken" + " File : " 
+														+ nFile + " Rank : " + nRank + " PlayerSide : " +  nPlayerSide + " PieceType : " +  nPieceType );
+						bSync = false;
+					}
+					
+					// Single piece bb check
+					if( (ulCurrSqBB & pieceBB[WhitePBB + 2 + (nPieceType * 2) + nPlayerSide]) == 0 ) {						
+						
+						UnityEngine.Debug.LogError( "ChessBitBoard::CheckPositionSync() - Single Piece BB Sync Broken" + " File : " 
+														+ nFile + " Rank : " + nRank + " PlayerSide : " +  nPlayerSide + " PieceType : " +  nPieceType );
+						bSync = false;
+					}										
+				}			
+			}
+		}
+		
+		return bSync;
+	}
 	
 	// general move/attack update
 	public void MoveUpdatePieceBB( int nSrcPlayerSide, int nSrcPieceBBIndex, ulong ulSrcSqBB, ulong ulTrgSqBB ) {
@@ -211,7 +268,11 @@ public class ChessBitBoard {
 	
 	public void CaptureUpdatePieceBB( int nSrcPlayerSide, int nSrcPieceBBIndex, int nTrgPlayerSide, int nTrgPieceBBIndex,  ulong ulSrcSqBB, ulong ulTrgSqBB ) {
 		
-		MoveUpdatePieceBB( nSrcPlayerSide, nSrcPieceBBIndex, ulSrcSqBB, ulTrgSqBB );		
+		pieceBB[nSrcPieceBBIndex] = (pieceBB[nSrcPieceBBIndex] ^ ulSrcSqBB) | ulTrgSqBB;		
+		pieceBB[nSrcPlayerSide] = (pieceBB[nSrcPlayerSide] ^ ulSrcSqBB) | ulTrgSqBB;	
+		
+		emptyBB = (emptyBB | ulSrcSqBB);
+		occupiedBB = (occupiedBB ^ ulSrcSqBB);
 		
 		pieceBB[nTrgPieceBBIndex] = pieceBB[nTrgPieceBBIndex] ^ ulTrgSqBB;		
 		pieceBB[nTrgPlayerSide] = (pieceBB[nTrgPlayerSide] ^ ulTrgSqBB);	
@@ -220,7 +281,11 @@ public class ChessBitBoard {
 	public void EnpassantCaptureUpdatePieceBB( int nSrcPlayerSide, int nSrcPieceBBIndex, int nCapturePlayerSide, int nCapturePieceBBIndex, 
 												ulong ulSrcSqBB, ulong ulTrgSqBB, ulong ulCaptureSqBB ) {
 		
+		// 이것도 수정해야함!!1 emptybb 잘못 계산됨....
 		MoveUpdatePieceBB( nSrcPlayerSide, nSrcPieceBBIndex, ulSrcSqBB, ulTrgSqBB );		
+		
+		emptyBB = emptyBB | ulCaptureSqBB;
+		occupiedBB = occupiedBB ^ ulCaptureSqBB;
 		
 		pieceBB[nCapturePieceBBIndex] = pieceBB[nCapturePieceBBIndex] ^ ulTrgSqBB;		
 		pieceBB[nCapturePlayerSide] = (pieceBB[nCapturePlayerSide] ^ ulTrgSqBB);	
@@ -415,62 +480,65 @@ public class ChessBitBoard {
 		// white king side check		
 		if( currCastlingState.CastlingWKSide != CastlingState.eCastling_Disable_State )
 		{	
-			// 3 case			
-			if( IsWKSideCastlingRangeBlank() == false )			
+			// 3, 4, 5 case			
+			if( IsWKSideCastlingRangeBlank() == false || IsWhiteKingInCheck() || 
+				IsRangeNoneAttackBySquare( nWhiteKingSquare, nWhiteKSideRookSquare, BlackPBB ) == false )	{
+				
 				currCastlingState.CastlingWKSide = CastlingState.eCastling_Temporary_Disable_State;			
-			
-			// 4case
-			if( IsWhiteKingInCheck() )			
-				currCastlingState.CastlingWKSide = CastlingState.eCastling_Temporary_Disable_State;			
-			
-			// 5,6 case
-			if( IsRangeNoneAttackBySquare( nWhiteKingSquare, nWhiteKSideRookSquare, BlackPBB ) == false )
-				currCastlingState.CastlingWKSide = CastlingState.eCastling_Temporary_Disable_State;
+				//UnityEngine.Debug.LogError( "ChessBitBoard::UpdateCastlingState() - CastlingWKSide disabled" );
+			}
+			else {
+				
+				currCastlingState.CastlingWKSide = CastlingState.eCastling_Enable_State;	
+				//UnityEngine.Debug.LogError( "ChessBitBoard::UpdateCastlingState() - CastlingWKSide enabled" );
+			}			
 		}
+		
 		// white queen side check
 		if( currCastlingState.CastlingWQSide != CastlingState.eCastling_Disable_State )
 		{	
 			// 3 case			
-			if( IsWQSideCastlingRangeBlank() == false )			
+			if( IsWQSideCastlingRangeBlank() == false || IsWhiteKingInCheck() ||
+				IsRangeNoneAttackBySquare( nWhiteKingSquare, nWhiteQSideRookSquare, BlackPBB ) == false ) {			
+				
 				currCastlingState.CastlingWQSide = CastlingState.eCastling_Temporary_Disable_State;
-			
-			// 4case	
-			if( IsWhiteKingInCheck() )		
-				currCastlingState.CastlingWQSide = CastlingState.eCastling_Temporary_Disable_State;	
-			
-			// 5,6 case				
-			if( IsRangeNoneAttackBySquare( nWhiteKingSquare, nWhiteQSideRookSquare, BlackPBB ) == false )
-				currCastlingState.CastlingWQSide = CastlingState.eCastling_Temporary_Disable_State;			
+				//UnityEngine.Debug.LogError( "ChessBitBoard::UpdateCastlingState() - CastlingWQSide disabled" );
+			}
+			else {
+				
+				currCastlingState.CastlingWQSide = CastlingState.eCastling_Enable_State;
+				//UnityEngine.Debug.LogError( "ChessBitBoard::UpdateCastlingState() - CastlingWQSide enabled" );
+			}					
 		}
+		
 		// black king side check
 		if( currCastlingState.CastlingBKSide != CastlingState.eCastling_Disable_State )
 		{	
 			// 3 case			
-			if( IsBKSideCastlingRangeBlank() == false )			
+			if( IsBKSideCastlingRangeBlank() == false || IsBlackKingInCheck() || 
+				IsRangeNoneAttackBySquare( nBlackKingSquare, nBlackKSideRookSquare, WhitePBB ) == false ) {
+				
 				currCastlingState.CastlingBKSide = CastlingState.eCastling_Temporary_Disable_State;
-			
-			// 4case			
-			if( IsBlackKingInCheck() )		
-				currCastlingState.CastlingBKSide = CastlingState.eCastling_Temporary_Disable_State;
-			
-			// 5,6 case		
-			if( IsRangeNoneAttackBySquare( nBlackKingSquare, nBlackKSideRookSquare, WhitePBB ) == false )
-				currCastlingState.CastlingBKSide = CastlingState.eCastling_Temporary_Disable_State;
+			}
+			else {
+				
+				currCastlingState.CastlingBKSide = CastlingState.eCastling_Enable_State;				
+			}
 		}
+		
 		// black queen side	check	
 		if( currCastlingState.CastlingBQSide != CastlingState.eCastling_Disable_State )
 		{	
 			// 3 case			
-			if( IsBQSideCastlingRangeBlank() == false )			
-				currCastlingState.CastlingBQSide = CastlingState.eCastling_Temporary_Disable_State;			
-			
-			// 4case			
-			if( IsBlackKingInCheck() )			
+			if( IsBQSideCastlingRangeBlank() == false || IsBlackKingInCheck() ||
+				IsRangeNoneAttackBySquare( nBlackKingSquare, nBlackQSideRookSquare, WhitePBB ) == false ) {
+				
 				currCastlingState.CastlingBQSide = CastlingState.eCastling_Temporary_Disable_State;	
-			
-			// 5,6 case		
-			if( IsRangeNoneAttackBySquare( nBlackKingSquare, nBlackQSideRookSquare, WhitePBB ) == false )
-				currCastlingState.CastlingBQSide = CastlingState.eCastling_Temporary_Disable_State;
+			}
+			else {
+				
+				currCastlingState.CastlingBQSide = CastlingState.eCastling_Enable_State;
+			}		
 		}					
 	}
 	
@@ -584,19 +652,42 @@ public class ChessBitBoard {
 		ulong knights = pieceBB[WhiteKnightPBB + bySide];
 		ulong king    = pieceBB[WhiteKingPBB   + bySide];
 		
-		if( (arrPawnAttacksBB[1-bySide,square] & pawns) > 0 )         return true;
-		if( (arrKnightAttacksBB[square] & knights) > 0 )       return true;
-		if( (arrKingAttacksBB[square] & king) > 0 )          return true;
+		if( (arrPawnAttacksBB[1-bySide,square] & pawns) > 0 )  {       
+			
+			//UnityEngine.Debug.LogError( "ChessBitBoard::Attacked() - arrPawnAttacksBB" );
+			return true;
+		}
+		
+		if( (arrKnightAttacksBB[square] & knights) > 0 ) {
+			
+			//UnityEngine.Debug.LogError( "ChessBitBoard::Attacked() - arrKnightAttacksBB" );
+			return true;
+		}
+		
+		if( (arrKingAttacksBB[square] & king) > 0 ) { 
+			
+			//UnityEngine.Debug.LogError( "ChessBitBoard::Attacked() - arrKingAttacksBB" );
+			return true;
+		}
 		
 		ulong bishopsQueens = pieceBB[WhiteQueenPBB + bySide]
 		                 | pieceBB[WhiteBishopPBB + bySide];
 		
-		if( (BishopAttacks(occupied, square) & bishopsQueens) > 0 ) return true;
+		if( (BishopAttacks(occupied, square) & bishopsQueens) > 0 ) {
+			
+			//UnityEngine.Debug.LogError( "ChessBitBoard::Attacked() - bishopsQueens" );
+			return true;
+		}
 		
 		ulong rooksQueens = pieceBB[WhiteQueenPBB  + bySide]
 		                 | pieceBB[WhiteRookPBB + bySide];
 		
-		if( (RookAttacks(occupied, square) & rooksQueens) > 0 )   return true;
+		if( (RookAttacks(occupied, square) & rooksQueens) > 0 ) {   
+			
+			//UnityEngine.Debug.LogError( "ChessBitBoard::Attacked() - rooksQueens" );
+			return true;
+		}
+		
 		return false;
 	}
 	
@@ -638,6 +729,10 @@ public class ChessBitBoard {
 			
 			if( currCastlingState.IsWhiteQueenSideAvailable() )
 				ulCastlingBB |= ulWQCastlingKingSqBB;
+			
+			//UnityEngine.Debug.LogError( "ChessBitBoard::KingCastlingBB() - " + ulCastlingBB );
+			//string strOccupied = string.Format( "occupied : {0:X}", occupiedBB );
+			//UnityEngine.Debug.LogError( "ChessBitBoard::KingCastlingBB() - " + strOccupied );
 		}
 		else {
 			

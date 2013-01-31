@@ -299,9 +299,9 @@ public class ChessMoveManager {
 				sMove move = new sMove();
 				
 				// check capture move
-				if( moveType == MoveType.eCapture_Move ) {
+				if( ChessMoveManager.IsCaptureMove( moveType ) ) {					
 					
-					if( moveType == MoveType.eEnPassan_Move ) {
+					if( ChessMoveManager.IsEnpassantMove( moveType ) ) {
 						
 						int nCapturedPawnRank, nCapturedPawnFile;	
 						nCapturedPawnRank = nCurrRank;
@@ -313,7 +313,7 @@ public class ChessMoveManager {
 				}
 				
 				// check pawn promote move
-				if( moveType == MoveType.ePawn_Move ) {
+				if( ChessMoveManager.IsPawnMove( moveType ) ) {
 					// promote move	check
 					if( srcSquare.piece.playerSide == PlayerSide.e_White ) {
 						if( (ulCurrMask & ChessBitBoard.firstRank) > 0 )
@@ -332,6 +332,21 @@ public class ChessMoveManager {
 				move.srcSquare = srcSquare;
 				move.trgSquare = trgSquare;
 				move.capturedSquare = capturedSquare;
+				
+				// for debug
+				foreach( sMove aMove in listRetBoardPos ) {
+					
+					if( aMove.trgSquare == move.trgSquare ) {
+						UnityEngine.Debug.Log( "!!!!!!!!!!!!!!!!!!!!!!!!ChessMoveManager::BitBoardToMoveList() - move collision Aleady exist!!!!   " +
+						 	"file : " + move.trgSquare.position.nPile + "   Rank : " + move.trgSquare.position.nRank );
+						
+						string strOccupied = string.Format( "occupied : {0:X}", board.bitBoard.occupiedBB );
+						UnityEngine.Debug.LogError( "!!!!!!!!!!!!!!!!!!!!!!!!ChessMoveManager::BitBoardToMoveList() - " + strOccupied );
+						
+						string strEmpty = string.Format( "empty : {0:X}", board.bitBoard.emptyBB );
+						UnityEngine.Debug.LogError( "!!!!!!!!!!!!!!!!!!!!!!!!ChessMoveManager::BitBoardToMoveList() - " + strEmpty );
+					}
+				}
 				
 				listRetBoardPos.Add( move );				
 			}

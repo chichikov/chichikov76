@@ -29,6 +29,10 @@ public class ChessBoardSquare {
 	
 	public void SetPiece( ChessPiece chessPiece ) {
 		
+		if( piece != null )
+			UnityEngine.Debug.Log( "-------------------------------------ChessBoardSquare::SetPiece() - piece type : " + piece.pieceType + 
+				"   File : " +  position.nPile + "   Rank : " + position.nRank );
+		
 		piece = chessPiece;
 		if( piece != null )
 			piece.SetPosition( this.position.Get3DPosition() );			
@@ -40,7 +44,10 @@ public class ChessBoardSquare {
 			return;
 		
 		if( bClearGameObject )
-			piece.Clear( true );
+			UnityEngine.Debug.Log( "---------------------------------------ChessBoardSquare::Clear() - success!!!!    piece type : " + piece.pieceType + 
+				"   File : " +  position.nPile + "   Rank : " + position.nRank );
+			
+		piece.Clear( bClearGameObject );
 		
 		piece = null;
 	}
@@ -104,4 +111,42 @@ public class ChessBoardSquare {
 		
 		return position.IsInvalidPos();
 	}
+	
+	// override operator
+	public override bool Equals(System.Object obj)
+    {
+        // If parameter is null return false.
+        if (obj == null)
+        {
+            return false;
+        }
+
+        // If parameter cannot be cast to Point return false.
+        ChessBoardSquare p = obj as ChessBoardSquare;
+        if ((System.Object)p == null)
+        {
+            return false;
+        }
+
+        // Return true if the fields match:
+        return (position == p.position) && ( piece == p.piece );
+    }
+
+    public bool Equals(ChessBoardSquare p)
+    {
+        // If parameter is null return false:
+        if ((object)p == null)
+        {
+            return false;
+        }
+
+        // Return true if the fields match:
+        return (position == p.position) && ( piece == p.piece );
+    }
+
+    public override int GetHashCode()
+    {
+        return (int)position.pos;
+    }
+
 }

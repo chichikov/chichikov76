@@ -43,8 +43,10 @@ public class ChessPiece {
 	
 	public void Clear( bool bClearGameObject = false ) {	
 		
-		if( bClearGameObject && gameObject )
-			gameObject.transform.position = new Vector3(0.0f, -10.0f, 0.0f);				
+		if( bClearGameObject && gameObject ) {
+			//UnityEngine.Debug.LogError( "ChessPiece::Clear() - success!!!!" );
+			gameObject.transform.position = new Vector3(0.0f, -10.0f, 0.0f);
+		}		
 	}		
 	
 	public void CopyFrom( ChessPiece chessPiece ) {
@@ -58,7 +60,7 @@ public class ChessPiece {
 	public void SetPosition( Vector3 vPos ) {
 		
 		if( IsBlank() == false ) {
-			
+			//UnityEngine.Debug.LogError( "ChessBoardSquare::SetPiece() - piece type : " + pieceType );
 			this.gameObject.transform.position = vPos;
 		}
 	}	

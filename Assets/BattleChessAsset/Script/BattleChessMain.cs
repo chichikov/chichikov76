@@ -139,6 +139,8 @@ public class BattleChessMain : MonoBehaviour {
 		string strCurCommandLine = chessEngineMgr.PopReceivedQueue();
 		while( strCurCommandLine != null ) {
 			
+			UnityEngine.Debug.Log(strCurCommandLine);
+			
 			// process one engine respond
 			EngineToGuiCommand command = chessEngineMgr.ParseCommand( strCurCommandLine );
 			if( command != null ) {				
@@ -241,7 +243,8 @@ public class BattleChessMain : MonoBehaviour {
 			// turn
 			board.CurrTurn = ChessData.GetOppositeSide( board.CurrTurn );
 			// invalidate ready state
-			board.Ready = true;
+			board.Ready = true;			
+			
 			return true;
 		}
 		
