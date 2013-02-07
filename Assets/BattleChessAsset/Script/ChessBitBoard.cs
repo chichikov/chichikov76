@@ -72,7 +72,7 @@ public class ChessBitBoard {
 	public const int NumPieceBB = 14;
 	
 	
-	ulong [] pieceBB;
+	public ulong [] pieceBB;
 	public ulong emptyBB;
 	public ulong occupiedBB;	
 	
@@ -126,7 +126,9 @@ public class ChessBitBoard {
 		emptyBB = 0x0000FFFFFFFF0000;
 		occupiedBB = 0xFFFF00000000FFFF;
 		
-		currEnPassantTrgSq.enpassantCapturSqBB = 0;
+		currEnPassantTrgSq = new ChessEnPassant() {			
+			enpassantCapturSqBB = 0
+		};
 		
 		currCastlingState = new ChessCastling() {
 			
@@ -196,6 +198,19 @@ public class ChessBitBoard {
 				rayAttacks[sq,i] = RayDirectionMaskEx(i, sq);
 			}
 		}
+	}
+	
+	public void CopyFrom( ChessBitBoard bitBoard ) {
+		
+		for( int i=0; i<NumPieceBB; ++i ) {			
+			pieceBB[i] = bitBoard.pieceBB[i];
+		}
+		
+		emptyBB = bitBoard.emptyBB;
+		occupiedBB = bitBoard.occupiedBB;					
+		
+		currCastlingState = bitBoard.currCastlingState;
+		currEnPassantTrgSq = bitBoard.currEnPassantTrgSq;
 	}
 	
 	public bool CheckPositionSync( ChessBoard chessBoard )	{		
@@ -411,7 +426,7 @@ public class ChessBitBoard {
 			currEnPassantTrgSq.enpassantCapturSqBB = 0;
 		
 		
-		UpdateCastlingState( move );
+		UpdateCastlingState( move );		
 	}	
 	
 	
@@ -540,7 +555,8 @@ public class ChessBitBoard {
 				currCastlingState.CastlingBQSide = CastlingState.eCastling_Enable_State;
 			}		
 		}					
-	}
+	}	
+	
 	
 	
 	
@@ -566,6 +582,46 @@ public class ChessBitBoard {
 			return true;
 		
 		return false;
+	}
+	
+	public bool IsWhiteKingInCheckMate() {		
+		
+		bool bCheckMate = true;
+		int nCurrKingSq = BitScanForward( pieceBB[WhiteKingPBB] );
+		ulong ulCurrKingAttackMoveBB = KingMovesBB( WhitePBB, nCurrKingSq ) | KingAttacksBB( WhitePBB, nCurrKingSq );
+		for( int i=0; i<64; i++ ) {			
+			
+			ulong ulCurrAttackMoveKingSq = (ulong)1 << i;			
+			if( (ulCurrKingAttackMoveBB & ulCurrAttackMoveKingSq) > 0 ) {
+				
+				if( AttacksToKing( i ,WhitePBB ) <= 0 ) {
+					bCheckMate = false;	
+					break;
+				}
+			}
+		}
+		
+		return bCheckMate;
+	}
+	
+	public bool IsBlackKingInCheckMate() {		
+		
+		bool bCheckMate = true;
+		int nCurrKingSq = BitScanForward( pieceBB[BlackKingPBB] );
+		ulong ulCurrKingAttackMoveBB = KingMovesBB( BlackPBB, nCurrKingSq ) | KingAttacksBB( BlackPBB, nCurrKingSq );
+		for( int i=0; i<64; i++ ) {			
+			
+			ulong ulCurrAttackMoveKingSq = (ulong)1 << i;			
+			if( (ulCurrKingAttackMoveBB & ulCurrAttackMoveKingSq) > 0 ) {
+				
+				if( AttacksToKing( i ,BlackPBB ) <= 0 ) {
+					bCheckMate = false;	
+					break;
+				}
+			}
+		}
+		
+		return bCheckMate;
 	}
 	
 	public bool IsRangeBlankSquare( int nFromSq, int nToSq ) {

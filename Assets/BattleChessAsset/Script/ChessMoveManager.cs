@@ -159,16 +159,17 @@ public class ChessMoveManager {
 			
 			this.trgSquare = null;
 			this.srcSquare = null;
-			this.capturedSquare = null;			
+			this.capturedSquare = null;				
 		}	
 		
+		/*
 		public sMove( ChessBoardSquare srcSquare, ChessBoardSquare trgSquare, MoveType moveType, ChessBoardSquare capturedSquare = null ) {
 			
 			this.moveType = moveType;			
 			
 			this.trgSquare = trgSquare;
 			this.srcSquare = srcSquare;
-			this.capturedSquare = capturedSquare;			
+			this.capturedSquare = capturedSquare;						
 		}			
 		
 		public void Set( ChessBoardSquare srcSquare, ChessBoardSquare trgSquare, MoveType moveType, ChessBoardSquare capturedSquare = null ) {
@@ -177,8 +178,9 @@ public class ChessMoveManager {
 			
 			this.trgSquare = trgSquare;
 			this.srcSquare = srcSquare;
-			this.capturedSquare = capturedSquare;			
-		}		
+			this.capturedSquare = capturedSquare;		
+		}
+		*/		
 		
 		public void Set( sMove move ) {
 			
@@ -186,7 +188,7 @@ public class ChessMoveManager {
 			
 			this.trgSquare = move.trgSquare;
 			this.srcSquare = move.srcSquare;
-			this.capturedSquare = move.capturedSquare;			
+			this.capturedSquare = move.capturedSquare;											
 		}
 		
 		public void Clear() {
@@ -195,7 +197,7 @@ public class ChessMoveManager {
 			
 			this.trgSquare = null;
 			this.srcSquare = null;
-			this.capturedSquare = null;			
+			this.capturedSquare = null;					
 		}
 		
 		// is Increse half move
@@ -333,7 +335,33 @@ public class ChessMoveManager {
 				move.trgSquare = trgSquare;
 				move.capturedSquare = capturedSquare;
 				
-				// for debug
+				// check mate state	
+				// virtually move
+				board.bitBoardVirtual.CopyFrom( board.bitBoard );
+				board.bitBoardVirtual.MoveUpdate( move );
+				
+				bool bWillCheckMateState = false;
+				if( srcSquare.piece.playerSide == PlayerSide.e_White ) {
+					
+					if( board.bitBoardVirtual.IsWhiteKingInCheck() ) {
+						bWillCheckMateState = true;						 
+					}
+				}
+				else if( srcSquare.piece.playerSide == PlayerSide.e_Black ) {
+					
+					if( board.bitBoardVirtual.IsBlackKingInCheck() ) {
+						bWillCheckMateState = true;						 
+					}
+				}
+				
+				// unmove virtually				
+				
+				// skip this move
+				if( bWillCheckMateState )
+					continue;
+				
+				
+				// for debug				
 				foreach( sMove aMove in listRetBoardPos ) {
 					
 					if( aMove.trgSquare == move.trgSquare ) {

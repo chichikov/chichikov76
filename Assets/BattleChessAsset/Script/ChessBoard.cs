@@ -11,6 +11,8 @@ public class ChessBoard {
 	
 	// bitboard
 	public ChessBitBoard bitBoard;
+	public ChessBitBoard bitBoardVirtual;
+	
 	// board square, 8 x 8, pile x rank
 	public ChessBoardSquare[,] aBoardSquare;	
 	
@@ -46,7 +48,13 @@ public class ChessBoard {
 	public bool Ready { get; set; }
 	
 	// player turn
-	public PlayerSide CurrTurn { get; set; }	
+	public PlayerSide CurrTurn { get; set; }
+	
+	public bool WhiteCallCheck { get; set; }
+	public bool BlackCallCheck { get; set; }
+	
+	public bool WhiteInCheckMate { get; set; }
+	public bool BlackInCheckMate { get; set; }
 	
 	
 	
@@ -63,6 +71,7 @@ public class ChessBoard {
 	public ChessBoard() {			
 		
 		bitBoard = new ChessBitBoard();
+		bitBoardVirtual = new ChessBitBoard();
 	}
 	
 	
@@ -78,6 +87,12 @@ public class ChessBoard {
 		
 		Ready = false;
 		
+		WhiteCallCheck = false;
+		BlackCallCheck = false;
+		
+		WhiteInCheckMate = false;
+		BlackInCheckMate = false;
+		
 		// move
 		currWhiteMove = new ChessMoveManager.sMove();
 		currBlackMove = new ChessMoveManager.sMove();
@@ -91,6 +106,7 @@ public class ChessBoard {
 		
 		// init board
 		bitBoard.Init();
+		bitBoardVirtual.Init();
 		
 		// piece list
 		listLivePiece = new List<ChessPiece>();		
@@ -244,7 +260,7 @@ public class ChessBoard {
 			listBlackMoveHistory.Add( move );
 		
 		// bit board update
-		bitBoard.MoveUpdate( move );								
+		bitBoard.MoveUpdate( move );		
 		
 		// normal move
 		if( ChessMoveManager.IsNormalMove( move.moveType ) ) {			
@@ -252,11 +268,11 @@ public class ChessBoard {
 			// promote move
 			if( ChessMoveManager.IsPromoteMove( move.moveType ) ) {						
 				
-				UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Normal Move(promote)" );				
+				//UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Normal Move(promote)" );				
 			}
 			else {
 			
-				UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Normal Move" );
+				//UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Normal Move" );
 				move.trgSquare.SetPiece( move.srcSquare.piece );			
 				move.srcSquare.ClearPiece();	
 			}
@@ -267,11 +283,11 @@ public class ChessBoard {
 			// promote move
 			if( ChessMoveManager.IsPromoteMove( move.moveType ) ) {
 				
-				UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Capture Move(promote)" );
+				//UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Capture Move(promote)" );
 			}
 			else {			
 			
-				UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Capture Move" );
+				//UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Capture Move" );
 				
 				CaptureSquare( move.trgSquare );
 				
@@ -284,7 +300,7 @@ public class ChessBoard {
 		// enpassantmove
 		if( ChessMoveManager.IsEnpassantMove( move.moveType ) ) {
 			
-			UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - en passant move" );
+			//UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - en passant move" );
 			
 			move.trgSquare.SetPiece( move.srcSquare.piece );			
 			move.srcSquare.ClearPiece();
@@ -296,7 +312,7 @@ public class ChessBoard {
 		// castling move
 		if( ChessMoveManager.IsCastlingMove( move.moveType ) ) {
 			
-			UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - castling move" );
+			//UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - castling move" );
 			
 			int nDestRookRank = 0, nDestRookPile = 0;
 			nDestRookRank = move.trgSquare.position.nRank;
@@ -347,7 +363,37 @@ public class ChessBoard {
 		if( bitBoard.CheckPositionSync( this ) == false ) {
 			
 			UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Position Sync Broken!!!!!!!!" );
-		}			
+		}	
+		
+		UpdateMoveFinalize();
+	}
+	
+	public void UpdateMoveFinalize() {
+		
+		// turn
+		CurrTurn = ChessData.GetOppositeSide( CurrTurn );
+		
+		// invalidate ready state
+		Ready = CurrTurn == UserPlayerSide;
+		
+		if( CurrTurn == PlayerSide.e_White ) {				
+			if( bitBoard.IsWhiteKingInCheck() ) {					
+				BlackCallCheck = true;
+			}
+			
+			if( bitBoard.IsWhiteKingInCheckMate() ) {					
+				WhiteInCheckMate = true;
+			}
+		}
+		else if( CurrTurn == PlayerSide.e_Black ) {
+			if( bitBoard.IsBlackKingInCheck() ) {					
+				WhiteCallCheck = true;
+			}
+		
+			if( bitBoard.IsBlackKingInCheckMate() ) {					
+				BlackInCheckMate = true;
+			}
+		}
 	}
 	
 	public bool MoveTo( Vector3 vPos ) {		
@@ -454,7 +500,7 @@ public class ChessBoard {
 			nNumBlank = 0;
 		}
 		
-		// player turn
+		// player turn - represent engine turn		
 		string strTurn;
 		if( CurrTurn == PlayerSide.e_White )
 			strTurn = "w";
@@ -474,7 +520,7 @@ public class ChessBoard {
 		// en passant target square
 		string strEnPassant = bitBoard.currEnPassantTrgSq.GetFenString();
 		
-		strResFen = strPosFen + strCastling + strEnPassant;
+		strResFen = strResFen + strCastling + strEnPassant;
 		
 		// curr half move count for 50 move rule
 		strResFen += " " + nCurrHalfMove;

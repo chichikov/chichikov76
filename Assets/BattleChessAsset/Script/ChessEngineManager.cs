@@ -133,18 +133,18 @@ public class ChessEngineManager {
 		procEngine.StartInfo.ErrorDialog = false;
 		procEngine.StartInfo.RedirectStandardOutput = true;
 		procEngine.StartInfo.RedirectStandardInput = true;
-		procEngine.StartInfo.RedirectStandardError = true;		
+		procEngine.StartInfo.RedirectStandardError = false;		
 		
 		// Set our event handler to asynchronously read the sort output/err.
         procEngine.OutputDataReceived += new DataReceivedEventHandler(StandardOutputHandler);		
-		procEngine.ErrorDataReceived += new DataReceivedEventHandler(StandardErrorHandler);
+		//procEngine.ErrorDataReceived += new DataReceivedEventHandler(StandardErrorHandler);
 		
 		// start chess engine(stockfish)
 		procEngine.Start();				
 		
 		// Start the asynchronous read of the output stream.
         procEngine.BeginOutputReadLine();
-		procEngine.BeginErrorReadLine();
+		//procEngine.BeginErrorReadLine();
 		
 		//swWRiter = procEngine.StandardInput;	
 		//swWRiter.AutoFlush = true;
@@ -189,7 +189,7 @@ public class ChessEngineManager {
 		//srErrReader.Close();
 		procEngine.CancelOutputRead();
 		
-		procEngine.Kill();
+		//procEngine.Kill();
 		procEngine.Close();				
 		procEngine = null;	
 		
@@ -265,9 +265,11 @@ public class ChessEngineManager {
         }
     }
 	
+	/*
 	private void StandardErrorHandler( object objProcess, DataReceivedEventArgs outLine )
     {
         // Collect the Error.         
     }
+    */
 }
 //}

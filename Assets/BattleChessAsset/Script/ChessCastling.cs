@@ -12,6 +12,16 @@ public struct ChessCastling {
 	public CastlingState CastlingBKSide { get; set; }
 	public CastlingState CastlingBQSide { get; set; }
 	
+	
+	
+	public void Clear() {
+		
+		CastlingWKSide = CastlingState.eCastling_Temporary_Disable_State;
+		CastlingWQSide = CastlingState.eCastling_Temporary_Disable_State;
+		CastlingBKSide = CastlingState.eCastling_Temporary_Disable_State;
+		CastlingBQSide = CastlingState.eCastling_Temporary_Disable_State;
+	}
+	
 	public bool IsWhiteKingSideAvailable() {
 		
 		if( CastlingWKSide == CastlingState.eCastling_Enable_State )

@@ -5,6 +5,13 @@ public struct ChessEnPassant {
 
 	public ulong enpassantCapturSqBB { get; set; }	
 	
+	
+	
+	public void Clear() {
+		
+		enpassantCapturSqBB = 0;
+	}
+	
 	public string GetFenString() {		
 		
 		string strRetFen = " ";

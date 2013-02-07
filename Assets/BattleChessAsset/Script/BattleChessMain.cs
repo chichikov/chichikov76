@@ -118,13 +118,7 @@ public class BattleChessMain : MonoBehaviour {
 			// go command
 			string strGoCmd = board.GetCurrGoCommand();						
 			UnityEngine.Debug.Log( strGoCmd );						
-			chessEngineMgr.Send( strGoCmd );
-			
-			// turn
-			board.CurrTurn = ChessData.GetOppositeSide( board.CurrTurn );
-			
-			// invalidate ready state
-			board.Ready = false;
+			chessEngineMgr.Send( strGoCmd );			
 		}		
 	}
 	
@@ -239,12 +233,7 @@ public class BattleChessMain : MonoBehaviour {
 		//UnityEngine.Debug.LogError( "ExcuteBestMoveCommand() - trg rank, pile " + nTrgRank + " , " + nTrgPile );
 		
 		if( board.AIMoveTo( srcSquare, trgSquare ) )
-		{	
-			// turn
-			board.CurrTurn = ChessData.GetOppositeSide( board.CurrTurn );
-			// invalidate ready state
-			board.Ready = true;			
-			
+		{				
 			return true;
 		}
 		

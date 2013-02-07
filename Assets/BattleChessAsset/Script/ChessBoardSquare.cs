@@ -29,9 +29,11 @@ public class ChessBoardSquare {
 	
 	public void SetPiece( ChessPiece chessPiece ) {
 		
-		if( piece != null )
+		if( piece != null ) {
+			
 			UnityEngine.Debug.Log( "-------------------------------------ChessBoardSquare::SetPiece() - piece type : " + piece.pieceType + 
 				"   File : " +  position.nPile + "   Rank : " + position.nRank );
+		}
 		
 		piece = chessPiece;
 		if( piece != null )
@@ -43,9 +45,9 @@ public class ChessBoardSquare {
 		if( IsBlank() )
 			return;
 		
-		if( bClearGameObject )
-			UnityEngine.Debug.Log( "---------------------------------------ChessBoardSquare::Clear() - success!!!!    piece type : " + piece.pieceType + 
-				"   File : " +  position.nPile + "   Rank : " + position.nRank );
+		//if( bClearGameObject )
+		//	UnityEngine.Debug.Log( "---------------------------------------ChessBoardSquare::Clear() - success!!!!    piece type : " + piece.pieceType + 
+		//		"   File : " +  position.nPile + "   Rank : " + position.nRank );
 			
 		piece.Clear( bClearGameObject );
 		
