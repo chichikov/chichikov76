@@ -18,9 +18,6 @@ public class BattleChessMain : MonoBehaviour {
 	// chess board
 	ChessBoard board;
 	
-	// chess engine management
-	ChessEngineManager chessEngineMgr;	
-	
 	
 	
 	// Use this for initialization
@@ -29,10 +26,8 @@ public class BattleChessMain : MonoBehaviour {
 		board = new ChessBoard();
 		board.Init( this, aWholePiece, selectPiecePSystemRef, movablePiecePSystemRef );		
 		
-		// chess engine init/start
-		chessEngineMgr = new ChessEngineManager();	
-		
-		StartCoroutine( chessEngineMgr.Start() );		
+		// chess engine start		
+		StartCoroutine( ChessEngineManager.Instance.Start() );		
 	}
 	
 	// Update is called once per frame
@@ -100,7 +95,7 @@ public class BattleChessMain : MonoBehaviour {
 	void OnDestroy () {   
 		
 		// chess engine end
-		chessEngineMgr.End();
+		ChessEngineManager.Instance.End();
 		
 	}
 	
@@ -113,12 +108,12 @@ public class BattleChessMain : MonoBehaviour {
 			// move command
 			string strMoveCmd = board.GetCurrMoveCommand();						
 			UnityEngine.Debug.Log( strMoveCmd );						
-			chessEngineMgr.Send( strMoveCmd );
+			ChessEngineManager.Instance.Send( strMoveCmd );
 			
 			// go command
 			string strGoCmd = board.GetCurrGoCommand();						
 			UnityEngine.Debug.Log( strGoCmd );						
-			chessEngineMgr.Send( strGoCmd );			
+			ChessEngineManager.Instance.Send( strGoCmd );			
 		}		
 	}
 	
@@ -130,22 +125,22 @@ public class BattleChessMain : MonoBehaviour {
 	// process engine command respond
 	void ProcessEngineCommand() {
 		// read one line
-		string strCurCommandLine = chessEngineMgr.PopReceivedQueue();
+		string strCurCommandLine = ChessEngineManager.Instance.PopReceivedQueue();
 		while( strCurCommandLine != null ) {
 			
 			UnityEngine.Debug.Log(strCurCommandLine);
 			
 			// process one engine respond
-			EngineToGuiCommand command = chessEngineMgr.ParseCommand( strCurCommandLine );
+			EngineToGuiCommand command = ChessEngineManager.Instance.ParseCommand( strCurCommandLine );
 			if( command != null ) {				
 				
 				//command.PrintCommand();
-				chessEngineMgr.SetConfigCommand( command.CmdData );
+				ChessEngineManager.Instance.SetConfigCommand( command.CmdData );
 				
 				ExcuteEngineCommand( command );								
 			}
 			
-			strCurCommandLine = chessEngineMgr.PopReceivedQueue();
+			strCurCommandLine = ChessEngineManager.Instance.PopReceivedQueue();
 		}
 		
 	}
@@ -163,7 +158,7 @@ public class BattleChessMain : MonoBehaviour {
 		// send setoption command!!!
 		
 		// send isready command	
-		chessEngineMgr.Send( "isready" );		
+		//ChessEngineManager.Instance.Send( "isready" );		
 		
 		return true;
 	}
@@ -171,7 +166,7 @@ public class BattleChessMain : MonoBehaviour {
 	bool ExcuteReadyOkCommand( CommandBase.CommandData cmdData ) {
 		
 		// send isready command	
-		chessEngineMgr.Send( "ucinewgame" );
+		ChessEngineManager.Instance.Send( "ucinewgame" );
 		
 		board.Ready = true;	
 		

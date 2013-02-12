@@ -103,6 +103,15 @@ public class ChessEngineManager {
 	
 	ChessEngineConfig configData;
 	
+	// property
+	public static ChessEngineManager Instance { 
+		get { 
+			return Singleton<ChessEngineManager>.Instance; 
+		} 
+	}
+
+
+	
 	
 	public ChessEngineManager() {		
 		
@@ -126,25 +135,26 @@ public class ChessEngineManager {
 		queReceived = new Queue<string>();		
 		
 		procEngine = new Process();
-		procEngine.StartInfo.FileName = strProcPath;				
+		procEngine.StartInfo.FileName = strProcPath;
+		procEngine.StartInfo.Arguments = "uci";
 		//procEngine.StartInfo.Arguments = "uci";
 		procEngine.StartInfo.CreateNoWindow = true;
 		procEngine.StartInfo.UseShellExecute = false;
 		procEngine.StartInfo.ErrorDialog = false;
 		procEngine.StartInfo.RedirectStandardOutput = true;
 		procEngine.StartInfo.RedirectStandardInput = true;
-		procEngine.StartInfo.RedirectStandardError = false;		
+		procEngine.StartInfo.RedirectStandardError = true;		
 		
 		// Set our event handler to asynchronously read the sort output/err.
         procEngine.OutputDataReceived += new DataReceivedEventHandler(StandardOutputHandler);		
-		//procEngine.ErrorDataReceived += new DataReceivedEventHandler(StandardErrorHandler);
+		procEngine.ErrorDataReceived += new DataReceivedEventHandler(StandardErrorHandler);
 		
-		// start chess engine(stockfish)
-		procEngine.Start();				
+		// start chess engine(stockfish)		
+		procEngine.Start();
 		
 		// Start the asynchronous read of the output stream.
         procEngine.BeginOutputReadLine();
-		//procEngine.BeginErrorReadLine();
+		procEngine.BeginErrorReadLine();
 		
 		//swWRiter = procEngine.StandardInput;	
 		//swWRiter.AutoFlush = true;
@@ -166,8 +176,8 @@ public class ChessEngineManager {
 		// 첫번째 명령이 안먹는 이유는?????
 		// 실행 파라미터로 "uci"를 주어야 하는데 스트림 리다이렉션때문에 이게 안먹힘...	
 		// 
-		Send( "Ping Test" );
-		Send( "uci" );	
+		//Send( "Ping Test" );
+		//Send( "uci" );	
 		
 		//Send( "isready" );
 	}
@@ -188,8 +198,9 @@ public class ChessEngineManager {
 		//srReader.Close();
 		//srErrReader.Close();
 		procEngine.CancelOutputRead();
+		procEngine.CancelErrorRead();
 		
-		//procEngine.Kill();
+		procEngine.Kill();
 		procEngine.Close();				
 		procEngine = null;	
 		
@@ -238,7 +249,7 @@ public class ChessEngineManager {
 		
 		if( commandData != null ) {
 			
-			return configData.SetConfigCommand( commandData );			
+			return configData.SetConfigOption( commandData );			
 		}
 		
 		return false;
@@ -263,13 +274,12 @@ public class ChessEngineManager {
             	queReceived.Enqueue( strTrimOutLine );				
 			}			
         }
-    }
+    }	
 	
-	/*
 	private void StandardErrorHandler( object objProcess, DataReceivedEventArgs outLine )
     {
-        // Collect the Error.         
-    }
-    */
+        // Collect the Error.
+		// print log unity debug log window
+    }    
 }
 //}
