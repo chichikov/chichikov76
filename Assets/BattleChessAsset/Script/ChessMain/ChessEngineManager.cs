@@ -113,7 +113,7 @@ public class ChessEngineManager {
 
 	
 	
-	public ChessEngineManager() {		
+	private ChessEngineManager() {		
 		
 		procEngine = null;
 		queReceived = null;

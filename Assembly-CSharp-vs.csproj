@@ -18,7 +18,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_STANDALONE;ENABLE_MICROPHONE;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;ENABLE_AUDIO_FMOD;ENABLE_NETWORK;ENABLE_MONO;ENABLE_PHYSICS;ENABLE_TERRAIN;ENABLE_CACHING;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_CLOTH;ENABLE_MOVIES;ENABLE_AUDIO;ENABLE_WWW;ENABLE_SHADOWS;ENABLE_DUCK_TYPING;UNITY_4_0_0;UNITY_4_0;UNITY_STANDALONE_WIN;ENABLE_PROFILER;UNITY_EDITOR;UNITY_TEAM_LICENSE</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_STANDALONE;ENABLE_MICROPHONE;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;ENABLE_AUDIO_FMOD;ENABLE_NETWORK;ENABLE_MONO;ENABLE_PHYSICS;ENABLE_TERRAIN;ENABLE_CACHING;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_CLOTH;ENABLE_MOVIES;ENABLE_AUDIO;ENABLE_WWW;ENABLE_SHADOWS;ENABLE_DUCK_TYPING;UNITY_4_0_1;UNITY_4_0;UNITY_STANDALONE_WIN;ENABLE_PROFILER;UNITY_EDITOR;UNITY_TEAM_LICENSE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -37,28 +37,34 @@
     <Reference Include="System.XML" />
 	<Reference Include="System.Core" />
 	<Reference Include="UnityEngine">
-	  <HintPath>C:/Program Files/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	  <HintPath>F:/WorkUnity/Editor/Data/Managed/UnityEngine.dll</HintPath>
 	</Reference>
 	<Reference Include="UnityEditor">
-	  <HintPath>C:/Program Files/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	  <HintPath>F:/WorkUnity/Editor/Data/Managed/UnityEditor.dll</HintPath>
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\BattleChessAsset\Script\BattleChessMain.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\ChessBitBoard.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\ChessBoard.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\ChessBoardSquare.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\ChessCastling.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\ChessData.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\ChessEnPassant.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\ChessEngineCmdParser.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\ChessEngineConfig.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\ChessEngineManager.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\ChessMoveManager.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\ChessPiece.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\ChessPosition.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\ChessUtility.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\Singleton.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessMain\BattleChessMain.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessMain\ChessBitBoard.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessMain\ChessBoard.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessMain\ChessBoardSquare.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessMain\ChessCastling.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessMain\ChessData.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessMain\ChessEnPassant.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessMain\ChessEngineCmdParser.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessMain\ChessEngineConfig.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessMain\ChessEngineManager.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessMain\ChessMoveManager.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessMain\ChessPiece.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessMain\ChessPosition.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessMain\ChessUtility.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessMain\GUIManager.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\ChessMain\Singleton.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\OffGameUI\EtcMenu.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\OffGameUI\InitMenu.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\OffGameUI\ModeMenu.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\OffGameUI\OffGameUI.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\OffGameUI\OptionMenu.cs" />
      <Compile Include="Assets\NGUI\Examples\Scripts\Other\ChatInput.cs" />
      <Compile Include="Assets\NGUI\Examples\Scripts\Other\DownloadTexture.cs" />
      <Compile Include="Assets\NGUI\Examples\Scripts\Other\DragDropContainer.cs" />
