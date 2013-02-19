@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 
 
-public class BattleChessMain : MonoBehaviour {		
+public class BattleChessMain : MonoBehaviour, IProcessChessEngine {		
 	
 	// chess piece prefab reference
 	public Transform[] aWholePiece;				
@@ -27,14 +27,16 @@ public class BattleChessMain : MonoBehaviour {
 		board.Init( this, aWholePiece, selectPiecePSystemRef, movablePiecePSystemRef );		
 		
 		// chess engine start		
-		StartCoroutine( ChessEngineManager.Instance.Start() );		
+		// enroll command executor
+		ChessEngineManager.Instance.EngineCmdExecuter = this;
+		ChessEngineManager.Instance.Send( "isready" );		
 	}
 	
 	// Update is called once per frame
 	void Update() {		
 		
 		// process engine command respond
-		ProcessEngineCommand();	
+		ChessEngineManager.Instance.ProcessEngineCommand();	
 		
 		// input
 		// piece selection
@@ -95,7 +97,7 @@ public class BattleChessMain : MonoBehaviour {
 	void OnDestroy () {   
 		
 		// chess engine end
-		ChessEngineManager.Instance.End();
+		//ChessEngineManager.Instance.End();
 		
 	}
 	
@@ -115,86 +117,62 @@ public class BattleChessMain : MonoBehaviour {
 			UnityEngine.Debug.Log( strGoCmd );						
 			ChessEngineManager.Instance.Send( strGoCmd );			
 		}		
-	}
+	}	
 	
 	
 	
 	
-	
-	
-	// process engine command respond
-	void ProcessEngineCommand() {
-		// read one line
-		string strCurCommandLine = ChessEngineManager.Instance.PopReceivedQueue();
-		while( strCurCommandLine != null ) {
-			
-			UnityEngine.Debug.Log(strCurCommandLine);
-			
-			// process one engine respond
-			EngineToGuiCommand command = ChessEngineManager.Instance.ParseCommand( strCurCommandLine );
-			if( command != null ) {				
-				
-				//command.PrintCommand();
-				ChessEngineManager.Instance.SetConfigCommand( command.CmdData );
-				
-				ExcuteEngineCommand( command );								
-			}
-			
-			strCurCommandLine = ChessEngineManager.Instance.PopReceivedQueue();
-		}
+	// on Process Engine command
+	public bool OnIdCommand( CommandBase.CommandData cmdData )
+	{
 		
+		return true;		
 	}
-	
-	
-	
-	// 
-	bool ExcuteIdCommand( CommandBase.CommandData cmdData ) {
-		
-		return false;
-	}
-	
-	bool ExcuteUciOkCommand( CommandBase.CommandData cmdData ) {
-		
+	public bool OnUciOkCommand( CommandBase.CommandData cmdData )
+	{
 		// send setoption command!!!
 		
 		// send isready command	
-		//ChessEngineManager.Instance.Send( "isready" );		
+		ChessEngineManager.Instance.Send( "isready" );
 		
 		return true;
 	}
 	
-	bool ExcuteReadyOkCommand( CommandBase.CommandData cmdData ) {
-		
+	public bool OnReadyOkCommand( CommandBase.CommandData cmdData )
+	{
 		// send isready command	
-		ChessEngineManager.Instance.Send( "ucinewgame" );
-		
+		ChessEngineManager.Instance.Send( "ucinewgame" );		
 		board.Ready = true;	
 		
 		return true;
 	}
 	
-	bool ExcuteCopyProtectionCommand( CommandBase.CommandData cmdData ) {
+	public bool OnCopyProtectionCommand( CommandBase.CommandData cmdData )
+	{
 		
-		return false;
+		return true;
 	}
 	
-	bool ExcuteRegistrationCommand( CommandBase.CommandData cmdData ) {
+	public bool OnRegistrationCommand( CommandBase.CommandData cmdData )
+	{
 		
-		return false;
+		return true;
 	}
 	
-	bool ExcuteOptionCommand( CommandBase.CommandData cmdData ) {
+	public bool OnOptionCommand( CommandBase.CommandData cmdData )
+	{
 		
-		return false;
+		return true;
 	}
 	
-	bool ExcuteInfoCommand( CommandBase.CommandData cmdData ) {
+	public bool OnInfoCommand( CommandBase.CommandData cmdData )
+	{
 		
-		return false;
+		return true;
 	}
 	
-	bool ExcuteBestMoveCommand( CommandBase.CommandData cmdData ) {
-		
+	public bool OnBestMoveCommand( CommandBase.CommandData cmdData )
+	{		
 		// best move string to rank/pile
 		string strBestMove = cmdData.QueueStrValue.Peek();	
 		
@@ -233,55 +211,7 @@ public class BattleChessMain : MonoBehaviour {
 		}
 		
 		UnityEngine.Debug.LogError( "ExcuteBestMoveCommand() - Invalid src rank, pile" );
-		
-		return false;
-	}	
-	
-	// delegate function for engine command
-	public bool ExcuteEngineCommand( EngineToGuiCommand cmd ) {		
-		
-		if( cmd == null )
-			return false;
-		
-		bool bValidCmd = !cmd.CmdData.InvalidCmd;		
-		if( bValidCmd ) {
-			
-			string strCmd = cmd.CmdData.StrCmd;
-			
-			switch( strCmd ) {
-					
-				case "id":		
-					return ExcuteIdCommand( cmd.CmdData );						
-						
-				case "uciok":	
-					return ExcuteUciOkCommand( cmd.CmdData );				
-					
-				case "readyok":		
-					return ExcuteReadyOkCommand( cmd.CmdData );							
-				
-				case "copyprotection":
-					return ExcuteCopyProtectionCommand( cmd.CmdData );						
-				
-				case "registration":
-					return ExcuteRegistrationCommand( cmd.CmdData );							
-					
-				case "option":
-					return ExcuteOptionCommand( cmd.CmdData );							
-				
-				case "info":
-					return ExcuteInfoCommand( cmd.CmdData );											
-				
-				case "bestmove":
-					return ExcuteBestMoveCommand( cmd.CmdData );							
-					
-				default:								
-					return false;					
-			} // switch	
-			
-			//return true;
-		}	
-		
-		return false;
-	}	
+		return false;				
+	}
 	
 }

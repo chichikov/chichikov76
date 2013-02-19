@@ -103,6 +103,9 @@ public class ChessEngineManager {
 	
 	ChessEngineConfig configData;
 	
+	
+	public IProcessChessEngine EngineCmdExecuter { get; set; }
+	
 	// property
 	public static ChessEngineManager Instance { 
 		get { 
@@ -129,14 +132,14 @@ public class ChessEngineManager {
 	}	
 	
 	// interface
-	public IEnumerator Start() {	
+	//public IEnumerator Start() {	
+	public void Start() {	
 		
 		// clear received command respond que
 		queReceived = new Queue<string>();		
 		
 		procEngine = new Process();
-		procEngine.StartInfo.FileName = strProcPath;
-		procEngine.StartInfo.Arguments = "uci";
+		procEngine.StartInfo.FileName = strProcPath;		
 		//procEngine.StartInfo.Arguments = "uci";
 		procEngine.StartInfo.CreateNoWindow = true;
 		procEngine.StartInfo.UseShellExecute = false;
@@ -165,7 +168,7 @@ public class ChessEngineManager {
 		configData = new ChessEngineConfig();
 		
 		// wait for 2.0 sec for process thread running
-		yield return new WaitForSeconds(2.0f);
+		//yield return new WaitForSeconds(2.0f);
 		//yield return new WaitForSeconds(5.0f);
 		
 		sendWorker = new SendWorker( procEngine.StandardInput );
@@ -280,6 +283,149 @@ public class ChessEngineManager {
     {
         // Collect the Error.
 		// print log unity debug log window
-    }    
+    }   
+	
+	
+	
+	
+	
+	// process engine command
+	// process engine command respond
+	// process engine command respond
+	public void ProcessEngineCommand() {
+		// read one line
+		string strCurCommandLine = PopReceivedQueue();
+		while( strCurCommandLine != null ) {
+			
+			UnityEngine.Debug.Log(strCurCommandLine);
+			
+			// process one engine respond
+			EngineToGuiCommand command = ParseCommand( strCurCommandLine );
+			if( command != null ) {				
+				
+				//command.PrintCommand();
+				SetConfigCommand( command.CmdData );
+				
+				ExcuteEngineCommand( command );								
+			}
+			
+			strCurCommandLine = PopReceivedQueue();
+		}
+		
+	}
+	
+	
+	
+	// 
+	bool ExcuteIdCommand( CommandBase.CommandData cmdData ) {
+		
+		if( EngineCmdExecuter != null )
+			return EngineCmdExecuter.OnIdCommand( cmdData );
+		
+		return false;
+	}
+	
+	bool ExcuteUciOkCommand( CommandBase.CommandData cmdData ) {			
+		
+		if( EngineCmdExecuter != null )
+			return EngineCmdExecuter.OnUciOkCommand( cmdData );
+		
+		return false;
+	}
+	
+	bool ExcuteReadyOkCommand( CommandBase.CommandData cmdData ) {		
+		
+		if( EngineCmdExecuter != null )
+			return EngineCmdExecuter.OnReadyOkCommand( cmdData );
+		
+		return false;
+	}
+	
+	bool ExcuteCopyProtectionCommand( CommandBase.CommandData cmdData ) {
+		
+		if( EngineCmdExecuter != null )
+			return EngineCmdExecuter.OnCopyProtectionCommand( cmdData );
+		
+		return false;
+	}
+	
+	bool ExcuteRegistrationCommand( CommandBase.CommandData cmdData ) {
+		
+		if( EngineCmdExecuter != null )
+			return EngineCmdExecuter.OnRegistrationCommand( cmdData );
+		
+		return false;
+	}
+	
+	bool ExcuteOptionCommand( CommandBase.CommandData cmdData ) {
+		
+		if( EngineCmdExecuter != null )
+			return EngineCmdExecuter.OnOptionCommand( cmdData );
+		
+		return false;
+	}
+	
+	bool ExcuteInfoCommand( CommandBase.CommandData cmdData ) {
+		
+		if( EngineCmdExecuter != null )
+			return EngineCmdExecuter.OnInfoCommand( cmdData );
+		
+		return false;
+	}
+	
+	bool ExcuteBestMoveCommand( CommandBase.CommandData cmdData ) {		
+		
+		if( EngineCmdExecuter != null )
+			return EngineCmdExecuter.OnBestMoveCommand( cmdData );
+		
+		return false;
+	}	
+	
+	// delegate function for engine command
+	public bool ExcuteEngineCommand( EngineToGuiCommand cmd ) {		
+		
+		if( cmd == null )
+			return false;
+		
+		bool bValidCmd = !cmd.CmdData.InvalidCmd;		
+		if( bValidCmd ) {
+			
+			string strCmd = cmd.CmdData.StrCmd;
+			
+			switch( strCmd ) {
+					
+				case "id":		
+					return ExcuteIdCommand( cmd.CmdData );						
+						
+				case "uciok":	
+					return ExcuteUciOkCommand( cmd.CmdData );				
+					
+				case "readyok":		
+					return ExcuteReadyOkCommand( cmd.CmdData );							
+				
+				case "copyprotection":
+					return ExcuteCopyProtectionCommand( cmd.CmdData );						
+				
+				case "registration":
+					return ExcuteRegistrationCommand( cmd.CmdData );							
+					
+				case "option":
+					return ExcuteOptionCommand( cmd.CmdData );							
+				
+				case "info":
+					return ExcuteInfoCommand( cmd.CmdData );											
+				
+				case "bestmove":
+					return ExcuteBestMoveCommand( cmd.CmdData );							
+					
+				default:								
+					return false;					
+			} // switch	
+			
+			//return true;
+		}	
+		
+		return false;
+	}	
 }
 //}
