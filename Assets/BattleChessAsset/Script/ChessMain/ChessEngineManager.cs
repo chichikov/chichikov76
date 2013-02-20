@@ -56,18 +56,20 @@ public class SendWorker
 			}
             
 			Thread.Sleep(100);
-		}        
+		} 
+		
+		// on sender thread exit, send lastly quit command
+		swWRiter.WriteLine( "quit" );
+		//swWRiter.FlushAsync();
+		swWRiter.Flush();
+		
+		swWRiter.Close();
     }
 	
     public void RequestStop()
     {
         _shouldStop = true;
-    }
-	
-	public void Clear()
-    {
-        swWRiter.Close();
-    } 
+    }	
 	
 	private SendWorker() {}
 }
@@ -138,60 +140,57 @@ public class ChessEngineManager {
 		// clear received command respond que
 		queReceived = new Queue<string>();		
 		
-		procEngine = new Process();
-		procEngine.StartInfo.FileName = strProcPath;		
-		//procEngine.StartInfo.Arguments = "uci";
-		procEngine.StartInfo.CreateNoWindow = true;
-		procEngine.StartInfo.UseShellExecute = false;
-		procEngine.StartInfo.ErrorDialog = false;
-		procEngine.StartInfo.RedirectStandardOutput = true;
-		procEngine.StartInfo.RedirectStandardInput = true;
-		procEngine.StartInfo.RedirectStandardError = true;		
-		
-		// Set our event handler to asynchronously read the sort output/err.
-        procEngine.OutputDataReceived += new DataReceivedEventHandler(StandardOutputHandler);		
-		procEngine.ErrorDataReceived += new DataReceivedEventHandler(StandardErrorHandler);
-		
-		// start chess engine(stockfish)		
-		procEngine.Start();
-		
-		// Start the asynchronous read of the output stream.
-        procEngine.BeginOutputReadLine();
-		procEngine.BeginErrorReadLine();
-		
-		//swWRiter = procEngine.StandardInput;	
-		//swWRiter.AutoFlush = true;
-		//srReader = procEngine.StandardOutput;
-		//srErrReader = procEngine.StandardError;
-		
-		cmdParser = new ChessEngineCmdParser() { Cmd = null };
-		configData = new ChessEngineConfig();
-		
-		// wait for 2.0 sec for process thread running
-		//yield return new WaitForSeconds(2.0f);
-		//yield return new WaitForSeconds(5.0f);
-		
-		sendWorker = new SendWorker( procEngine.StandardInput );
-		threadSend = new Thread(sendWorker.ProcessSend);
-		threadSend.Start();
-		
-		// send command to chess engine
-		// 첫번째 명령이 안먹는 이유는?????
-		// 실행 파라미터로 "uci"를 주어야 하는데 스트림 리다이렉션때문에 이게 안먹힘...	
-		// 
-		//Send( "Ping Test" );
-		//Send( "uci" );	
-		
-		//Send( "isready" );
+		try
+		{
+			procEngine = new Process();
+			procEngine.StartInfo.FileName = strProcPath;		
+			//procEngine.StartInfo.WorkingDirectory = @"ChessEngine\";
+			//procEngine.StartInfo.Arguments = "uci";
+			procEngine.StartInfo.CreateNoWindow = true;
+			procEngine.StartInfo.UseShellExecute = false;		
+			procEngine.StartInfo.ErrorDialog = false;
+			procEngine.StartInfo.RedirectStandardOutput = true;
+			procEngine.StartInfo.RedirectStandardInput = true;
+			procEngine.StartInfo.RedirectStandardError = true;		
+			
+			// Set our event handler to asynchronously read the sort output/err.
+	        procEngine.OutputDataReceived += new DataReceivedEventHandler(StandardOutputHandler);		
+			procEngine.ErrorDataReceived += new DataReceivedEventHandler(StandardErrorHandler);
+			
+			// start chess engine(stockfish)		
+			procEngine.Start();
+			
+			// Start the asynchronous read of the output stream.
+	        procEngine.BeginOutputReadLine();
+			procEngine.BeginErrorReadLine();
+			
+			//swWRiter = procEngine.StandardInput;	
+			//swWRiter.AutoFlush = true;
+			//srReader = procEngine.StandardOutput;
+			//srErrReader = procEngine.StandardError;
+			
+			cmdParser = new ChessEngineCmdParser() { Cmd = null };
+			configData = new ChessEngineConfig();
+			
+			// wait for 2.0 sec for process thread running
+			//yield return new WaitForSeconds(2.0f);
+			//yield return new WaitForSeconds(5.0f);
+			
+			sendWorker = new SendWorker( procEngine.StandardInput );
+			threadSend = new Thread(sendWorker.ProcessSend);
+			threadSend.Start();	
+		}
+		catch( System.Exception e ) {
+			
+			UnityEngine.Debug.LogError( "ChessEngineManager - Start() Failed!!! because of" + e.Message );           
+		}		
 	}
 	
 	public void End() {
 			
-		queReceived.Clear();		
+		queReceived.Clear();				
 		
-		//swWRiter.Close();		
-		sendWorker.RequestStop();
-		sendWorker.Clear();
+		sendWorker.RequestStop();	
 		
 		threadSend.Join();
 		threadSend = null;
@@ -201,9 +200,8 @@ public class ChessEngineManager {
 		//srReader.Close();
 		//srErrReader.Close();
 		procEngine.CancelOutputRead();
-		procEngine.CancelErrorRead();
+		procEngine.CancelErrorRead();		
 		
-		procEngine.Kill();
 		procEngine.Close();				
 		procEngine = null;	
 		
@@ -381,6 +379,14 @@ public class ChessEngineManager {
 		return false;
 	}	
 	
+	bool ExcuteInitStockfishCommand( CommandBase.CommandData cmdData ) {		
+		
+		if( EngineCmdExecuter != null )
+			return EngineCmdExecuter.OnInitStockfishCommand( cmdData );
+		
+		return false;
+	}
+	
 	// delegate function for engine command
 	public bool ExcuteEngineCommand( EngineToGuiCommand cmd ) {		
 		
@@ -416,7 +422,10 @@ public class ChessEngineManager {
 					return ExcuteInfoCommand( cmd.CmdData );											
 				
 				case "bestmove":
-					return ExcuteBestMoveCommand( cmd.CmdData );							
+					return ExcuteBestMoveCommand( cmd.CmdData );	
+				
+				case "Stockfish":
+					return ExcuteInitStockfishCommand( cmd.CmdData );
 					
 				default:								
 					return false;					

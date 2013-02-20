@@ -19,12 +19,19 @@ public class OffGameUI : MonoBehaviour, IProcessChessEngine {
 		
 		// chess engine start
 		ChessEngineManager.Instance.EngineCmdExecuter = this;
-		ChessEngineManager.Instance.Start();	
+		ChessEngineManager.Instance.Start();		
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		
+		// process engine command respond
+		ChessEngineManager.Instance.ProcessEngineCommand();			
+	}
 	
+	void OnApplicationQuit()
+	{
+		ChessEngineManager.Instance.End();		
 	}
 	
 	
@@ -32,6 +39,15 @@ public class OffGameUI : MonoBehaviour, IProcessChessEngine {
 	
 	
 	// on Process Engine command
+	public bool OnInitStockfishCommand( CommandBase.CommandData cmdData )
+	{
+		// why can't i send first command????????
+		// 엔진에서 첫번째 명령 스트링을 초기화 안해서....
+		ChessEngineManager.Instance.Send( "\n" );
+		ChessEngineManager.Instance.Send( "uci" );
+		return true;				
+	}
+	
 	public bool OnIdCommand( CommandBase.CommandData cmdData )
 	{		
 		return true;		
@@ -44,7 +60,7 @@ public class OffGameUI : MonoBehaviour, IProcessChessEngine {
 	}
 	
 	public bool OnReadyOkCommand( CommandBase.CommandData cmdData )
-	{
+	{		
 		return true;	
 	}
 	

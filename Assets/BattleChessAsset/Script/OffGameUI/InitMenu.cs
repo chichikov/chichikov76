@@ -5,6 +5,7 @@ public class InitMenu : MonoBehaviour {
 
 	public void OnStartClick() {		
 		
+		Application.LoadLevel("BattleChessInfinity");
 	}
 	
 	public void OnModeClick() {

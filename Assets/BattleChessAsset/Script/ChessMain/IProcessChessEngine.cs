@@ -10,6 +10,6 @@ public interface IProcessChessEngine {
 	bool OnRegistrationCommand( CommandBase.CommandData cmdData );									
 	bool OnOptionCommand( CommandBase.CommandData cmdData );							
 	bool OnInfoCommand( CommandBase.CommandData cmdData );												
-	bool OnBestMoveCommand( CommandBase.CommandData cmdData );	
-		
+	bool OnBestMoveCommand( CommandBase.CommandData cmdData );
+	bool OnInitStockfishCommand( CommandBase.CommandData cmdData );		
 }

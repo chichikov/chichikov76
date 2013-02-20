@@ -137,6 +137,10 @@ public class CommandBase {
 			case "bestmove":
 				ParseBestMoveCommand( CmdData, str_tokens );			
 			break;
+				
+			case "Stockfish":
+				ParseInitStockfishCommand( CmdData, str_tokens );			
+			break;
 			
 				
 			default:												
@@ -756,7 +760,24 @@ public class CommandBase {
 			
 			throw new CmdParseException( "ParseBestMoveCommand() - Invalid Parameter Exception Throw!!!" );						
 		}
-	}	
+	}
+	
+	void ParseInitStockfishCommand( CommandData cmdData, string [] str_tokens ) {
+		
+		if( str_tokens != null && str_tokens.Length > 1 ) {
+			
+			string [] str_next_tokens = GetNextTokens( str_tokens );
+			
+			
+			string strValue = GetTokensToString( str_next_tokens );
+			cmdData.QueueStrValue.Enqueue( strValue );																	
+			cmdData.InvalidCmd = false;			
+		}
+		else {
+			
+			throw new CmdParseException( "ParseBestMoveCommand() - Invalid Parameter Exception Throw!!!" );						
+		}		
+	}
 }
 
 

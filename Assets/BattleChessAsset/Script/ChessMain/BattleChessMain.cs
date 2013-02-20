@@ -94,11 +94,13 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 		}	
 	}
 	
-	void OnDestroy () {   
+	void OnDestroy () { 	
 		
-		// chess engine end
-		//ChessEngineManager.Instance.End();
-		
+	}
+	
+	void OnApplicationQuit()
+	{
+		ChessEngineManager.Instance.End();		
 	}
 	
 	
@@ -123,6 +125,12 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 	
 	
 	// on Process Engine command
+	public bool OnInitStockfishCommand( CommandBase.CommandData cmdData )
+	{
+		ChessEngineManager.Instance.Send( "uci" );
+		return true;				
+	}
+	
 	public bool OnIdCommand( CommandBase.CommandData cmdData )
 	{
 		

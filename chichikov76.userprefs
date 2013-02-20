@@ -1,19 +1,20 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\BattleChessAsset\Script\ChessMain\ChessEngineManager.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\BattleChessAsset\Script\OffGameUI\InitMenu.cs">
     <Files>
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessEngineManager.cs" Line="102" Column="17" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\BattleChessMain.cs" Line="26" Column="28" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessBitBoard.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessCastling.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessEngineManager.cs" Line="181" Column="19" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessMain\BattleChessMain.cs" Line="88" Column="12" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessBitBoard.cs" Line="20" Column="40" />
       <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessBoard.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessEngineConfig.cs" Line="90" Column="23" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessEngineConfig.cs" Line="1" Column="1" />
       <File FileName="Assets\BattleChessAsset\Script\ChessMain\GUIManager.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\OffGameUI\OffGameUI.cs" Line="12" Column="4" />
-      <File FileName="Assets\BattleChessAsset\Script\OffGameUI\InitMenu.cs" Line="15" Column="2" />
+      <File FileName="Assets\BattleChessAsset\Script\OffGameUI\OffGameUI.cs" Line="37" Column="2" />
+      <File FileName="Assets\BattleChessAsset\Script\OffGameUI\InitMenu.cs" Line="19" Column="24" />
       <File FileName="Assets\BattleChessAsset\Script\OffGameUI\ModeMenu.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\OffGameUI\EtcMenu.cs" Line="4" Column="16" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessEngineCmdParser.cs" Line="12" Column="27" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\IProcessChessEngine.cs" Line="7" Column="30" />
+      <File FileName="Assets\BattleChessAsset\Script\OffGameUI\EtcMenu.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessEngineCmdParser.cs" Line="15" Column="7" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessMain\IProcessChessEngine.cs" Line="13" Column="37" />
       <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessData.cs" Line="1" Column="1" />
       <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessBoardSquare.cs" Line="1" Column="1" />
       <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessUtility.cs" Line="1" Column="1" />
