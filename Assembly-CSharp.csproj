@@ -66,6 +66,7 @@
      <Compile Include="Assets\BattleChessAsset\Script\OffGameUI\ModeMenu.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\OffGameUI\OffGameUI.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\OffGameUI\OptionMenu.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\OffGameUI\OptionScrollPanel.cs" />
      <Compile Include="Assets\NGUI\Examples\Scripts\Other\ChatInput.cs" />
      <Compile Include="Assets\NGUI\Examples\Scripts\Other\DownloadTexture.cs" />
      <Compile Include="Assets\NGUI\Examples\Scripts\Other\DragDropContainer.cs" />

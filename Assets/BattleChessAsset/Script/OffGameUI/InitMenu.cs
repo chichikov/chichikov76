@@ -2,10 +2,31 @@ using UnityEngine;
 using System.Collections;
 
 public class InitMenu : MonoBehaviour {
+	
+	public UIButton startBtn;
+	public UIButton modeBtn;
+	public UIButton optionBtn;
+	public UIButton etcBtn;
+	
+	// Use this for initialization
+	void Start () {
+		
+		startBtn.isEnabled = false;
+		optionBtn.isEnabled = false;
+	}
+	
+	// Update is called once per frame
+	void Update () {
+	
+	}
+	
+	
 
 	public void OnStartClick() {		
 		
-		Application.LoadLevel("BattleChessInfinity");
+		// send engine option
+		ChessEngineManager.Instance.SendCurrentOption();
+		//Application.LoadLevel("BattleChessInfinity");
 	}
 	
 	public void OnModeClick() {

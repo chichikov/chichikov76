@@ -96,24 +96,31 @@ public class ChessEngineManager {
 	
 	// received command respond queue
 	Queue<string> queReceived;
-	private readonly object queSyncRoot;
-	
+	private readonly object queSyncRoot;	
 	
 	
 	// engine command parser
 	ChessEngineCmdParser cmdParser;	
 	
-	ChessEngineConfig configData;
 	
 	
 	public IProcessChessEngine EngineCmdExecuter { get; set; }
 	
 	// property
+	public ChessEngineConfig DefaultConfigData { get; private set; }
+	public ChessEngineConfig CurrentConfigData { get; private set; }
+	
+	public bool EngineInit { get; private set; }
+	
+	
+	
 	public static ChessEngineManager Instance { 
 		get { 
 			return Singleton<ChessEngineManager>.Instance; 
 		} 
 	}
+	
+	
 
 
 	
@@ -130,7 +137,9 @@ public class ChessEngineManager {
 		//srErrReader = null;
 		
 		cmdParser = null;		
-		configData = null;		
+		DefaultConfigData = null;		
+		CurrentConfigData = null;
+		EngineInit = false;
 	}	
 	
 	// interface
@@ -170,7 +179,8 @@ public class ChessEngineManager {
 			//srErrReader = procEngine.StandardError;
 			
 			cmdParser = new ChessEngineCmdParser() { Cmd = null };
-			configData = new ChessEngineConfig();
+			DefaultConfigData = new ChessEngineConfig();
+			CurrentConfigData = new ChessEngineConfig();
 			
 			// wait for 2.0 sec for process thread running
 			//yield return new WaitForSeconds(2.0f);
@@ -206,7 +216,8 @@ public class ChessEngineManager {
 		procEngine = null;	
 		
 		cmdParser = null;
-		configData = null;
+		DefaultConfigData = null;
+		CurrentConfigData = null;
 	}
 	
 	public void Send( string strUciCmd ) {
@@ -246,14 +257,56 @@ public class ChessEngineManager {
 		return null;
 	}
 	
-	public bool SetConfigCommand( CommandBase.CommandData commandData ) {
+	public bool SetDefaultOptionCommand( CommandBase.CommandData commandData ) {
 		
 		if( commandData != null ) {
 			
-			return configData.SetConfigOption( commandData );			
+			return DefaultConfigData.SetConfigOption( commandData );			
 		}
 		
 		return false;
+	}
+	
+	public void SetCurrentBoolOption( string strOptionName, bool bValue ) {
+		
+		if( DefaultConfigData == null || DefaultConfigData.IsEmpty() )
+			return;
+		
+		ChessEngineConfig.Option defaultOption = DefaultConfigData.GetConfigOption( strOptionName );
+		ChessEngineConfig.Option currentOption = new ChessEngineOption();	
+		currentOption.CopyFrom( defaultOption );
+		currentOption.SetBoolValue( bValue );
+		CurrentConfigData.AddOption( currentOption );
+	}
+	
+	public void SetCurrentRangeFloatOption( string strOptionName, float fValue ) {
+		
+		if( DefaultConfigData == null || DefaultConfigData.IsEmpty() )
+			return;
+		
+		ChessEngineConfig.Option defaultOption = DefaultConfigData.GetConfigOption( strOptionName );
+		ChessEngineConfig.Option currentOption = new ChessEngineOption();	
+		currentOption.CopyFrom( defaultOption );
+		currentOption.SetRangeFloatValue( fValue );
+		CurrentConfigData.AddOption( currentOption );	
+	}
+	
+	public void SetCurrentStringOption( string strOptionName, string strValue ) {
+		
+		if( DefaultConfigData == null || DefaultConfigData.IsEmpty() )
+			return;
+		
+		ChessEngineConfig.Option defaultOption = DefaultConfigData.GetConfigOption( strOptionName );
+		ChessEngineConfig.Option currentOption = new ChessEngineOption();	
+		currentOption.CopyFrom( defaultOption );
+		currentOption.SetStringValue( strValue );
+		CurrentConfigData.AddOption( currentOption );	
+	}
+	
+	// send current option to engine
+	public void SendCurrentOption() {
+		
+		//CurrentConfigData				
 	}
 
 	
@@ -302,7 +355,7 @@ public class ChessEngineManager {
 			if( command != null ) {				
 				
 				//command.PrintCommand();
-				SetConfigCommand( command.CmdData );
+				SetDefaultOptionCommand( command.CmdData );
 				
 				ExcuteEngineCommand( command );								
 			}
@@ -325,8 +378,12 @@ public class ChessEngineManager {
 	
 	bool ExcuteUciOkCommand( CommandBase.CommandData cmdData ) {			
 		
-		if( EngineCmdExecuter != null )
+		if( EngineCmdExecuter != null ) {
+			
+			EngineInit = true;
+			
 			return EngineCmdExecuter.OnUciOkCommand( cmdData );
+		}
 		
 		return false;
 	}

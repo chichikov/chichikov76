@@ -1,8 +1,8 @@
 using UnityEngine;
 using System.Collections;
 
-public class OffGameUI : MonoBehaviour, IProcessChessEngine {
-
+public class OffGameUI : MonoBehaviour, IProcessChessEngine {	
+	
 	// Use this for initialization
 	void Start () {
 		
@@ -54,7 +54,17 @@ public class OffGameUI : MonoBehaviour, IProcessChessEngine {
 	}
 	public bool OnUciOkCommand( CommandBase.CommandData cmdData )
 	{
-		// send setoption command!!!		
+		// enable init menu's start and option button
+		GameObject initPanel = GUIManager.Instance.GetPanel( "InitPanel" );
+		if( initPanel != null )
+		{	
+			InitMenu intMenuScript = initPanel.GetComponent<InitMenu>();				
+			if( intMenuScript != null ) {
+				
+				intMenuScript.startBtn.isEnabled = true;
+				intMenuScript.optionBtn.isEnabled = true;
+			}			
+		}
 		
 		return true;
 	}
@@ -78,8 +88,25 @@ public class OffGameUI : MonoBehaviour, IProcessChessEngine {
 	
 	public bool OnOptionCommand( CommandBase.CommandData cmdData )
 	{
+		// enable/disable ui engine option
 		
-		return true;
+		// setting default option
+		GameObject optionScrollPanel = GUIManager.Instance.GetPanel( "OptionScrollPanel" );
+		if( optionScrollPanel != null )
+		{			
+			OptionScrollPanel optScrollPanelScript = optionScrollPanel.GetComponent<OptionScrollPanel>();				
+			if( optScrollPanelScript != null ) {
+				
+				ChessEngineConfig.Option option = ChessEngineManager.Instance.DefaultConfigData.GetConfigOption( cmdData.StrCmd );
+				if( option != null ) {
+					
+					optScrollPanelScript.SetOption( option );
+					return true;
+				}
+			}				
+		}
+				
+		return false;
 	}
 	
 	public bool OnInfoCommand( CommandBase.CommandData cmdData )

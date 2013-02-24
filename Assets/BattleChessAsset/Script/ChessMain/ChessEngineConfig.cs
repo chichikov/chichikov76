@@ -5,48 +5,125 @@ using System.Collections.Generic;
 
 
 //namespace BattleChess {	
+
+public class ChessEngineOption {		
+		
+	public string Name {
+		get; set;
+	}
 	
-public class ChessEngineConfig {	
+	public string Type {
+		get; set;
+	} 
 	
-	public class Option {		
+	public string Default {
+		get; set;
+	} 
+	
+	public string Min {
+		get; set;
+	} 
+	
+	public string Max {
+		get; set;
+	} 
+	
+	public Queue<string> queueVar;
+	
+	public ChessEngineOption() {
 		
-		public string Name {
-			get; set;
-		}
+		queueVar = new Queue<string>();
+	}
+	
+	public void AddVar( string strVar ) {
 		
-		public string Type {
-			get; set;
-		} 
+		queueVar.Enqueue( strVar );
+	}
+	
+	public void ClearAllVar() {
 		
-		public string Default {
-			get; set;
-		} 
+		queueVar.Clear();
+	}
+	
+	public bool GetBoolDefault() {
 		
-		public string Min {
-			get; set;
-		} 
+		if( Default == "true" )
+			return true;
 		
-		public string Max {
-			get; set;
-		} 
+		return false;
+	}
+	
+	public void SetBoolValue( bool bValue ) {
 		
-		public Queue<string> queueVar;
+		queueVar.Clear();
 		
-		public Option() {
+		if( bValue )
+			queueVar.Enqueue( "true" );
+		else
+			queueVar.Enqueue( "false" );				
+	}
+	
+	public float GetRangeFloatDefault() {
+		
+		float fDefault, fMin, fMax;
+		fDefault = float.Parse(Default);
+		fMin = float.Parse(Min);
+		fMax = float.Parse(Max);
+		
+		return ((fDefault - fMin) / (fMax - fMin));
+	}
+	
+	public void SetRangeFloatValue( float fPropValue ) {
+		
+		queueVar.Clear();
+		
+		float fMin, fMax;			
+		fMin = float.Parse(Min);
+		fMax = float.Parse(Max);
+		
+		string strRangeValue = (fPropValue * ( fMax - fMin )).ToString( "0.0000" );
+		queueVar.Enqueue( strRangeValue );		
+	}
+	
+	public string GetStringDefault() {			
+		
+		return Default;
+	}
+	
+	public void SetStringValue( string strValue ) {			
+		
+		queueVar.Clear();			
+		queueVar.Enqueue( strValue );
+	}
+	
+	
+	
+	public void CopyFrom( ChessEngineOption option ) {
+		
+		this.Name = option.Name;
+		this.Type = option.Type;
+		this.Default = option.Default;
+		this.Min = option.Min;
+		this.Max = option.Max;
+		
+		foreach( string strValue in option.queueVar ) {
 			
-			queueVar = new Queue<string>();
-		}
-		
-		public void AddVar( string strVar ) {
-			
-			queueVar.Enqueue( strVar );
-		}
-		
-		public void ClearAllVar() {
-			
-			queueVar.Clear();
+			this.queueVar.Enqueue( strValue );				
 		}
 	}
+}
+	
+
+
+
+
+
+
+
+
+
+public class ChessEngineConfig : IEnumerator {		
+	
 	
 	public string Name {
 		get; set;
@@ -56,26 +133,43 @@ public class ChessEngineConfig {
 		get; set;
 	}
 	
-	Dictionary<string, Option> mapOption;
+	Dictionary<string, ChessEngineOption> mapOption;
 	
 	
 	
 	public ChessEngineConfig() {
 		
-		mapOption = new Dictionary<string, Option>();		
+		mapOption = new Dictionary<string, ChessEngineOption>();		
 	}
 	
-	public void AddOption( Option option ) {
+	
+	// IEnumerable implement
+	public IEnumerator GetEnumerator() {
+		
+        return mapOption.GetEnumerator();
+    } 	
+	
+	
+	
+	
+	public bool IsEmpty() {
+		
+		if( mapOption.Count > 0 )
+			return false;		
+		return true;			
+	}
+	
+	public void AddOption( ChessEngineOption option ) {
 		
 		mapOption[option.Name] = option;		
 	}
 	
-	public void ClearAllOption( Option option ) {
+	public void ClearAllOption( ChessEngineOption option ) {
 		
 		mapOption.Clear();
 	}
 	
-	public Option GetConfigOption( string strOptionName ) {
+	public ChessEngineOption GetConfigOption( string strOptionName ) {
 		
 		if( mapOption.ContainsKey( strOptionName ) ) {
 			
@@ -102,7 +196,7 @@ public class ChessEngineConfig {
 		}
 		else if( commandData.StrCmd == "option" ) {
 			
-			Option option = new Option();
+			ChessEngineOption option = new ChessEngineOption();
 			
 			foreach( CommandBase.CommandData subCmdData in commandData.QueueSubCmdData ) {
 			
