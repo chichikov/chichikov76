@@ -11,8 +11,16 @@ public class InitMenu : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		
-		startBtn.isEnabled = false;
-		optionBtn.isEnabled = false;
+		if( ChessEngineManager.Instance.EngineInit ) {
+			
+			startBtn.isEnabled = true;
+			optionBtn.isEnabled = true;
+		}
+		else {
+			
+			startBtn.isEnabled = false;
+			optionBtn.isEnabled = false;
+		}
 	}
 	
 	// Update is called once per frame
@@ -26,7 +34,7 @@ public class InitMenu : MonoBehaviour {
 		
 		// send engine option
 		ChessEngineManager.Instance.SendCurrentOption();
-		//Application.LoadLevel("BattleChessInfinity");
+		ChessEngineManager.Instance.Send( "isready" );		
 	}
 	
 	public void OnModeClick() {

@@ -139,6 +139,32 @@ public class ChessBitBoard {
 		};	
 	}
 	
+	public void Reset() {
+		
+		// bit board state init	
+		pieceBB[WhitePBB] = 0x000000000000FFFF;
+		pieceBB[BlackPBB] = 0xFFFF000000000000;
+		pieceBB[WhiteKingPBB] = 0x0000000000000010;
+		pieceBB[BlackKingPBB] = 0x1000000000000000;
+		pieceBB[WhiteQueenPBB] = 0x0000000000000008;
+		pieceBB[BlackQueenPBB] = 0x0800000000000000;
+		pieceBB[WhiteRookPBB] = 0x0000000000000081;
+		pieceBB[BlackRookPBB] = 0x8100000000000000;
+		pieceBB[WhiteBishopPBB] = 0x0000000000000024;
+		pieceBB[BlackBishopPBB] = 0x2400000000000000;
+		pieceBB[WhiteKnightPBB] = 0x0000000000000042;
+		pieceBB[BlackKnightPBB] = 0x4200000000000000;
+		pieceBB[WhitePawnPBB] = 0x000000000000FF00;
+		pieceBB[BlackPawnPBB] = 0x00FF000000000000;
+		
+		emptyBB = 0x0000FFFFFFFF0000;
+		occupiedBB = 0xFFFF00000000FFFF;
+		
+		currEnPassantTrgSq.Clear();
+		
+		currCastlingState.Clear();
+	}
+	
 	public void InitAttackPattern() {
 		
 		// King attack

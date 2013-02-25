@@ -16,6 +16,8 @@ public class ChessBoard {
 	// board square, 8 x 8, pile x rank
 	public ChessBoardSquare[,] aBoardSquare;	
 	
+	// all piece list
+	List<ChessPiece> listAllPiece;	
 	// current live piece list	
 	List<ChessPiece> listLivePiece;
 	// current captured piece list
@@ -109,7 +111,8 @@ public class ChessBoard {
 		bitBoardVirtual.Init();
 		
 		// piece list
-		listLivePiece = new List<ChessPiece>();		
+		listAllPiece = new List<ChessPiece>();
+		listLivePiece = new List<ChessPiece>();
 		aBoardSquare = new ChessBoardSquare[ChessData.nNumPile,ChessData.nNumRank];
 		
 		ChessPiece currPiece = null;
@@ -133,15 +136,15 @@ public class ChessBoard {
 					
 					if( i == 0 || i == 1 ) {																						
 						
-						currPiece = new ChessPiece( currPieceObject.gameObject, PlayerSide.e_White,	ChessData.aStartPiecePos[i,j] );
-						listLivePiece.Add( currPiece );
+						currPiece = new ChessPiece( currPieceObject.gameObject, PlayerSide.e_White,	ChessData.aStartPiecePos[i,j] );						
+						listAllPiece.Add( currPiece );
 						
 						aBoardSquare[i,j] = new ChessBoardSquare( currPiece, movablePiecePSystem, i, j );
 					}
 					else if( i == 6 || i == 7 ) {						
 						
-						currPiece = new ChessPiece( currPieceObject.gameObject, PlayerSide.e_Black,	ChessData.aStartPiecePos[i,j] );
-						listLivePiece.Add( currPiece );
+						currPiece = new ChessPiece( currPieceObject.gameObject, PlayerSide.e_Black,	ChessData.aStartPiecePos[i,j] );						
+						listAllPiece.Add( currPiece );
 						
 						aBoardSquare[i,j] = new ChessBoardSquare( currPiece, movablePiecePSystem, i, j );
 					}									
@@ -172,6 +175,74 @@ public class ChessBoard {
 		currSelectedSquare = null;
 		selectPiecePSystem = MonoBehaviour.Instantiate( selectPSystemRef, Vector3.zero, Quaternion.identity ) as ParticleSystem;				
 		selectPiecePSystem.Stop();
+	}
+	
+	public void Restart() {
+		
+		// etc property		
+		CurrTurn = PlayerSide.e_White;	
+		UserPlayerSide = PlayerSide.e_White;
+		ThinkingTime = 18000;
+		nCurrHalfMove = 0;
+		nCurrTotalMove = 0;
+		
+		Ready = true;
+		
+		WhiteCallCheck = false;
+		BlackCallCheck = false;
+		
+		WhiteInCheckMate = false;
+		BlackInCheckMate = false;
+		
+		// move
+		currWhiteMove.Clear();
+		currBlackMove.Clear();
+		
+		listWhiteMoveHistory.Clear();
+		listBlackMoveHistory.Clear();
+		
+		listCurrMovable.Clear();
+		
+		listCapturedPiece.Clear();
+		
+		// init board
+		bitBoard.Reset();
+		bitBoardVirtual.Reset();
+		
+		// piece list
+		listLivePiece.Clear();			
+		
+		ChessPiece currPiece = null;
+		for( int i=0; i<ChessData.nNumPile; i++ ){
+			for( int j=0; j<ChessData.nNumRank; j++ ){				
+				
+				if( ChessData.aStartPiecePos[i,j] == PiecePlayerType.eNone_Piece ) {					
+					
+					aBoardSquare[i,j].ClearPiece();						
+				}
+				else
+				{					
+					if( i == 0 || i == 1 || i == 6 || i == 7 ) {																												
+						
+						currPiece = listAllPiece.Find( piece => piece.piecePlayerType == ChessData.aStartPiecePos[i,j] );
+						if( currPiece != null ) {
+							
+							listLivePiece.Add( currPiece );	
+							
+							aBoardSquare[i,j].ClearPiece();
+							aBoardSquare[i,j].SetPiece( currPiece );
+						}
+						else {
+							
+							UnityEngine.Debug.LogError( "ChessBoard::Restart() - listAllPiece.Find() Error");
+						}
+					}												
+				}				
+			}		
+		}	
+		
+		// particle effect
+		SelectSquare( null );		
 	}
 	
 	public void SelectSquare( ChessBoardSquare selSquare ) {

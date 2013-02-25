@@ -111,6 +111,17 @@ public class ChessEngineOption {
 			this.queueVar.Enqueue( strValue );				
 		}
 	}
+	
+	public string GetSendOptionString() {
+		
+		string strRet = "setoption name " + Name + " value";
+		foreach( string strValue in queueVar ) {
+			
+			strRet += " " + strValue;
+		}
+		
+		return strRet;		
+	}
 }
 	
 
@@ -122,7 +133,7 @@ public class ChessEngineOption {
 
 
 
-public class ChessEngineConfig : IEnumerator {		
+public class ChessEngineConfig {		
 	
 	
 	public string Name {
@@ -140,16 +151,14 @@ public class ChessEngineConfig : IEnumerator {
 	public ChessEngineConfig() {
 		
 		mapOption = new Dictionary<string, ChessEngineOption>();		
-	}
+	}	
 	
 	
-	// IEnumerable implement
-	public IEnumerator GetEnumerator() {
+	
+	public Dictionary<string, ChessEngineOption> GetOptionMap() {
 		
-        return mapOption.GetEnumerator();
-    } 	
-	
-	
+		return mapOption;			
+	}
 	
 	
 	public bool IsEmpty() {

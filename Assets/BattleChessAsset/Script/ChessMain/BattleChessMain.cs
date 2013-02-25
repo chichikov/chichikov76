@@ -29,7 +29,8 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 		// chess engine start		
 		// enroll command executor
 		ChessEngineManager.Instance.EngineCmdExecuter = this;
-		ChessEngineManager.Instance.Send( "isready" );		
+		ChessEngineManager.Instance.Send( "ucinewgame" );
+		ChessEngineManager.Instance.Send( "isready" );
 	}
 	
 	// Update is called once per frame
@@ -127,7 +128,7 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 	// on Process Engine command
 	public bool OnInitStockfishCommand( CommandBase.CommandData cmdData )
 	{
-		ChessEngineManager.Instance.Send( "uci" );
+		//ChessEngineManager.Instance.Send( "uci" );
 		return true;				
 	}
 	
@@ -141,16 +142,17 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 		// send setoption command!!!
 		
 		// send isready command	
-		ChessEngineManager.Instance.Send( "isready" );
+		//ChessEngineManager.Instance.Send( "isready" );
 		
 		return true;
 	}
 	
 	public bool OnReadyOkCommand( CommandBase.CommandData cmdData )
 	{
-		// send isready command	
-		ChessEngineManager.Instance.Send( "ucinewgame" );		
-		board.Ready = true;	
+		// send isready command				
+		//board.Ready = true;	
+		
+		board.Restart();		
 		
 		return true;
 	}

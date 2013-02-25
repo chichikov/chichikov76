@@ -272,8 +272,8 @@ public class ChessEngineManager {
 		if( DefaultConfigData == null || DefaultConfigData.IsEmpty() )
 			return;
 		
-		ChessEngineConfig.Option defaultOption = DefaultConfigData.GetConfigOption( strOptionName );
-		ChessEngineConfig.Option currentOption = new ChessEngineOption();	
+		ChessEngineOption defaultOption = DefaultConfigData.GetConfigOption( strOptionName );
+		ChessEngineOption currentOption = new ChessEngineOption();	
 		currentOption.CopyFrom( defaultOption );
 		currentOption.SetBoolValue( bValue );
 		CurrentConfigData.AddOption( currentOption );
@@ -284,8 +284,8 @@ public class ChessEngineManager {
 		if( DefaultConfigData == null || DefaultConfigData.IsEmpty() )
 			return;
 		
-		ChessEngineConfig.Option defaultOption = DefaultConfigData.GetConfigOption( strOptionName );
-		ChessEngineConfig.Option currentOption = new ChessEngineOption();	
+		ChessEngineOption defaultOption = DefaultConfigData.GetConfigOption( strOptionName );
+		ChessEngineOption currentOption = new ChessEngineOption();	
 		currentOption.CopyFrom( defaultOption );
 		currentOption.SetRangeFloatValue( fValue );
 		CurrentConfigData.AddOption( currentOption );	
@@ -296,8 +296,8 @@ public class ChessEngineManager {
 		if( DefaultConfigData == null || DefaultConfigData.IsEmpty() )
 			return;
 		
-		ChessEngineConfig.Option defaultOption = DefaultConfigData.GetConfigOption( strOptionName );
-		ChessEngineConfig.Option currentOption = new ChessEngineOption();	
+		ChessEngineOption defaultOption = DefaultConfigData.GetConfigOption( strOptionName );
+		ChessEngineOption currentOption = new ChessEngineOption();	
 		currentOption.CopyFrom( defaultOption );
 		currentOption.SetStringValue( strValue );
 		CurrentConfigData.AddOption( currentOption );	
@@ -306,7 +306,14 @@ public class ChessEngineManager {
 	// send current option to engine
 	public void SendCurrentOption() {
 		
-		//CurrentConfigData				
+		Dictionary<string, ChessEngineOption> optionMap = CurrentConfigData.GetOptionMap();
+		if( optionMap != null ) {
+			
+			foreach( KeyValuePair<string, ChessEngineOption> optionPair in optionMap ) {
+				
+				Send( optionPair.Value.GetSendOptionString() );
+			}
+		}
 	}
 
 	

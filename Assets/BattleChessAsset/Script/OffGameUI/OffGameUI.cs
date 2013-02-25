@@ -29,6 +29,16 @@ public class OffGameUI : MonoBehaviour, IProcessChessEngine {
 		ChessEngineManager.Instance.ProcessEngineCommand();			
 	}
 	
+	void OnDestroy () { 	
+		
+		// retrieve tagged(panel) GameObject and Remove GUIManager
+		GameObject [] aPanel = GameObject.FindGameObjectsWithTag( "Panel" );
+		foreach( GameObject panel in aPanel ) {
+			
+			GUIManager.Instance.RemovePanel( panel.name );
+		}
+	}
+	
 	void OnApplicationQuit()
 	{
 		ChessEngineManager.Instance.End();		
@@ -70,7 +80,8 @@ public class OffGameUI : MonoBehaviour, IProcessChessEngine {
 	}
 	
 	public bool OnReadyOkCommand( CommandBase.CommandData cmdData )
-	{		
+	{
+		Application.LoadLevel("BattleChessInfinity");
 		return true;	
 	}
 	
@@ -97,7 +108,7 @@ public class OffGameUI : MonoBehaviour, IProcessChessEngine {
 			OptionScrollPanel optScrollPanelScript = optionScrollPanel.GetComponent<OptionScrollPanel>();				
 			if( optScrollPanelScript != null ) {
 				
-				ChessEngineConfig.Option option = ChessEngineManager.Instance.DefaultConfigData.GetConfigOption( cmdData.StrCmd );
+				ChessEngineOption option = ChessEngineManager.Instance.DefaultConfigData.GetConfigOption( cmdData.StrCmd );
 				if( option != null ) {
 					
 					optScrollPanelScript.SetOption( option );
