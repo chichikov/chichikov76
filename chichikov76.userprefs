@@ -1,39 +1,16 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\BattleChessAsset\Script\OffGameUI\OffGameUI.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\BattleChessAsset\Script\ChessMain\GameState.cs">
     <Files>
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessEngineManager.cs" Line="133" Column="21" />
-      <File FileName="Assets\BattleChessAsset\Script\OffGameUI\OptionMenu.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessBitBoard.cs" Line="128" Column="3" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessCastling.cs" Line="17" Column="23" />
-      <File FileName="Assets\BattleChessAsset\Script\OffGameUI\ModeMenu.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\BattleChessMain.cs" Line="101" Column="2" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessBoard.cs" Line="673" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\GUIManager.cs" Line="74" Column="4" />
-      <File FileName="Assets\BattleChessAsset\Script\OffGameUI\OffGameUI.cs" Line="59" Column="3" />
-      <File FileName="Assets\BattleChessAsset\Script\OffGameUI\InitMenu.cs" Line="25" Column="2" />
-      <File FileName="Assets\BattleChessAsset\Script\OffGameUI\EtcMenu.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessEngineCmdParser.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\IProcessChessEngine.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessEngineConfig.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessData.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessBoardSquare.cs" Line="34" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessMain\GameState.cs" Line="57" Column="3" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\Singleton.cs" Line="108" Column="3" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\Manager\GUIManager.cs" Line="1" Column="1" />
       <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessUtility.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessEnPassant.cs" Line="10" Column="14" />
-      <File FileName="Assets\BattleChessAsset\Script\OffGameUI\OptionScrollPanel.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessPiece.cs" Line="46" Column="16" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessPosition.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessMoveManager.cs" Line="196" Column="19" />
-      <File FileName="Assets\BattleChessAsset\Script\MainGameUI\MainGamePanel.cs" Line="21" Column="30" />
-      <File FileName="Assets\BattleChessAsset\Script\MainGameUI\MainGameUI.cs" Line="17" Column="35" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\StateMachine\StateMachineBehaviourEx.cs" Line="353" Column="34" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="C:\WorkU\Unity Projects\chichikov76\Assets\BattleChessAsset\Script\OffGameUI\OffGameUI.cs" line="59" />
-      <Breakpoint file="C:\WorkU\Unity Projects\chichikov76\Assets\BattleChessAsset\Script\ChessMain\ChessEngineManager.cs" line="453" />
-      <Breakpoint file="F:\WorkUnity\Unity Projects\Work\WorkU\chichikov\chichikov76\Assets\BattleChessAsset\Script\OffGameUI\OffGameUI.cs" line="38" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

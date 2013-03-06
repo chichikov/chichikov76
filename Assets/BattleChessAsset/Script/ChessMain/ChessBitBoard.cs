@@ -332,7 +332,7 @@ public class ChessBitBoard {
 		pieceBB[nCapturePlayerSide] = (pieceBB[nCapturePlayerSide] ^ ulTrgSqBB);	
 	}	
 		
-	public void MoveUpdate( ChessMoveManager.sMove move ) {
+	public void MoveUpdate( ChessMover.sMove move ) {
 		
 		bool bWillEnpassantInit = true;
 		
@@ -347,24 +347,24 @@ public class ChessBitBoard {
 		
 		
 		// normal move
-		if( ChessMoveManager.IsNormalMove( move.moveType ) ) {			
+		if( ChessMover.IsNormalMove( move.moveType ) ) {			
 			
 			// pawn move
-			if( ChessMoveManager.IsPawnMove( move.moveType ) ) {								
+			if( ChessMover.IsPawnMove( move.moveType ) ) {								
 						
 				// promote move
-				if( ChessMoveManager.IsPromoteMove( move.moveType ) ) {
+				if( ChessMover.IsPromoteMove( move.moveType ) ) {
 					
 				}
 				// one/two move
 				else  {
 					
 					// normal one square move
-					if( ChessMoveManager.IsPawnOneMove( move.moveType ) ) {
+					if( ChessMover.IsPawnOneMove( move.moveType ) ) {
 						
 					}
 					// two square move
-					else if( ChessMoveManager.IsPawnTwoMove( move.moveType ) ) {					
+					else if( ChessMover.IsPawnTwoMove( move.moveType ) ) {					
 						
 						// en passant target square update
 						// if enemy pawn exist in east/west square, set enpassant target square				
@@ -382,17 +382,17 @@ public class ChessBitBoard {
 			MoveUpdatePieceBB( nSrcPlayerSide, nSrcPieceBBIndex, ulSrcSqBB, ulTrgSqBB );
 		}		
 		// capture move
-		else if( ChessMoveManager.IsCaptureMove( move.moveType ) ) {
+		else if( ChessMover.IsCaptureMove( move.moveType ) ) {
 			
 			int nTrgPlayerSide, nTrgPieceBBIndex;		
 			nTrgPlayerSide = (int)move.trgSquare.piece.playerSide;		
 			nTrgPieceBBIndex = (int)move.trgSquare.piece.pieceType * 2 + 2 + nTrgPlayerSide;
 			
 			// pawn move
-			if( ChessMoveManager.IsPawnMove( move.moveType ) ) {
+			if( ChessMover.IsPawnMove( move.moveType ) ) {
 				
 				// promote move
-				if( ChessMoveManager.IsPromoteMove( move.moveType ) ) {
+				if( ChessMover.IsPromoteMove( move.moveType ) ) {
 					
 				}				
 			}
@@ -401,7 +401,7 @@ public class ChessBitBoard {
 			CaptureUpdatePieceBB( nSrcPlayerSide, nSrcPieceBBIndex, nTrgPlayerSide, nTrgPieceBBIndex, ulSrcSqBB, ulTrgSqBB );
 		}			
 		// enpassantmove
-		else if( ChessMoveManager.IsEnpassantMove( move.moveType ) ) {
+		else if( ChessMover.IsEnpassantMove( move.moveType ) ) {
 			
 			
 			ulong ulCaptureSqBB = 0;			
@@ -417,7 +417,7 @@ public class ChessBitBoard {
 			EnpassantCaptureUpdatePieceBB( nSrcPlayerSide, nSrcPieceBBIndex, nCapturePlayerSide, nCapurePieceBBIndex, ulSrcSqBB, ulTrgSqBB, ulCaptureSqBB );
 		}		
 		// castling move
-		else if( ChessMoveManager.IsCastlingMove( move.moveType ) ) {			
+		else if( ChessMover.IsCastlingMove( move.moveType ) ) {			
 			
 			// update piece bb for castling move
 			// king move
@@ -427,16 +427,16 @@ public class ChessBitBoard {
 			ulong ulRookSrcSqBB = 0, ulRookTrgSqBB = 0;
 			int nRookSrcPieceBBIndex, nRookSrcSq, nRookTrgSq;
 			nRookSrcPieceBBIndex = (int)PieceType.e_Rook * 2 + 2 + nSrcPlayerSide;
-			if( ChessMoveManager.IsWhiteKingSideCastlingMove( move.moveType ) ||
-				ChessMoveManager.IsBlackKingSideCastlingMove( move.moveType ) ) {									
+			if( ChessMover.IsWhiteKingSideCastlingMove( move.moveType ) ||
+				ChessMover.IsBlackKingSideCastlingMove( move.moveType ) ) {									
 						
 				nRookSrcSq = nSrcPlayerSide == WhitePBB ? 7 : 63;
 				ulRookSrcSqBB = (ulong)1 << nRookSrcSq;
 				nRookTrgSq = nRookSrcSq - 2;
 				ulRookTrgSqBB = (ulong)1 << nRookTrgSq;
 			}
-			else if( ChessMoveManager.IsWhiteQueenSideCastlingMove( move.moveType ) ||
-					 ChessMoveManager.IsBlackQueenSideCastlingMove( move.moveType ) ) {
+			else if( ChessMover.IsWhiteQueenSideCastlingMove( move.moveType ) ||
+					 ChessMover.IsBlackQueenSideCastlingMove( move.moveType ) ) {
 				
 				nRookSrcSq = nSrcPlayerSide == WhitePBB ? 0 : 56;
 				ulRookSrcSqBB = (ulong)1 << nRookSrcSq;
@@ -457,7 +457,7 @@ public class ChessBitBoard {
 	
 	
 	// update castling state
-	public void UpdateCastlingState( ChessMoveManager.sMove move ) {
+	public void UpdateCastlingState( ChessMover.sMove move ) {
 		
 		// possible castling condition
 		//1.The king has not previously moved.

@@ -4,14 +4,26 @@ using System.Collections;
 public class EtcMenu : MonoBehaviour {
 	
 	
-	// Use this for initialization
-	void Start () {
+	// Use this for first initialization	
+	void Awake() {	
+		
+		// Add to GUIManager
+		GUIManager.Instance.AddGUI( this.gameObject.name, this.gameObject );
+	}
 	
+	// Use this for initialization
+	void Start () {		
+			
 	}
 	
 	// Update is called once per frame
 	void Update () {
 	
+	}
+	
+	void OnDestroy () {
+		
+		GUIManager.Instance.RemoveGUI( this.gameObject.name );
 	}
 	
 	

@@ -37,15 +37,26 @@ public class OptionScrollPanel : MonoBehaviour {
 	public UIInput searchLogFileInput;
 	
 	
+	// Use this for first initialization	
+	void Awake() {	
+		
+		// Add to GUIManager
+		GUIManager.Instance.AddGUI( this.gameObject.name, this.gameObject );		
+	}
 	
 	// Use this for initialization
-	void Start () {
-	
+	void Start() {	
+		
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update() {
 	
+	}
+	
+	void OnDestroy() {
+		
+		GUIManager.Instance.RemoveGUI( this.gameObject.name );
 	}
 	
 	

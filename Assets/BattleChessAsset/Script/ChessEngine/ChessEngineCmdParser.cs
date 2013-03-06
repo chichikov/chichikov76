@@ -71,7 +71,33 @@ public class CommandBase {
 			queueSubCmdData = new Queue<CommandData>();
 			
 			InvalidCmd = true;
-		}			
+		}
+		
+		public string GetValueString() {
+			
+			string strValueString = null;
+			foreach( string strValue in queueStrValue ) {
+				
+				if( strValueString == null )
+					strValueString = strValue;
+				else
+					strValueString += " " + strValue;				
+			}
+			
+			return strValueString;
+		}
+		
+		public string GetSubCommandValue( string strSubCommand ) {
+			
+			foreach( CommandData subCmdData in queueSubCmdData ) {
+				
+				string strSubCmdValue = subCmdData.GetValueString();
+				if( subCmdData.StrCmd == strSubCommand )
+					return strSubCmdValue;
+			}
+			
+			return null;
+		}
 	}
 	
 	
@@ -243,7 +269,7 @@ public class CommandBase {
 			int nCurrToken = 0;
 			int nCurrNextToken = 0;
 			
-			strCurrValueTokens = "";
+			strCurrValueTokens = null;
 			
 			foreach( string strToken in str_tokens ) {
 				
@@ -264,7 +290,10 @@ public class CommandBase {
 				}
 				else {
 					
-					strCurrValueTokens += " " + strToken;				
+					if( strCurrValueTokens == null )
+						strCurrValueTokens = strToken;
+					else
+						strCurrValueTokens += " " + strToken;				
 				}	
 				
 				nCurrToken++;
@@ -403,7 +432,8 @@ public class CommandBase {
 			if( strSubCmd == "name" ) {	
 				
 				CommandData subCmdData = new CommandData();			
-				subCmdData.StrCmd = strSubCmd;			
+				subCmdData.StrCmd = strSubCmd;
+				str_next_tokens = GetNextTokens( str_next_tokens );				
 				string strCmdValue;
 				str_next_tokens = GetNextCommandTokens( str_next_tokens, "type", out strCmdValue );
 				subCmdData.QueueStrValue.Enqueue( strCmdValue );
@@ -745,7 +775,8 @@ public class CommandBase {
 				{
 					// subsub command
 					CommandData subCmdData = new CommandData();			
-					subCmdData.StrCmd = strSubCmd;			
+					subCmdData.StrCmd = strSubCmd;
+					str_next_tokens = GetNextTokens( str_next_tokens );
 					strValue = str_next_tokens[0];
 					subCmdData.QueueStrValue.Enqueue( strValue );	
 					subCmdData.InvalidCmd = false;

@@ -110,7 +110,11 @@ public class ChessEngineManager {
 	public ChessEngineConfig DefaultConfigData { get; private set; }
 	public ChessEngineConfig CurrentConfigData { get; private set; }
 	
-	public bool EngineInit { get; private set; }
+	public bool IsEngineInit { get; private set; }
+	
+	public bool IsPonderMode { get; private set; }
+	public bool IsPonderFailed { get; set; }
+	public string CurrentPonder { get; private set; }
 	
 	
 	
@@ -139,7 +143,9 @@ public class ChessEngineManager {
 		cmdParser = null;		
 		DefaultConfigData = null;		
 		CurrentConfigData = null;
-		EngineInit = false;
+		IsEngineInit = false;
+		IsPonderMode = false;
+		IsPonderFailed = false;
 	}	
 	
 	// interface
@@ -269,8 +275,10 @@ public class ChessEngineManager {
 	
 	public void SetCurrentBoolOption( string strOptionName, bool bValue ) {
 		
-		if( DefaultConfigData == null || DefaultConfigData.IsEmpty() )
+		if( DefaultConfigData == null || DefaultConfigData.IsEmpty() ) {
+			//UnityEngine.Debug.Log( "ChessEngineManager::SetCurrentBoolOption() - " + strOptionName );
 			return;
+		}
 		
 		ChessEngineOption defaultOption = DefaultConfigData.GetConfigOption( strOptionName );
 		ChessEngineOption currentOption = new ChessEngineOption();	
@@ -281,8 +289,10 @@ public class ChessEngineManager {
 	
 	public void SetCurrentRangeFloatOption( string strOptionName, float fValue ) {
 		
-		if( DefaultConfigData == null || DefaultConfigData.IsEmpty() )
+		if( DefaultConfigData == null || DefaultConfigData.IsEmpty() ) {
+			//UnityEngine.Debug.Log( "ChessEngineManager::SetCurrentRangeFloatOption() - " + strOptionName );
 			return;
+		}
 		
 		ChessEngineOption defaultOption = DefaultConfigData.GetConfigOption( strOptionName );
 		ChessEngineOption currentOption = new ChessEngineOption();	
@@ -293,8 +303,10 @@ public class ChessEngineManager {
 	
 	public void SetCurrentStringOption( string strOptionName, string strValue ) {
 		
-		if( DefaultConfigData == null || DefaultConfigData.IsEmpty() )
+		if( DefaultConfigData == null || DefaultConfigData.IsEmpty() ) {
+			//UnityEngine.Debug.Log( "ChessEngineManager::SetCurrentStringOption() - " + strOptionName );
 			return;
+		}
 		
 		ChessEngineOption defaultOption = DefaultConfigData.GetConfigOption( strOptionName );
 		ChessEngineOption currentOption = new ChessEngineOption();	
@@ -307,12 +319,22 @@ public class ChessEngineManager {
 	public void SendCurrentOption() {
 		
 		Dictionary<string, ChessEngineOption> optionMap = CurrentConfigData.GetOptionMap();
-		if( optionMap != null ) {
+		if( optionMap != null ) {		
 			
-			foreach( KeyValuePair<string, ChessEngineOption> optionPair in optionMap ) {
+			foreach( KeyValuePair<string, ChessEngineOption> optionPair in optionMap ) {			
 				
 				Send( optionPair.Value.GetSendOptionString() );
 			}
+			
+			// update engine ponder option state
+			ChessEngineOption ponderOption = CurrentConfigData.GetConfigOption( "Ponder" );			
+			if( ponderOption == null )
+				ponderOption = DefaultConfigData.GetConfigOption( "Ponder" );
+			
+			if( ponderOption != null )				
+				IsPonderMode = ponderOption.GetBoolValue();							
+			else
+				IsPonderMode = false;		
 		}
 	}
 
@@ -387,7 +409,7 @@ public class ChessEngineManager {
 		
 		if( EngineCmdExecuter != null ) {
 			
-			EngineInit = true;
+			IsEngineInit = true;
 			
 			return EngineCmdExecuter.OnUciOkCommand( cmdData );
 		}
@@ -437,8 +459,27 @@ public class ChessEngineManager {
 	
 	bool ExcuteBestMoveCommand( CommandBase.CommandData cmdData ) {		
 		
-		if( EngineCmdExecuter != null )
+		if( EngineCmdExecuter != null ) {					
+				
+			if( IsPonderMode ) {
+				
+				// ignore command if ponder fail!!!		
+				if( IsPonderFailed ) {
+					
+					CurrentPonder = null;
+					IsPonderFailed = false;
+					return false;
+				}
+				else {
+					
+					CurrentPonder = cmdData.GetSubCommandValue("ponder");
+				}
+			}
+			else
+				CurrentPonder = null;			
+			
 			return EngineCmdExecuter.OnBestMoveCommand( cmdData );
+		}
 		
 		return false;
 	}	

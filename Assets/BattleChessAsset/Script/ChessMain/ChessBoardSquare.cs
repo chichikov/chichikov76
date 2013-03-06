@@ -114,6 +114,11 @@ public class ChessBoardSquare {
 		return position.IsInvalidPos();
 	}
 	
+	public string GetFenString() {
+		
+		return ChessData.GetRankPileToString( position.nRank, position.nPile );
+	}
+	
 	// override operator
 	public override bool Equals(System.Object obj)
     {

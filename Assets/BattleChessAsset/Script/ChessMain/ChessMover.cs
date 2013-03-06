@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 //namespace BattleChess {	
 
-public class ChessMoveManager {	
+public class ChessMover {	
 	
 	
 	public enum MoveDirectionType : int {
@@ -160,27 +160,7 @@ public class ChessMoveManager {
 			this.trgSquare = null;
 			this.srcSquare = null;
 			this.capturedSquare = null;				
-		}	
-		
-		/*
-		public sMove( ChessBoardSquare srcSquare, ChessBoardSquare trgSquare, MoveType moveType, ChessBoardSquare capturedSquare = null ) {
-			
-			this.moveType = moveType;			
-			
-			this.trgSquare = trgSquare;
-			this.srcSquare = srcSquare;
-			this.capturedSquare = capturedSquare;						
 		}			
-		
-		public void Set( ChessBoardSquare srcSquare, ChessBoardSquare trgSquare, MoveType moveType, ChessBoardSquare capturedSquare = null ) {
-			
-			this.moveType = moveType;			
-			
-			this.trgSquare = trgSquare;
-			this.srcSquare = srcSquare;
-			this.capturedSquare = capturedSquare;		
-		}
-		*/		
 		
 		public void Set( sMove move ) {
 			
@@ -208,6 +188,17 @@ public class ChessMoveManager {
 				(moveType & MoveType.eCastling_Move) > 0 )
 				return true;
 			return false;
+		}
+		
+		// for ponder
+		public string GetFenString() {
+			
+			if( srcSquare == null || trgSquare == null ) {
+				
+				UnityEngine.Debug.LogError( "sMove::GetFenString() - src or trg square is null!!" );
+			}				
+			
+			return srcSquare.GetFenString() + " " + trgSquare.GetFenString();
 		}
 	}		
 	
@@ -301,9 +292,9 @@ public class ChessMoveManager {
 				sMove move = new sMove();
 				
 				// check capture move
-				if( ChessMoveManager.IsCaptureMove( moveType ) ) {					
+				if( ChessMover.IsCaptureMove( moveType ) ) {					
 					
-					if( ChessMoveManager.IsEnpassantMove( moveType ) ) {
+					if( ChessMover.IsEnpassantMove( moveType ) ) {
 						
 						int nCapturedPawnRank, nCapturedPawnFile;	
 						nCapturedPawnRank = nCurrRank;
@@ -315,7 +306,7 @@ public class ChessMoveManager {
 				}
 				
 				// check pawn promote move
-				if( ChessMoveManager.IsPawnMove( moveType ) ) {
+				if( ChessMover.IsPawnMove( moveType ) ) {
 					// promote move	check
 					if( srcSquare.piece.playerSide == PlayerSide.e_White ) {
 						if( (ulCurrMask & ChessBitBoard.firstRank) > 0 )
@@ -365,14 +356,14 @@ public class ChessMoveManager {
 				foreach( sMove aMove in listRetBoardPos ) {
 					
 					if( aMove.trgSquare == move.trgSquare ) {
-						UnityEngine.Debug.Log( "!!!!!!!!!!!!!!!!!!!!!!!!ChessMoveManager::BitBoardToMoveList() - move collision Aleady exist!!!!   " +
+						UnityEngine.Debug.Log( "!!!!!!!!!!!!!!!!!!!!!!!!ChessMover::BitBoardToMoveList() - move collision Aleady exist!!!!   " +
 						 	"file : " + move.trgSquare.position.nPile + "   Rank : " + move.trgSquare.position.nRank );
 						
 						string strOccupied = string.Format( "occupied : {0:X}", board.bitBoard.occupiedBB );
-						UnityEngine.Debug.LogError( "!!!!!!!!!!!!!!!!!!!!!!!!ChessMoveManager::BitBoardToMoveList() - " + strOccupied );
+						UnityEngine.Debug.LogError( "!!!!!!!!!!!!!!!!!!!!!!!!ChessMover::BitBoardToMoveList() - " + strOccupied );
 						
 						string strEmpty = string.Format( "empty : {0:X}", board.bitBoard.emptyBB );
-						UnityEngine.Debug.LogError( "!!!!!!!!!!!!!!!!!!!!!!!!ChessMoveManager::BitBoardToMoveList() - " + strEmpty );
+						UnityEngine.Debug.LogError( "!!!!!!!!!!!!!!!!!!!!!!!!ChessMover::BitBoardToMoveList() - " + strEmpty );
 					}
 				}
 				
@@ -590,7 +581,7 @@ public class ChessMoveManager {
 		return listRetBoardPos.Count > 0;
 	}	
 	
-	static ChessMoveManager() {
+	static ChessMover() {
 	}
 }
 

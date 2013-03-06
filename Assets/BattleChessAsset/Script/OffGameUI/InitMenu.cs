@@ -8,10 +8,14 @@ public class InitMenu : MonoBehaviour {
 	public UIButton optionBtn;
 	public UIButton etcBtn;
 	
-	// Use this for initialization
-	void Start () {
+	
+	// Use this for first initialization	
+	void Awake() {	
 		
-		if( ChessEngineManager.Instance.EngineInit ) {
+		// Add to GUIManager
+		GUIManager.Instance.AddGUI( this.gameObject.name, this.gameObject );
+		
+		if( ChessEngineManager.Instance.IsEngineInit ) {
 			
 			startBtn.isEnabled = true;
 			optionBtn.isEnabled = true;
@@ -23,10 +27,22 @@ public class InitMenu : MonoBehaviour {
 		}
 	}
 	
+	// Use this for initialization
+	void Start() {		
+		
+	}
+	
 	// Update is called once per frame
-	void Update () {
+	void Update() {
 	
 	}
+	
+	void OnDestroy() {
+		
+		GUIManager.Instance.RemoveGUI( this.gameObject.name );
+	}
+	
+	
 	
 	
 

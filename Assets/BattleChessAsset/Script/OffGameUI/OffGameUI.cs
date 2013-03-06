@@ -3,15 +3,16 @@ using System.Collections;
 
 public class OffGameUI : MonoBehaviour, IProcessChessEngine {	
 	
-	// Use this for initialization
-	void Start () {
-		
-		// retrieve tagged(panel) GameObject and Add GUIManager
-		GameObject [] aPanel = GameObject.FindGameObjectsWithTag( "Panel" );
-		foreach( GameObject panel in aPanel ) {
-			
-			GUIManager.Instance.AddPanel( panel.name, panel );
-		}
+	
+	public InitMenu initPanelScript;
+	public ModeMenu modePanelScript;
+	public OptionMenu optionPanelScript;
+	public OptionScrollPanel optionScrollPanelScript;
+	public EtcMenu etcPanelScript;
+	
+	
+	// Use this for first initialization	
+	void Awake() {	
 		
 		// first init menu select
 		GUIManager.Instance.ShowAllPanel(false);
@@ -19,7 +20,12 @@ public class OffGameUI : MonoBehaviour, IProcessChessEngine {
 		
 		// chess engine start
 		ChessEngineManager.Instance.EngineCmdExecuter = this;
-		ChessEngineManager.Instance.Start();		
+		ChessEngineManager.Instance.Start();
+	}
+	
+	// Use this for initialization
+	void Start () {			
+				
 	}
 	
 	// Update is called once per frame
@@ -29,14 +35,8 @@ public class OffGameUI : MonoBehaviour, IProcessChessEngine {
 		ChessEngineManager.Instance.ProcessEngineCommand();			
 	}
 	
-	void OnDestroy () { 	
+	void OnDestroy () {	
 		
-		// retrieve tagged(panel) GameObject and Remove GUIManager
-		GameObject [] aPanel = GameObject.FindGameObjectsWithTag( "Panel" );
-		foreach( GameObject panel in aPanel ) {
-			
-			GUIManager.Instance.RemovePanel( panel.name );
-		}
 	}
 	
 	void OnApplicationQuit()
@@ -64,17 +64,9 @@ public class OffGameUI : MonoBehaviour, IProcessChessEngine {
 	}
 	public bool OnUciOkCommand( CommandBase.CommandData cmdData )
 	{
-		// enable init menu's start and option button
-		GameObject initPanel = GUIManager.Instance.GetPanel( "InitPanel" );
-		if( initPanel != null )
-		{	
-			InitMenu intMenuScript = initPanel.GetComponent<InitMenu>();				
-			if( intMenuScript != null ) {
-				
-				intMenuScript.startBtn.isEnabled = true;
-				intMenuScript.optionBtn.isEnabled = true;
-			}			
-		}
+		// enable init menu's start and option button			
+		initPanelScript.startBtn.isEnabled = true;
+		initPanelScript.optionBtn.isEnabled = true;		
 		
 		return true;
 	}
@@ -101,21 +93,14 @@ public class OffGameUI : MonoBehaviour, IProcessChessEngine {
 	{
 		// enable/disable ui engine option
 		
-		// setting default option
-		GameObject optionScrollPanel = GUIManager.Instance.GetPanel( "OptionScrollPanel" );
-		if( optionScrollPanel != null )
-		{			
-			OptionScrollPanel optScrollPanelScript = optionScrollPanel.GetComponent<OptionScrollPanel>();				
-			if( optScrollPanelScript != null ) {
-				
-				ChessEngineOption option = ChessEngineManager.Instance.DefaultConfigData.GetConfigOption( cmdData.StrCmd );
-				if( option != null ) {
-					
-					optScrollPanelScript.SetOption( option );
-					return true;
-				}
-			}				
+		// setting default option				
+		ChessEngineOption option = ChessEngineManager.Instance.DefaultConfigData.GetConfigOption( cmdData.GetSubCommandValue("name") );
+		if( option != null ) {
+			
+			optionScrollPanelScript.SetOption( option );
+			return true;
 		}
+		
 				
 		return false;
 	}

@@ -23,17 +23,17 @@ public class ChessBoard {
 	// current captured piece list
 	List<ChessPiece> listCapturedPiece;		
 	// current movable board position move list
-	List<ChessMoveManager.sMove> listCurrMovable;	
+	List<ChessMover.sMove> listCurrMovable;	
 	
 	// current selected square
 	ChessBoardSquare currSelectedSquare;	
 	
 	// current move, en passant target move
-	ChessMoveManager.sMove currWhiteMove;
-	ChessMoveManager.sMove currBlackMove;	
+	ChessMover.sMove currWhiteMove;
+	ChessMover.sMove currBlackMove;	
 	
-	List<ChessMoveManager.sMove> listWhiteMoveHistory;	
-	List<ChessMoveManager.sMove> listBlackMoveHistory;	
+	List<ChessMover.sMove> listWhiteMoveHistory;	
+	List<ChessMover.sMove> listBlackMoveHistory;	
 	
 	
 	// half move
@@ -52,11 +52,11 @@ public class ChessBoard {
 	// player turn
 	public PlayerSide CurrTurn { get; set; }
 	
-	public bool WhiteCallCheck { get; set; }
-	public bool BlackCallCheck { get; set; }
+	public bool IsWhiteCallCheck { get; set; }
+	public bool IsBlackCallCheck { get; set; }
 	
-	public bool WhiteInCheckMate { get; set; }
-	public bool BlackInCheckMate { get; set; }
+	public bool IsWhiteInCheckMate { get; set; }
+	public bool IsBlackInCheckMate { get; set; }
 	
 	
 	
@@ -89,20 +89,20 @@ public class ChessBoard {
 		
 		Ready = false;
 		
-		WhiteCallCheck = false;
-		BlackCallCheck = false;
+		IsWhiteCallCheck = false;
+		IsBlackCallCheck = false;
 		
-		WhiteInCheckMate = false;
-		BlackInCheckMate = false;
+		IsWhiteInCheckMate = false;
+		IsBlackInCheckMate = false;
 		
 		// move
-		currWhiteMove = new ChessMoveManager.sMove();
-		currBlackMove = new ChessMoveManager.sMove();
+		currWhiteMove = new ChessMover.sMove();
+		currBlackMove = new ChessMover.sMove();
 		
-		listWhiteMoveHistory = new List<ChessMoveManager.sMove>();
-		listBlackMoveHistory = new List<ChessMoveManager.sMove>();
+		listWhiteMoveHistory = new List<ChessMover.sMove>();
+		listBlackMoveHistory = new List<ChessMover.sMove>();
 		
-		listCurrMovable = new List<ChessMoveManager.sMove>();
+		listCurrMovable = new List<ChessMover.sMove>();
 		
 		listCapturedPiece = new List<ChessPiece>();
 		
@@ -188,11 +188,11 @@ public class ChessBoard {
 		
 		Ready = true;
 		
-		WhiteCallCheck = false;
-		BlackCallCheck = false;
+		IsWhiteCallCheck = false;
+		IsBlackCallCheck = false;
 		
-		WhiteInCheckMate = false;
-		BlackInCheckMate = false;
+		IsWhiteInCheckMate = false;
+		IsBlackInCheckMate = false;
 		
 		// move
 		currWhiteMove.Clear();
@@ -323,7 +323,7 @@ public class ChessBoard {
 			nCurrHalfMove++;		
 	}	
 	
-	public void MoveUpdate( ChessMoveManager.sMove move ) {
+	public void MoveUpdate( ChessMover.sMove move ) {
 		
 		if( move.srcSquare.piece.playerSide == PlayerSide.e_White )
 			listWhiteMoveHistory.Add( move );
@@ -334,10 +334,10 @@ public class ChessBoard {
 		bitBoard.MoveUpdate( move );		
 		
 		// normal move
-		if( ChessMoveManager.IsNormalMove( move.moveType ) ) {			
+		if( ChessMover.IsNormalMove( move.moveType ) ) {			
 			
 			// promote move
-			if( ChessMoveManager.IsPromoteMove( move.moveType ) ) {						
+			if( ChessMover.IsPromoteMove( move.moveType ) ) {						
 				
 				//UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Normal Move(promote)" );				
 			}
@@ -349,10 +349,10 @@ public class ChessBoard {
 			}
 		}		
 		// capture move
-		else if( ChessMoveManager.IsCaptureMove( move.moveType ) ) {			
+		else if( ChessMover.IsCaptureMove( move.moveType ) ) {			
 			
 			// promote move
-			if( ChessMoveManager.IsPromoteMove( move.moveType ) ) {
+			if( ChessMover.IsPromoteMove( move.moveType ) ) {
 				
 				//UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Capture Move(promote)" );
 			}
@@ -369,7 +369,7 @@ public class ChessBoard {
 		
 		
 		// enpassantmove
-		if( ChessMoveManager.IsEnpassantMove( move.moveType ) ) {
+		if( ChessMover.IsEnpassantMove( move.moveType ) ) {
 			
 			//UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - en passant move" );
 			
@@ -381,7 +381,7 @@ public class ChessBoard {
 		}
 		
 		// castling move
-		if( ChessMoveManager.IsCastlingMove( move.moveType ) ) {
+		if( ChessMover.IsCastlingMove( move.moveType ) ) {
 			
 			//UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - castling move" );
 			
@@ -389,7 +389,7 @@ public class ChessBoard {
 			nDestRookRank = move.trgSquare.position.nRank;
 			nDestRookPile = move.trgSquare.position.nPile;
 			// white king side castling
-			if( ChessMoveManager.IsWhiteKingSideCastlingMove( move.moveType ) ) {
+			if( ChessMover.IsWhiteKingSideCastlingMove( move.moveType ) ) {
 				
 				ChessBoardSquare rookSquare = aBoardSquare[0,7];				
 				nDestRookRank = nDestRookRank - 1;
@@ -398,7 +398,7 @@ public class ChessBoard {
 			}				
 			
 			// white Queen side castling
-			if( ChessMoveManager.IsWhiteQueenSideCastlingMove( move.moveType ) ) {
+			if( ChessMover.IsWhiteQueenSideCastlingMove( move.moveType ) ) {
 				
 				ChessBoardSquare rookSquare = aBoardSquare[0,0];				
 				nDestRookRank = nDestRookRank + 1;
@@ -407,7 +407,7 @@ public class ChessBoard {
 			}	
 			
 			// black king side castling
-			if( ChessMoveManager.IsBlackKingSideCastlingMove( move.moveType ) ) {
+			if( ChessMover.IsBlackKingSideCastlingMove( move.moveType ) ) {
 				
 				ChessBoardSquare rookSquare = aBoardSquare[7, 7];				
 				nDestRookRank = nDestRookRank - 1;
@@ -416,7 +416,7 @@ public class ChessBoard {
 			}	
 			
 			// black queen side castling
-			if( ChessMoveManager.IsBlackQueenSideCastlingMove( move.moveType ) ) {
+			if( ChessMover.IsBlackQueenSideCastlingMove( move.moveType ) ) {
 				
 				ChessBoardSquare rookSquare = aBoardSquare[7, 0];				
 				nDestRookRank = nDestRookRank + 1;
@@ -449,20 +449,20 @@ public class ChessBoard {
 		
 		if( CurrTurn == PlayerSide.e_White ) {				
 			if( bitBoard.IsWhiteKingInCheck() ) {					
-				BlackCallCheck = true;
+				IsBlackCallCheck = true;
 			}
 			
 			if( bitBoard.IsWhiteKingInCheckMate() ) {					
-				WhiteInCheckMate = true;
+				IsWhiteInCheckMate = true;
 			}
 		}
 		else if( CurrTurn == PlayerSide.e_Black ) {
 			if( bitBoard.IsBlackKingInCheck() ) {					
-				WhiteCallCheck = true;
+				IsWhiteCallCheck = true;
 			}
 		
 			if( bitBoard.IsBlackKingInCheckMate() ) {					
-				BlackInCheckMate = true;
+				IsBlackInCheckMate = true;
 			}
 		}
 	}
@@ -487,7 +487,7 @@ public class ChessBoard {
 			}	
 		}
 		
-		UnityEngine.Debug.LogError( "ChessBoard::MoveTo() - MoveTo" );
+		//UnityEngine.Debug.LogError( "ChessBoard::MoveTo() - MoveTo" );
 		return false;
 	}
 	
@@ -501,8 +501,8 @@ public class ChessBoard {
 				
 				//UnityEngine.Debug.LogError( "AIMoveTo() - no blank" );
 				
-				List<ChessMoveManager.sMove> listAiMovable = new List<ChessMoveManager.sMove>();
-				bool bMoveList = ChessMoveManager.GetValidateMoveList( this, srcSquare, listAiMovable );
+				List<ChessMover.sMove> listAiMovable = new List<ChessMover.sMove>();
+				bool bMoveList = ChessMover.GetValidateMoveList( this, srcSquare, listAiMovable );
 				if( bMoveList ) {
 					//UnityEngine.Debug.LogError( "AIMoveTo() - no blank" + " " + bMoveList );					
 					if( IsValidAIMove( srcSquare, trgSquare, listAiMovable, currBlackMove ) ) {
@@ -529,7 +529,7 @@ public class ChessBoard {
 		listCurrMovable.Clear();
 		
 		if( currSelectedSquare != null )
-			ChessMoveManager.GetValidateMoveList( this, currSelectedSquare, listCurrMovable );
+			ChessMover.GetValidateMoveList( this, currSelectedSquare, listCurrMovable );
 		
 		// movable effect start
 		PlayMovableEffect();			
@@ -610,6 +610,96 @@ public class ChessBoard {
 		
 		string strRetGoCmd = "go " + strSide + " " + ThinkingTime;
 		return strRetGoCmd;
+	}
+	
+	public string GetCurrPonderMoveCommand( string strBestMove, string strPonderMove ) {
+		
+		// position fen string
+		string strPosFen = "position fen ", strResFen;
+		int nNumBlank = 0;
+		
+		for( int i=ChessData.nNumPile-1; i>=0; i-- ){			
+			for( int j=0; j<ChessData.nNumRank; j++ ){
+				
+				if( aBoardSquare[i,j].IsBlank() ) {					
+					
+					nNumBlank++;
+				}	
+				else {
+					
+					if( nNumBlank > 0 ) {
+						
+						strPosFen += nNumBlank;
+					}
+						
+					strPosFen += ChessData.GetPieceFenString( aBoardSquare[i,j].piece.piecePlayerType );
+					nNumBlank = 0;
+				}
+			}
+			
+			if( nNumBlank > 0 )			
+				strPosFen += nNumBlank;			
+			
+			if( i == 0 )
+				strPosFen += " ";
+			else
+				strPosFen += "/";
+			
+			nNumBlank = 0;
+		}
+		
+		// player turn - represent engine turn		
+		string strTurn;
+		if( CurrTurn == PlayerSide.e_White )
+			strTurn = "w";
+		else if( CurrTurn == PlayerSide.e_Black )
+			strTurn = "b";
+		else {
+			
+			strTurn = "w";
+			UnityEngine.Debug.LogError( "Fen String Error - Player Turn" );
+		}
+		
+		strResFen = strPosFen + strTurn;
+		
+		// cstling
+		string strCastling = bitBoard.currCastlingState.GetFenString();		
+		
+		// en passant target square
+		string strEnPassant = bitBoard.currEnPassantTrgSq.GetFenString();
+		
+		strResFen = strResFen + strCastling + strEnPassant;
+		
+		// curr half move count for 50 move rule
+		strResFen += " " + nCurrHalfMove;
+		
+		// total move - if black piece move completed, increse move
+		strResFen += " " + nCurrTotalMove;
+		
+		// ponder move
+		strResFen += " moves " + strBestMove + " " + strPonderMove;
+		
+		return strResFen;
+	}
+	
+	public string GetCurrPonderGoCommand() {
+		
+		string strSide = "wtime";
+		if( UserPlayerSide == PlayerSide.e_White )
+			strSide = "btime";
+		
+		string strRetGoCmd = "go ponder " + strSide + " " + ThinkingTime;
+		return strRetGoCmd;
+	}
+	
+	public string GetCurrMoveFenString() {
+		
+		if( CurrTurn == PlayerSide.e_White ) {
+			
+			return currWhiteMove.GetFenString();
+		}
+		
+		return currBlackMove.GetFenString();
 	}
 	
 	
@@ -696,15 +786,15 @@ public class ChessBoard {
 	
 	void PlayMovableEffect() {
 		
-		foreach( ChessMoveManager.sMove move in listCurrMovable ) {					
+		foreach( ChessMover.sMove move in listCurrMovable ) {					
 			
 			move.trgSquare.ShowMovableEffect(true);
 		}	
 	}
 	
-	bool IsValidMove( ChessBoardSquare srcSquare, ChessBoardSquare trgSquare, ChessMoveManager.sMove userMove ) {
+	bool IsValidMove( ChessBoardSquare srcSquare, ChessBoardSquare trgSquare, ChessMover.sMove userMove ) {
 		
-		foreach( ChessMoveManager.sMove move in listCurrMovable ) {
+		foreach( ChessMover.sMove move in listCurrMovable ) {
 			
 			if( move.srcSquare == srcSquare && move.trgSquare == trgSquare ) {
 				
@@ -717,9 +807,9 @@ public class ChessBoard {
 		return false;
 	}
 		
-	bool IsValidAIMove( ChessBoardSquare srcSquare, ChessBoardSquare trgSquare, List<ChessMoveManager.sMove> listMove, ChessMoveManager.sMove aiMove ) {
+	bool IsValidAIMove( ChessBoardSquare srcSquare, ChessBoardSquare trgSquare, List<ChessMover.sMove> listMove, ChessMover.sMove aiMove ) {
 		
-		foreach( ChessMoveManager.sMove move in listMove ) {			
+		foreach( ChessMover.sMove move in listMove ) {			
 			
 			if( move.srcSquare == srcSquare && move.trgSquare == trgSquare ) {
 				

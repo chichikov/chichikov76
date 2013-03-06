@@ -28,6 +28,10 @@ public class ChessEngineOption {
 		get; set;
 	} 
 	
+	public string Value {
+		get; set;
+	} 
+	
 	public Queue<string> queueVar;
 	
 	public ChessEngineOption() {
@@ -38,12 +42,7 @@ public class ChessEngineOption {
 	public void AddVar( string strVar ) {
 		
 		queueVar.Enqueue( strVar );
-	}
-	
-	public void ClearAllVar() {
-		
-		queueVar.Clear();
-	}
+	}	
 	
 	public bool GetBoolDefault() {
 		
@@ -51,16 +50,22 @@ public class ChessEngineOption {
 			return true;
 		
 		return false;
-	}
+	}	
 	
-	public void SetBoolValue( bool bValue ) {
-		
-		queueVar.Clear();
+	public void SetBoolValue( bool bValue ) {		
 		
 		if( bValue )
-			queueVar.Enqueue( "true" );
+			Value = "true";
 		else
-			queueVar.Enqueue( "false" );				
+			Value = "false";
+	}
+	
+	public bool GetBoolValue() {		
+		
+		if( Value == "true" )
+			return true;
+		
+		return false;	
 	}
 	
 	public float GetRangeFloatDefault() {
@@ -73,17 +78,19 @@ public class ChessEngineOption {
 		return ((fDefault - fMin) / (fMax - fMin));
 	}
 	
-	public void SetRangeFloatValue( float fPropValue ) {
-		
-		queueVar.Clear();
+	public void SetRangeFloatValue( float fPropValue ) {		
 		
 		float fMin, fMax;			
 		fMin = float.Parse(Min);
 		fMax = float.Parse(Max);
 		
-		string strRangeValue = (fPropValue * ( fMax - fMin )).ToString( "0.0000" );
-		queueVar.Enqueue( strRangeValue );		
+		Value = (fPropValue * ( fMax - fMin )).ToString( "0.0000" );		
 	}
+	
+	public float GetRangeFloatValue() {			
+			
+		return float.Parse( Value );		
+	}	
 	
 	public string GetStringDefault() {			
 		
@@ -92,11 +99,13 @@ public class ChessEngineOption {
 	
 	public void SetStringValue( string strValue ) {			
 		
-		queueVar.Clear();			
-		queueVar.Enqueue( strValue );
+		Value = strValue;
 	}
 	
-	
+	public string GetStringValue() {			
+		
+		return Value;
+	}	
 	
 	public void CopyFrom( ChessEngineOption option ) {
 		
@@ -112,15 +121,9 @@ public class ChessEngineOption {
 		}
 	}
 	
-	public string GetSendOptionString() {
+	public string GetSendOptionString() {	
 		
-		string strRet = "setoption name " + Name + " value";
-		foreach( string strValue in queueVar ) {
-			
-			strRet += " " + strValue;
-		}
-		
-		return strRet;		
+		return "setoption name " + Name + " value " + Value;		
 	}
 }
 	
@@ -185,6 +188,7 @@ public class ChessEngineConfig {
 			return mapOption[strOptionName];
 		}
 		
+		//UnityEngine.Debug.Log( "ChessEngineOption::GetConfigOption() - " + strOptionName );
 		return null;
 	}
 	

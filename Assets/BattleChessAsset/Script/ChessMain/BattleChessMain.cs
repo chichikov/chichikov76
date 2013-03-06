@@ -14,11 +14,20 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 	public ParticleSystem selectPiecePSystemRef;		
 	// movable particle effect
 	public ParticleSystem movablePiecePSystemRef;
+	// check particle effect
+	public ParticleSystem checkPSystemRef;
+	// check mate particle effect
+	public ParticleSystem checkMatePSystemRef;
+	
 	
 	// chess board
 	ChessBoard board;
 	
 	
+	// Use this for first initialization	
+	void Awake() {		
+		
+	}
 	
 	// Use this for initialization
 	void Start() {				
@@ -59,7 +68,7 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 						if( collisionSqaure.piece.IsEnemy( board.UserPlayerSide ) ) {	
 							
 							Move( vPos );
-							board.SelectSquare( null );
+							board.SelectSquare( null );							
 						}
 						else {
 							
@@ -71,7 +80,7 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 						
 						board.SelectSquare( null );
 						
-						UnityEngine.Debug.LogError( "Update() - Invalid Chess Piece" );
+						UnityEngine.Debug.LogError( "Update() - Invalid Chess Piece" );						
 					}
 				}
 				// collision to board
@@ -79,10 +88,9 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 					
 					// move to blank position					
 					Vector3 vPos = hitInfo.point;					
-					Move( vPos );
+					Move( vPos );					
 					
-					//UnityEngine.Debug.LogError( "Update() - Board Clicked" );
-					board.SelectSquare( null );										
+					board.SelectSquare( null );															
 				}
 			}
 			// extracollision
@@ -110,15 +118,46 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 		
 		if( board.MoveTo( vMoveTo ) )
 		{
-			// move command
-			string strMoveCmd = board.GetCurrMoveCommand();						
-			UnityEngine.Debug.Log( strMoveCmd );						
-			ChessEngineManager.Instance.Send( strMoveCmd );
-			
-			// go command
-			string strGoCmd = board.GetCurrGoCommand();						
-			UnityEngine.Debug.Log( strGoCmd );						
-			ChessEngineManager.Instance.Send( strGoCmd );			
+			bool bPonder = ChessEngineManager.Instance.IsPonderMode;
+			if( bPonder ) {
+				
+				string strCurrMoveFen = board.GetCurrMoveFenString();	
+				
+				// ponder hit
+				if( strCurrMoveFen == ChessEngineManager.Instance.CurrentPonder ) {
+					
+					ChessEngineManager.Instance.Send( "ponderhit" );
+					ChessEngineManager.Instance.IsPonderFailed = false;					
+				}
+				// ponder fail
+				else {
+				
+					ChessEngineManager.Instance.Send( "stop" );
+					ChessEngineManager.Instance.IsPonderFailed = true;
+					
+					// move command
+					string strMoveCmd = board.GetCurrMoveCommand();						
+					UnityEngine.Debug.Log( strMoveCmd );						
+					ChessEngineManager.Instance.Send( strMoveCmd );
+					
+					// go command
+					string strGoCmd = board.GetCurrGoCommand();						
+					UnityEngine.Debug.Log( strGoCmd );						
+					ChessEngineManager.Instance.Send( strGoCmd );	
+				}
+			}
+			else {			
+				
+				// move command
+				string strMoveCmd = board.GetCurrMoveCommand();						
+				UnityEngine.Debug.Log( strMoveCmd );						
+				ChessEngineManager.Instance.Send( strMoveCmd );
+				
+				// go command
+				string strGoCmd = board.GetCurrGoCommand();						
+				UnityEngine.Debug.Log( strGoCmd );						
+				ChessEngineManager.Instance.Send( strGoCmd );			
+			}
 		}		
 	}	
 	
@@ -206,6 +245,18 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 			
 			UnityEngine.Debug.LogError( "ExcuteBestMoveCommand() - Invalid src rank, pile" );
 			return false;
+		}	
+		
+		// for ponder		
+		string strPonderMoveCommand = null;		
+		string strPonderGoCommand = null;
+		string strPonderMove = ChessEngineManager.Instance.CurrentPonder;
+		bool bPonder = ChessEngineManager.Instance.IsPonderMode;
+		
+		if( bPonder ) {
+			
+			strPonderMoveCommand = board.GetCurrPonderMoveCommand( strBestMove, strPonderMove );
+			strPonderGoCommand = board.GetCurrPonderGoCommand();
 		}
 		
 		ChessBoardSquare srcSquare, trgSquare;
@@ -216,7 +267,19 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 		//UnityEngine.Debug.LogError( "ExcuteBestMoveCommand() - trg rank, pile " + nTrgRank + " , " + nTrgPile );
 		
 		if( board.AIMoveTo( srcSquare, trgSquare ) )
-		{				
+		{
+			// send pondering command
+			if( bPonder ) {	
+				
+				// ponder move command						
+				//UnityEngine.Debug.Log( strMoveCmd );						
+				ChessEngineManager.Instance.Send( strPonderMoveCommand );
+				
+				// ponder go command							
+				//UnityEngine.Debug.Log( strGoCmd );						
+				ChessEngineManager.Instance.Send( strPonderGoCommand );				
+			}
+			
 			return true;
 		}
 		
