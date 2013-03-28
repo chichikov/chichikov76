@@ -111,10 +111,14 @@ public class ChessEngineManager {
 	public ChessEngineConfig CurrentConfigData { get; private set; }
 	
 	public bool IsEngineInit { get; private set; }
+	public bool IsEngineRunning { get; private set; }
 	
 	public bool IsPonderMode { get; private set; }
 	public bool IsPonderFailed { get; set; }
 	public string CurrentPonder { get; private set; }
+	
+	public bool IsForceStop { get; set; }
+	public bool IsWaitforNewGame { get; set; }
 	
 	
 	
@@ -144,8 +148,11 @@ public class ChessEngineManager {
 		DefaultConfigData = null;		
 		CurrentConfigData = null;
 		IsEngineInit = false;
+		IsEngineRunning = false;
 		IsPonderMode = false;
 		IsPonderFailed = false;
+		IsWaitforNewGame = false;
+		IsForceStop = false;
 	}	
 	
 	// interface
@@ -195,6 +202,8 @@ public class ChessEngineManager {
 			sendWorker = new SendWorker( procEngine.StandardInput );
 			threadSend = new Thread(sendWorker.ProcessSend);
 			threadSend.Start();	
+			
+			IsEngineRunning = true;
 		}
 		catch( System.Exception e ) {
 			
@@ -203,27 +212,33 @@ public class ChessEngineManager {
 	}
 	
 	public void End() {
+		
+		if( IsEngineRunning ) {
 			
-		queReceived.Clear();				
-		
-		sendWorker.RequestStop();	
-		
-		threadSend.Join();
-		threadSend = null;
-		sendWorker = null;
-
-		// 비동기 로딩 스트림은 클로즈 하면 안된다!!!
-		//srReader.Close();
-		//srErrReader.Close();
-		procEngine.CancelOutputRead();
-		procEngine.CancelErrorRead();		
-		
-		procEngine.Close();				
-		procEngine = null;	
-		
-		cmdParser = null;
-		DefaultConfigData = null;
-		CurrentConfigData = null;
+			queReceived.Clear();				
+			
+			sendWorker.RequestStop();	
+			
+			threadSend.Join();
+			threadSend = null;
+			sendWorker = null;
+	
+			// 비동기 로딩 스트림은 클로즈 하면 안된다!!!
+			//srReader.Close();
+			//srErrReader.Close();
+			procEngine.CancelOutputRead();
+			procEngine.CancelErrorRead();		
+			
+			procEngine.Close();				
+			procEngine = null;	
+			
+			cmdParser = null;
+			DefaultConfigData = null;
+			CurrentConfigData = null;
+			
+			IsEngineRunning = false;
+			IsEngineInit = false;
+		}
 	}
 	
 	public void Send( string strUciCmd ) {
@@ -336,6 +351,22 @@ public class ChessEngineManager {
 			else
 				IsPonderMode = false;		
 		}
+	}	
+	
+	public void SendNewGame() {
+		
+		SendStop();
+		
+		Send( "ucinewgame" );
+		Send( "isready" );
+		
+		IsWaitforNewGame = true;
+	}
+	
+	public void SendStop() {
+		
+		IsForceStop = true;
+		Send( "stop" );
 	}
 
 	
@@ -373,25 +404,27 @@ public class ChessEngineManager {
 	// process engine command respond
 	// process engine command respond
 	public void ProcessEngineCommand() {
-		// read one line
-		string strCurCommandLine = PopReceivedQueue();
-		while( strCurCommandLine != null ) {
-			
-			UnityEngine.Debug.Log(strCurCommandLine);
-			
-			// process one engine respond
-			EngineToGuiCommand command = ParseCommand( strCurCommandLine );
-			if( command != null ) {				
-				
-				//command.PrintCommand();
-				SetDefaultOptionCommand( command.CmdData );
-				
-				ExcuteEngineCommand( command );								
-			}
-			
-			strCurCommandLine = PopReceivedQueue();
-		}
 		
+		if( IsEngineRunning ) {
+			// read one line
+			string strCurCommandLine = PopReceivedQueue();
+			while( strCurCommandLine != null ) {
+				
+				UnityEngine.Debug.Log(strCurCommandLine);
+				
+				// process one engine respond
+				EngineToGuiCommand command = ParseCommand( strCurCommandLine );
+				if( command != null ) {				
+					
+					//command.PrintCommand();
+					SetDefaultOptionCommand( command.CmdData );
+					
+					ExcuteEngineCommand( command );								
+				}
+				
+				strCurCommandLine = PopReceivedQueue();
+			}	
+		}
 	}
 	
 	
@@ -475,8 +508,18 @@ public class ChessEngineManager {
 					CurrentPonder = cmdData.GetSubCommandValue("ponder");
 				}
 			}
-			else
-				CurrentPonder = null;			
+			else {
+				
+				if( IsForceStop ) {
+					
+					IsForceStop = false;
+					CurrentPonder = null;
+					return false;
+				}				
+					
+				CurrentPonder = null;
+				
+			}
 			
 			return EngineCmdExecuter.OnBestMoveCommand( cmdData );
 		}

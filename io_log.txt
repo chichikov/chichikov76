@@ -1,0 +1,23 @@
+>> setoption name Use Search Log value true
+>> setoption name Skill Level value 20.0000
+>> setoption name Emergency Move Horizon value 40.0000
+>> setoption name Emergency Base Time value 198.0000
+>> setoption name Emergency Move Time value 70.0000
+>> setoption name Minimum Thinking Time value 20.0000
+>> setoption name Threads value 1.9375
+>> setoption name Mobility (Middle Game) value 100.0000
+>> setoption name Mobility (Endgame) value 100.0000
+>> setoption name Passed Pawns (Middle Game) value 100.0000
+>> setoption name Passed Pawns (Endgame) value 100.0000
+>> setoption name MultiPV value 0.9980
+>> setoption name Space value 100.0000
+>> setoption name Best Book Move value true
+>> setoption name Ponder value true
+>> setoption name Clear Hash value true
+>> setoption name Use Sleeping Threads value true
+>> setoption name UCI_Chess960 value true
+>> stop
+>> ucinewgame
+>> isready
+<< readyok
+>> quit

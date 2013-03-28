@@ -14,6 +14,12 @@ using System.Collections.Generic;
 [AddComponentMenu("NGUI/Interaction/Popup List")]
 public class UIPopupList : MonoBehaviour
 {
+	/// <summary>
+	/// Current popup list. Only available during the OnSelectionChange event callback.
+	/// </summary>
+
+	static public UIPopupList current;
+
 	const float animSpeed = 0.15f;
 
 	public enum Position
@@ -22,6 +28,8 @@ public class UIPopupList : MonoBehaviour
 		Above,
 		Below,
 	}
+
+	public delegate void OnSelectionChange (string item);
 
 	/// <summary>
 	/// Atlas used by the sprites.
@@ -119,6 +127,12 @@ public class UIPopupList : MonoBehaviour
 
 	public string functionName = "OnSelectionChange";
 
+	/// <summary>
+	/// Delegate that will be called when the selection changes. Faster than using the 'eventReceiver'.
+	/// </summary>
+
+	public OnSelectionChange onSelectionChange;
+
 	[HideInInspector][SerializeField] string mSelectedItem;
 	UIPanel mPanel;
 	GameObject mChild;
@@ -158,10 +172,14 @@ public class UIPopupList : MonoBehaviour
 #endif
 				}
 
+				current = this;
+				if (onSelectionChange != null) onSelectionChange(mSelectedItem);
+
 				if (eventReceiver != null && !string.IsNullOrEmpty(functionName) && Application.isPlaying)
 				{
 					eventReceiver.SendMessage(functionName, mSelectedItem, SendMessageOptions.DontRequireReceiver);
 				}
+				current = null;
 			}
 		}
 	}
@@ -202,21 +220,6 @@ public class UIPopupList : MonoBehaviour
 			selection = s;
 		}
 	}
-
-    /// <summary>
-    /// Copy from NGUITools 
-    /// Add a sprite appropriate for the specified atlas sprite.
-    /// It will be a UIBaseSlicedSprite if the sprite has an inner rect, and a regular sprite otherwise.
-    /// </summary>
-
-    private UISprite AddSprite(GameObject go, UIAtlas atlas, string spriteName)
-    {
-        UIAtlas.Sprite sp = (atlas != null) ? atlas.GetSprite(spriteName) : null;
-        UISprite sprite = (sp == null || sp.inner == sp.outer) ? NGUITools.AddWidget<UISprite>(go) : (UISprite)NGUITools.AddWidget<UISlicedSprite>(go);
-        sprite.atlas = atlas;
-        sprite.spriteName = spriteName;
-        return sprite;
-    }
 
 	/// <summary>
 	/// Localize the text label.
@@ -310,7 +313,7 @@ public class UIPopupList : MonoBehaviour
 
 	void OnKey (KeyCode key)
 	{
-		if (enabled && gameObject.active && handleEvents)
+		if (enabled && NGUITools.GetActive(gameObject) && handleEvents)
 		{
 			int index = mLabelList.IndexOf(mHighlightedLabel);
 
@@ -462,7 +465,7 @@ public class UIPopupList : MonoBehaviour
 			t.localScale = Vector3.one;
 
 			// Add a sprite for the background
-			mBackground = AddSprite(mChild, atlas, backgroundSprite);
+			mBackground = NGUITools.AddSprite(mChild, atlas, backgroundSprite);
 			mBackground.pivot = UIWidget.Pivot.TopLeft;
 			mBackground.depth = NGUITools.CalculateNextDepth(mPanel.gameObject);
 			mBackground.color = backgroundColor;
@@ -474,7 +477,7 @@ public class UIPopupList : MonoBehaviour
 			mBackground.cachedTransform.localPosition = new Vector3(0f, bgPadding.y, 0f);
 
 			// Add a sprite used for the selection
-			mHighlight = AddSprite(mChild, atlas, highlightSprite);
+			mHighlight = NGUITools.AddSprite(mChild, atlas, highlightSprite);
 			mHighlight.pivot = UIWidget.Pivot.TopLeft;
 			mHighlight.color = highlightColor;
 
@@ -494,7 +497,7 @@ public class UIPopupList : MonoBehaviour
 				lbl.font = font;
 				lbl.text = (isLocalized && Localization.instance != null) ? Localization.instance.Get(s) : s;
 				lbl.color = textColor;
-				lbl.cachedTransform.localPosition = new Vector3(bgPadding.x, y, 0f);
+				lbl.cachedTransform.localPosition = new Vector3(bgPadding.x + padding.x, y, 0f);
 				lbl.MakePixelPerfect();
 
 				if (textScale != 1f)
@@ -522,7 +525,7 @@ public class UIPopupList : MonoBehaviour
 			}
 
 			// The triggering widget's width should be the minimum allowed width
-			x = Mathf.Max(x, bounds.size.x - bgPadding.x * 2f);
+			x = Mathf.Max(x, bounds.size.x - (bgPadding.x + padding.x) * 2f);
 
 			Vector3 bcCenter = new Vector3((x * 0.5f) / fontScale, -0.5f, 0f);
 			Vector3 bcSize = new Vector3(x / fontScale, (fontScale + padding.y) / fontScale, 1f);
@@ -537,7 +540,7 @@ public class UIPopupList : MonoBehaviour
 				bc.size = bcSize;
 			}
 
-			x += bgPadding.x * 2f;
+			x += (bgPadding.x + padding.x) * 2f;
 			y -= bgPadding.y;
 
 			// Scale the background sprite to envelop the entire set of items
@@ -545,14 +548,14 @@ public class UIPopupList : MonoBehaviour
 
 			// Scale the highlight sprite to envelop a single item
 			mHighlight.cachedTransform.localScale = new Vector3(
-				x - bgPadding.x * 2f + (hlsp.inner.xMin - hlsp.outer.xMin) * 2f,
+				x - (bgPadding.x + padding.x) * 2f + (hlsp.inner.xMin - hlsp.outer.xMin) * 2f,
 				fontScale + hlspHeight * 2f, 1f);
 
 			bool placeAbove = (position == Position.Above);
 
 			if (position == Position.Auto)
 			{
-				UICamera cam = (UICamera)UICamera.FindCameraForLayer(gameObject.layer);
+				UICamera cam = UICamera.FindCameraForLayer(gameObject.layer);
 
 				if (cam != null)
 				{

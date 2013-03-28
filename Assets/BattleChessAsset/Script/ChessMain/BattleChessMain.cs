@@ -25,28 +25,21 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 	
 	
 	// Use this for first initialization	
-	void Awake() {		
+	void Awake() {	
 		
+		// enroll command executor proxy
+		GameMain.Instance.EngineCmdExecuterProxy = this;
 	}
 	
 	// Use this for initialization
 	void Start() {				
 		
 		board = new ChessBoard();
-		board.Init( this, aWholePiece, selectPiecePSystemRef, movablePiecePSystemRef );		
-		
-		// chess engine start		
-		// enroll command executor
-		ChessEngineManager.Instance.EngineCmdExecuter = this;
-		ChessEngineManager.Instance.Send( "ucinewgame" );
-		ChessEngineManager.Instance.Send( "isready" );
+		board.Init( this, aWholePiece, selectPiecePSystemRef, movablePiecePSystemRef );				
 	}
 	
 	// Update is called once per frame
-	void Update() {		
-		
-		// process engine command respond
-		ChessEngineManager.Instance.ProcessEngineCommand();	
+	void Update() {	
 		
 		// input
 		// piece selection
@@ -105,13 +98,7 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 	
 	void OnDestroy () { 	
 		
-	}
-	
-	void OnApplicationQuit()
-	{
-		ChessEngineManager.Instance.End();		
-	}
-	
+	}	
 	
 	// helper function
 	void Move( Vector3 vMoveTo ) {
@@ -159,46 +146,49 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 				ChessEngineManager.Instance.Send( strGoCmd );			
 			}
 		}		
-	}	
+	}
 	
 	
 	
 	
-	// on Process Engine command
+	
+	
+	// IProcessChessEngine	
 	public bool OnInitStockfishCommand( CommandBase.CommandData cmdData )
-	{
-		//ChessEngineManager.Instance.Send( "uci" );
+	{			
 		return true;				
 	}
 	
 	public bool OnIdCommand( CommandBase.CommandData cmdData )
-	{
-		
+	{		
 		return true;		
 	}
 	public bool OnUciOkCommand( CommandBase.CommandData cmdData )
-	{
-		// send setoption command!!!
-		
-		// send isready command	
-		//ChessEngineManager.Instance.Send( "isready" );
-		
+	{		
 		return true;
 	}
 	
 	public bool OnReadyOkCommand( CommandBase.CommandData cmdData )
-	{
-		// send isready command				
-		//board.Ready = true;	
+	{	
+		// new game		
+		if( ChessEngineManager.Instance.IsWaitforNewGame ) {
 		
-		board.Restart();		
+			// chess engine restart		
+			board.Restart();
+			
+			ChessEngineManager.Instance.IsWaitforNewGame = false;
+			ChessEngineManager.Instance.IsForceStop = false;
+		}
+		// normal wait chess engine ready
+		else {
+			
+		}
 		
-		return true;
+		return true;		
 	}
 	
 	public bool OnCopyProtectionCommand( CommandBase.CommandData cmdData )
-	{
-		
+	{		
 		return true;
 	}
 	
@@ -209,16 +199,15 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 	}
 	
 	public bool OnOptionCommand( CommandBase.CommandData cmdData )
-	{
-		
-		return true;
+	{				
+		return false;
 	}
 	
 	public bool OnInfoCommand( CommandBase.CommandData cmdData )
 	{
 		
 		return true;
-	}
+	}		
 	
 	public bool OnBestMoveCommand( CommandBase.CommandData cmdData )
 	{		
@@ -286,5 +275,4 @@ public class BattleChessMain : MonoBehaviour, IProcessChessEngine {
 		UnityEngine.Debug.LogError( "ExcuteBestMoveCommand() - Invalid src rank, pile" );
 		return false;				
 	}
-	
 }

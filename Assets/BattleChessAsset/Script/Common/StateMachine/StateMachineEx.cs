@@ -9,7 +9,7 @@ using System.Diagnostics;
 /// <summary>
 /// State machine with a typed state
 /// </summary>
-public abstract class StateMachineEx<T> : StateMachineEx
+public abstract class StateMachineEx<T> : StateMachineEx 
 {
 	public T activeState
 	{

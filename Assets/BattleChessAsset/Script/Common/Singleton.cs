@@ -1,11 +1,12 @@
+using UnityEngine;
 using System.Collections;
 
-using System;
 using System.Reflection;
 
+
+
    
-public class SingletonException
-  : Exception
+public class SingletonException : System.Exception
 {	
 	public SingletonException()	{
 	}	
@@ -14,11 +15,11 @@ public class SingletonException
 	 : base(message) {
 	}
 		
-	public SingletonException(Exception innerException)
+	public SingletonException(System.Exception innerException)
 		: base(null, innerException) {
 	}	
 	
-	public SingletonException(string message, Exception innerException)
+	public SingletonException(string message, System.Exception innerException)
 	 : base(message, innerException) {
 	}
 }
@@ -28,11 +29,9 @@ public class SingletonException
 public static class Singleton<T>
 	where T : class
 {
-	static volatile T _instance;
+	static volatile T _instance = null;
 	static object _lock = new object();
 	
-	static Singleton() {
-	}
 	
 	public static T Instance
 	{
@@ -48,9 +47,9 @@ public static class Singleton<T>
 						try	{
 							// Binding flags exclude public constructors.
 							constructor = typeof(T).GetConstructor(BindingFlags.Instance | 
-							            BindingFlags.NonPublic, null, new Type[0], null);
+							            BindingFlags.NonPublic, null, new System.Type[0], null);
 						}
-						catch (Exception exception) {
+						catch (System.Exception exception) {
 							
 							throw new SingletonException(exception);
 						}
@@ -67,14 +66,13 @@ public static class Singleton<T>
 			}
 			
 			return _instance;
-		}
+		}		
 	}
 }
 
 
 // unity game object singleton
-public class SingletonGameObjectException
-  : Exception
+public class SingletonGameObjectException : System.Exception
 {	
 	public SingletonGameObjectException()	{
 	}	
@@ -83,24 +81,21 @@ public class SingletonGameObjectException
 	 : base(message) {
 	}
 		
-	public SingletonGameObjectException(Exception innerException)
+	public SingletonGameObjectException(System.Exception innerException)
 		: base(null, innerException) {
 	}	
 	
-	public SingletonGameObjectException(string message, Exception innerException)
+	public SingletonGameObjectException(string message, System.Exception innerException)
 	 : base(message, innerException) {
 	}
 }
 
 
-public static class SingletonGameObject<T>
-	where T : UnityEngine.MonoBehaviour
+public static class SingletonGameObject<T> where T : MonoBehaviour
 {
-	static volatile T _instance;
-	static object _lock = new object();	
+	static volatile T _instance = null;
+	static object _lock = new object();		
 	
-	static SingletonGameObject() {
-	}
 	
 	public static void AddSingleton( T singleton ) {
 		
@@ -109,16 +104,16 @@ public static class SingletonGameObject<T>
 			lock (_lock) {
 				if( _instance == null ) {
 					
-					_instance = singleton;
+					_instance = singleton;					
 					
-					if( _instance is UnityEngine.MonoBehaviour ) {
+					if( _instance is MonoBehaviour ) {
 						
-						UnityEngine.Object.DontDestroyOnLoad( _instance.gameObject );						
+						Object.DontDestroyOnLoad( _instance.gameObject );						
 					}
 					else {
 						
 						throw new SingletonGameObjectException(string.Format("SingletonGameObject Type miss match!!!!!!", typeof(T).Name));
-					}
+					}					
 				}
 				else {
 					

@@ -49,31 +49,35 @@ static public class NGUIMenu
 		}
 	}
 
-	static Vector3 Round (Vector3 v)
+	[MenuItem("NGUI/Attach an Anchor #&h")]
+	static public void AddAnchor ()
 	{
-		v.x = Mathf.Round(v.x);
-		v.y = Mathf.Round(v.y);
-		v.z = Mathf.Round(v.z);
-		return v;
-	}
+		GameObject go = Selection.activeGameObject;
 
-	static void MakePixelPerfect (Transform t)
-	{
-		UIWidget w = t.GetComponent<UIWidget>();
-
-		if (w != null)
+		if (go != null)
 		{
-			w.MakePixelPerfect();
+			NGUIEditorTools.RegisterUndo("Add an Anchor", go);
+			if (go.GetComponent<UIAnchor>() == null) go.AddComponent<UIAnchor>();
 		}
 		else
 		{
-			t.localPosition = Round(t.localPosition);
-			t.localScale = Round(t.localScale);
+			Debug.Log("You must select a game object first.");
+		}
+	}
 
-			for (int i = 0, imax = t.childCount; i < imax; ++i)
-			{
-				MakePixelPerfect(t.GetChild(i));
-			}
+	[MenuItem("NGUI/Attach UIStretch #&s")]
+	static public void AddUIStretch ()
+	{
+		GameObject go = Selection.activeGameObject;
+
+		if (go != null)
+		{
+			NGUIEditorTools.RegisterUndo("Add a UIStretch", go);
+			if (go.GetComponent<UIStretch>() == null) go.AddComponent<UIStretch>();
+		}
+		else
+		{
+			Debug.Log("You must select a game object first.");
 		}
 	}
 
@@ -85,7 +89,7 @@ static public class NGUIMenu
 			Debug.Log("You must select an object in the scene hierarchy first");
 			return;
 		}
-		foreach (Transform t in Selection.transforms) MakePixelPerfect(t);
+		foreach (Transform t in Selection.transforms) NGUITools.MakePixelPerfect(t);
 	}
 
 	[MenuItem("NGUI/Create a Panel")]
