@@ -146,6 +146,8 @@ public class UIDraggablePanelEx : IgnoreTimeScale {
 	
 	float horizontalMinX;
 	float verticalMaxY;
+	
+	bool bNeedRearrange = true;
 	// fin
 	
 	bool mCalculatedBounds = false;
@@ -369,8 +371,12 @@ public class UIDraggablePanelEx : IgnoreTimeScale {
 		numScrollItem = nNumScrollItem;	
 		realNumScrollItem = nRealNumScrollItem;
 		
-		if( numScrollItem < realNumScrollItem )
-			realNumScrollItem = numScrollItem;		
+		if( numScrollItem <= realNumScrollItem )
+		{
+			realNumScrollItem = numScrollItem;
+			bNeedRearrange = false;
+		}
+		
 		
 		mGrid.Init( adapter, numScrollItem, realNumScrollItem );
 		
@@ -380,7 +386,7 @@ public class UIDraggablePanelEx : IgnoreTimeScale {
 		// dummy calc
 		float fDummy = bounds.min.x;
 		horizontalMinX = mRealBounds.min.x;
-		verticalMaxY = mRealBounds.max.y;
+		verticalMaxY = mRealBounds.max.y;		
 	}
 	// fin
 	
@@ -559,7 +565,8 @@ public class UIDraggablePanelEx : IgnoreTimeScale {
 			mCurrentPos = (int)(fRealPos / fScrollItemHeight);			
 		}		
 		
-		mGrid.SetCurrentPosition( mCurrentPos );					
+		if( bNeedRearrange )
+			mGrid.SetCurrentPosition( mCurrentPos );					
 		// fin
 	}
 
@@ -640,7 +647,8 @@ public class UIDraggablePanelEx : IgnoreTimeScale {
 			mCurrentPos = (int)(fRealPos / fScrollItemHeight);			
 		}		
 		
-		mGrid.SetCurrentPosition( mCurrentPos );					
+		if( bNeedRearrange )
+			mGrid.SetCurrentPosition( mCurrentPos );					
 		// fin
 	}
 

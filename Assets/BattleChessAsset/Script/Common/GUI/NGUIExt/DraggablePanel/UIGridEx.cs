@@ -122,6 +122,17 @@ public class UIGridEx : MonoBehaviour
 		// no create or delete
 		if( nNumWould == 0 )
 		{
+			// fill slot map 
+			int nCnt = 0;
+			gridItemSlotMap.Clear();			
+			foreach( GameObject gridItemObj in gridItemList )
+			{
+				gridItemSlotMap.Add( nCnt, gridItemObj );					
+				panelAdapter.OnNotifyFill( nCnt++, gridItemObj );				
+			}
+			
+			Reposition();
+			
 			return;
 		}
 		// create
@@ -129,7 +140,7 @@ public class UIGridEx : MonoBehaviour
 		{
 			for( int i=0; i<nNumWould; i++ )
 			{
-				GameObject obj = Instantiate( gridItemPrefab, Vector3.zero, Quaternion.identity ) as GameObject; 				
+				GameObject obj = Instantiate( gridItemPrefab ) as GameObject; 				
 				if( obj == null )
 				{
 					Debug.LogError( "UIGridEx::Init() - Can't initialize UIGridEx because gridItemPrefab is not instantiated" );
@@ -141,6 +152,7 @@ public class UIGridEx : MonoBehaviour
 				
 				obj.transform.localPosition = Vector3.zero;
 				obj.transform.localScale = Vector3.one;
+				obj.transform.rotation = Quaternion.identity;
 				// 이름 초기화 이거 같은게 있으면 트랜스폼의 GetChild()가 안먹는다??? 확인!!!!
 				obj.name = (nCurrNumChildItem + i).ToString( "0000" );
 				

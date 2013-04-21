@@ -50,25 +50,25 @@ public class InitPanel : MonoBehaviour {
 	
 	public void OnModeClick() {
 		
-		GUIManager.Instance.ShowPanel( "OffGameUI", gameObject.name, false );
-		GUIManager.Instance.ShowPanel( "OffGameUI", "ModePanel", true );
+		GUIManager.Instance.ShowAllPanel( false );
+		GUIManager.Instance.ShowPanel( "ModePanel", true );
 	}	
 	
 	public void OnOptionClick() {		
 		
-		GUIManager.Instance.ShowPanel( "OffGameUI", gameObject.name, false );
-		GUIManager.Instance.ShowPanel( "OffGameUI", "OptionPanel", true );
+		GUIManager.Instance.ShowAllPanel( false );
+		GUIManager.Instance.ShowPanel( "OptionPanel", true );
 	}
 	
 	public void OnEtcClick() {		
 		
-		GUIManager.Instance.ShowPanel( "OffGameUI", gameObject.name, false );
-		GUIManager.Instance.ShowPanel( "OffGameUI", "EtcPanel", true );
+		GUIManager.Instance.ShowAllPanel( false );
+		GUIManager.Instance.ShowPanel( "EtcPanel", true );
 	}
 	
 	public void OnFriendListClick() {		
 		
-		GUIManager.Instance.ShowPanel( "OffGameUI", gameObject.name, false );
-		GUIManager.Instance.ShowPanel( "OffGameUI", "FriendListPanel", true );
+		GUIManager.Instance.ShowAllPanel( false );
+		GUIManager.Instance.ShowPanel( "FriendListPanel", true );
 	}
 }

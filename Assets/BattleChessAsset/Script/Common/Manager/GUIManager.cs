@@ -6,7 +6,8 @@ using System.Collections.Generic;
 // for extention method
 using UnityExtention;
 
-// unity game object singleton
+
+// gui exception
 public class GUIManagerException : System.Exception
 {	
 	public GUIManagerException()	{
@@ -28,165 +29,30 @@ public class GUIManagerException : System.Exception
 
 
 
-public class GUIHouse {
-	
-	// field
-	string strName;
-	GameObject guiObj;
-	bool b3DUI;
-	
-	Dictionary<string, GameObject> mapPanel;
-	
-	
-	// property
-	public string Name { 
-		
-		get {			
-			return strName;
-		}
-		
-		private set {
-		}
-	}
-	
-	public GameObject GUIObject { 
-		
-		get {			
-			return guiObj;
-		}
-		
-		private set {
-		}
-	}
-	
-	public bool UI3D { 
-		
-		get {			
-			return b3DUI;
-		}
-		
-		private set {
-		}
-	}
-	
-	
-	// method
-	private GUIHouse() {
-	}
-	
-	public GUIHouse( string strName, GameObject guiObj, bool b3DUI ) {
-		
-		this.strName = strName;
-		this.guiObj = guiObj;
-		this.b3DUI = b3DUI;
-		
-		mapPanel = new Dictionary<string, GameObject>();
-		
-		// populate Gui Panel!!!
-		GameObject [] aPanel = this.guiObj.GetChildrenGameObjectWithTag( "Panel" );
-		if( aPanel == null ) {
-			
-			throw new GUIManagerException( string.Format( "No panel exist - '{0}'", this.strName) ); 
-		}
-		else {
-			
-			foreach( GameObject currPanel in aPanel ) {
-				
-				mapPanel.Add( currPanel.name, currPanel );
-			}
-		}		
-	}	
-	
-	public void DetroySelf() {
-		
-		Object.Destroy( guiObj );
-		guiObj = null;
-	}
-	
-	
-	public GameObject GetPanel( string strName ) {
-		
-		if( mapPanel.ContainsKey(strName) ) {
-			
-			return mapPanel[strName];
-		}
-		
-		return null;
-	}	
-	
-	
-	
-	
-	public bool AddPanel( string strName, GameObject gameObj ) {
-		
-		if( mapPanel.ContainsKey(strName) )			
-			return false;		
-		
-		mapPanel.Add(strName, gameObj);			
-		return true;
-	}
-	
-	public bool RemovePanel( string strName ) {
-		
-		if( mapPanel.ContainsKey(strName) ) {					
-			
-			Object.Destroy( mapPanel[strName] );
-			mapPanel.Remove(strName);			
-			return true;
-		}	
-			
-		return false;
-	}	
-	
-	
-	
-	
-	
-	
-	public void ShowPanel( string strPanel, bool bShow ) {		
-		
-		if( mapPanel.ContainsKey( strPanel ) ) {
-			
-			 NGUITools.SetActive( mapPanel[strPanel], bShow ); 
-		}
-	}
-	
-	public void ShowAllPanel( bool bShow ) {
-		
-		foreach( KeyValuePair<string, GameObject> pair in mapPanel ) {
-			
-			 NGUITools.SetActive( pair.Value, bShow ); 
-		}
-	}	
-}
-
-
-
-
-
-
 public class GUIManager : MonoBehaviour {
 	
-	public struct sGUIRef {
+	
+	public enum ModalType {
 		
-		public bool b3DUI;
-		public string strName;
-		public GameObject GUIPrefab;
+		OneButtonModal,
+		TwoButtonModal,
+		ThreeButtonModal,
+		WaitModal,
+		WaitCoroutineModal
+	}
+	
+	
+	public struct UIHouseRef {
 		
-		public sGUIRef( bool b3DUI, string strName, GameObject GUIPrefab )	{
-			
-			this.b3DUI = b3DUI;
-			this.strName = strName;
-			this.GUIPrefab = GUIPrefab;
-		}
+		public bool is3DUI;
+		public string name;
+		public GameObject uiHousePrefab;		
 	}
 	
 	// field
-	public GameObject [] arrayGUI2DPrefab;	
-	public GameObject [] arrayGUI3DPrefab;	
-	
-	Dictionary<string, sGUIRef> mapGUIRef;
-	Dictionary<string, GUIHouse> mapGUI;
+	public GameObject [] uiHouse2DPrefabs;	
+	public GameObject [] uiHouse3DPrefabs;	
+	public GameObject [] uiModalPrefabs;	
 	
 	public UIRoot UIRoot2D;
 	public UICamera UICamera2D;
@@ -194,12 +60,34 @@ public class GUIManager : MonoBehaviour {
 	
 	public UIRoot UIRoot3D;
 	public UICamera UICamera3D;
-	public UIAnchor UIAnchor3D;
+	public UIAnchor UIAnchor3D;			
+	
+	// common 2d panel
+	public Common2D commonPanels;
+	
+	// modal 2d dialog
+	public Modal2D modalDialogs;
+	
+	
+	
+	Dictionary<string, UIHouseRef> mapUIHouseRef;
+	Dictionary<string, UIHouseRef> mapModalRef;
+	
+	Dictionary<string, UIHouse> mapUIHouse;	
+	
+	
+	
+	// current UIHouse 
+	UIHouse currUIHouse2D;	
+	UIHouse currUIHouse3D;	
 	
 		
 	
 	// property
-		
+	public Dictionary<string, UIHouse> MapUIHouse { get { return mapUIHouse; } private set {} }	
+	
+	
+	
 	
 	
 	void Awake() {		
@@ -208,22 +96,37 @@ public class GUIManager : MonoBehaviour {
 		SingletonGameObject<GUIManager>.AddSingleton( this ); 
 		
 		// construct GUI House object from arrayGUIPrefab for convenient and optimizing
-		mapGUIRef = new Dictionary<string, sGUIRef>();		
 		
-		foreach( GameObject currPrefab2D in arrayGUI2DPrefab ) {
+		// 2d gui prefab
+		mapUIHouseRef = new Dictionary<string, UIHouseRef>();		
+		
+		foreach( GameObject curr2DPrefab in uiHouse2DPrefabs ) {
 			
-			sGUIRef guiRef2D = new sGUIRef( false, currPrefab2D.name, currPrefab2D );
-			mapGUIRef.Add( currPrefab2D.name, guiRef2D );			
+			UIHouseRef uiHouse2DRef = new UIHouseRef() { is3DUI = false, name = curr2DPrefab.name, uiHousePrefab = curr2DPrefab };
+			mapUIHouseRef.Add( curr2DPrefab.name, uiHouse2DRef );			
 		}	
 		
-		foreach( GameObject currPrefab3D in arrayGUI3DPrefab ) {
+		// 3d gui prefab
+		foreach( GameObject curr3DPrefab in uiHouse3DPrefabs ) {
 			
-			sGUIRef guiRef3D = new sGUIRef( true, currPrefab3D.name, currPrefab3D );
-			mapGUIRef.Add( currPrefab3D.name, guiRef3D );			
+			UIHouseRef uiHouse3DRef = new UIHouseRef() { is3DUI = true, name = curr3DPrefab.name, uiHousePrefab = curr3DPrefab };
+			mapUIHouseRef.Add( curr3DPrefab.name, uiHouse3DRef );			
+		}		
+		
+		// init modal 
+		mapModalRef = new Dictionary<string, UIHouseRef>();
+		
+		foreach( GameObject currModalPrefab in uiModalPrefabs ) {
+			
+			UIHouseRef uiModalRef = new UIHouseRef() { is3DUI = false, name = currModalPrefab.name, uiHousePrefab = currModalPrefab };
+			mapModalRef.Add( currModalPrefab.name, uiModalRef );			
 		}
 		
 		// populate GUI House object
-		mapGUI = new Dictionary<string, GUIHouse>();		
+		mapUIHouse = new Dictionary<string, UIHouse>();		
+		
+		currUIHouse2D = null;		
+		currUIHouse3D = null;		
 	}
 	
 	void Start() {				
@@ -242,148 +145,351 @@ public class GUIManager : MonoBehaviour {
 	
 	
 	
-	// public method
-	public GUIHouse GetGUI( string strName ) {
+	// public method	
+	public UIHouse GetUIHouse( string strName, bool bLoad ) {
 		
-		if( mapGUI.ContainsKey(strName) ) {
-			
-			return mapGUI[strName];
-		}
+		if( mapUIHouse.ContainsKey(strName) )			
+			return mapUIHouse[strName];		
+		
+		if( bLoad = false )
+			return null;
 		
 		// instantiate and create GUIHouse object and return
-		if( mapGUIRef.ContainsKey(strName) == false ) {
-			
-			throw new GUIManagerException( string.Format( "No GUIRef object exist - '{0}'", strName) );
-		}					
+		if( mapUIHouseRef.ContainsKey(strName) == false )			
+			throw new GUIManagerException( string.Format( "No UIHouseRef object exist - '{0}'", strName) );						
 		
 		// set parent to GUIManager and Disable unloading		
-		GameObject guiGameObj = NGUITools.AddChild( mapGUIRef[strName].b3DUI ? UIAnchor3D.gameObject : UIAnchor2D.gameObject,
-													mapGUIRef[strName].GUIPrefab );
+		UIHouse uiHouse = InstantiateToRoot( mapUIHouseRef[strName] );		
+		if( uiHouse == null )			
+			throw new GUIManagerException( string.Format( "Cannot Create ui House Object - '{0}'", strName) );				
 		
-		if( guiGameObj == null ) {			
-			
-			throw new GUIManagerException( string.Format( "Cannot Create Gui Game Object - '{0}'", strName) );
-		}
+		mapUIHouse.Add( uiHouse.nameID, uiHouse );
 		
-		guiGameObj.name = strName;	
-		Object.DontDestroyOnLoad( guiGameObj );					
-		
-		GUIHouse guiHouse = new GUIHouse( strName, guiGameObj, mapGUIRef[strName].b3DUI );
-		
-		mapGUI.Add( guiHouse.Name, guiHouse );
-		
-		return guiHouse;
+		return uiHouse;
 	}	
 	
-	public GameObject GetGUIGameObject( string strName ) {
+	public T GetUIHouseScript<T>( string strName ) where T : MonoBehaviour {
 		
-		GUIHouse guiHouse = GetGUI(strName);	
-		if( guiHouse == null ) {
-			
-			throw new GUIManagerException( string.Format( "No GUIHouse object exist - '{0}'", strName) );			
-		}
+		UIHouse uiHouse = GetUIHouse(strName, false);	
+		if( uiHouse != null )			
+			return uiHouse.gameObject.GetComponentInChildren<T>();			
 		
-		return guiHouse.GUIObject;				
-	}
-	
-	public T GetGUIGameObjectScript<T>( string strName ) where T : MonoBehaviour {
-		
-		GUIHouse guiHouse = GetGUI(strName);	
-		if( guiHouse == null ) {
-			
-			throw new GUIManagerException( string.Format( "No GUIHouse object exist - '{0}'", strName) );				
-		}
-		
-		return guiHouse.GUIObject.GetComponentInChildren<T>();			
+		return null;
 	}		
 	
-	public bool AddGUI( string strName, GUIHouse guiHouse ) {
+	public bool AddUIHouse( UIHouse uiHouse ) {
 		
-		if( mapGUI.ContainsKey(strName) )			
+		if( mapUIHouse.ContainsKey( uiHouse.nameID ) )			
 			return false;
 		
-		Object.DontDestroyOnLoad( guiHouse.GUIObject );
-		guiHouse.GUIObject.transform.parent = guiHouse.UI3D ? UIAnchor3D.transform : UIAnchor2D.transform;
+		AttachToRoot( uiHouse );
 		
-		mapGUI.Add(strName, guiHouse);			
+		mapUIHouse.Add(uiHouse.nameID, uiHouse);			
 		return true;
 	}
 	
-	public bool AddGUI( string strName, GameObject guiGameObj, bool b3DUI ) {
+	public bool RemoveUIHouse( UIHouse uiHouse ) {
 		
-		if( mapGUI.ContainsKey(strName) || guiGameObj == null )			
-			return false;		
+		if( uiHouse != null )			
+			RemoveUIHouse( uiHouse.nameID );			
 		
-		Object.DontDestroyOnLoad( guiGameObj );
-		guiGameObj.transform.parent = b3DUI ? UIAnchor3D.transform : UIAnchor2D.transform;
-		
-		GUIHouse guiHouse = new GUIHouse( strName, guiGameObj, b3DUI );
-		mapGUI.Add(strName, guiHouse);			
-		return true;
-	}
+		return false;
+	}	
 	
-	public bool RemoveGUI( string strName ) {
+	public bool RemoveUIHouse( string strName ) {
 		
-		if( mapGUI.ContainsKey(strName) ) {			
+		if( mapUIHouse.ContainsKey(strName) ) {			
 			
-			mapGUI[strName].DetroySelf();
-			mapGUI.Remove(strName);			
+			Object.Destroy( mapUIHouse[strName].gameObject );
+			mapUIHouse.Remove(strName);			
 			return true;
 		}	
 			
 		return false;
+	}
+	
+	public void RemoveAllUIHouse() {
+		
+		foreach( KeyValuePair<string, UIHouse> pair in mapUIHouse )			
+			Object.Destroy( pair.Value.gameObject );							
+		
+		mapUIHouse.Clear();
 	}	
 	
 	
 	
 	
-	
-	public GameObject GetPanel( string strGuihouse, string strPanel ) {	
+	public UIPanel GetPanel( string strPanel ) {	
 		
-		GUIHouse guiHouse = GetGUI( strGuihouse );		
-		if( guiHouse == null ) {
+		foreach( KeyValuePair<string, UIHouse> pair in MapUIHouse ) {
 			
-			throw new GUIManagerException( string.Format( "Cannot access GUIHouse object - '{0}'", strGuihouse) );										
-		}		
-		
-		return guiHouse.GetPanel( strPanel );		
-	}
-	
-	public T GetPanelScript<T>( string strGuihouse, string strPanel ) where T : MonoBehaviour {	
-		
-		GUIHouse guiHouse = GetGUI( strGuihouse );		
-		if( guiHouse == null ) {
-			
-			throw new GUIManagerException( string.Format( "Cannot access GUIHouse object - '{0}'", strGuihouse) );															
+			UIPanel panel = pair.Value.GetPanel( strPanel );
+			if( panel != null )			
+				return panel;
 		}
 		
-		return guiHouse.GetPanel( strPanel ).GetComponentInChildren<T>();
-	}	
-	
-	public void ShowPanel( string strGuihouse, string strPanel, bool bShow ) {		
-		
-		GUIHouse guiHouse = GetGUI( strGuihouse );		
-		if( guiHouse == null ) {		
-									
-			throw new GUIManagerException( string.Format( "Cannot access GUIHouse object - '{0}'", strGuihouse) );
-		}		
-		
-		guiHouse.ShowPanel(strPanel, bShow);	
+		return null;
 	}
 	
-	public void ShowAllPanel( string strGuihouse, bool bShow ) {
+	public UIPanel GetPanel( string strUIHouse, string strPanel ) {	
 		
-		GUIHouse guiHouse = GetGUI( strGuihouse );		
-		if( guiHouse == null ) {
+		UIHouse uiHouse = GetUIHouse( strUIHouse, false );		
+		if( uiHouse != null )
+			return uiHouse.GetPanel( strPanel );		
+		
+		return null;
+	}
+	
+	public T GetPanelScript<T>( string strUIHouse, string strPanel ) where T : MonoBehaviour {	
+		
+		UIPanel panel = GetPanel( strUIHouse, strPanel );		
+		if( panel != null )			
+			return panel.GetComponentInChildren<T>();
+		
+		return null;
+	}
+	
+	
+	
+	
+	// UIHouse
+	public void ShowPanel( string strPanel, bool bShow, bool b3D = false, bool bAll = false ) {
+		
+		if( bAll ) {
+			foreach( KeyValuePair<string, UIHouse> pair in MapUIHouse ) {
+				
+				UIPanel panel = pair.Value.GetPanel( strPanel );
+				if( panel != null )					
+					pair.Value.ShowPanel( strPanel, bShow );			
+			}
+		}
+		else {
 			
-			throw new GUIManagerException( string.Format( "Cannot access GUIHouse object - '{0}'", strGuihouse) );									
-		}	
+			if( b3D ) {
+				
+				if( currUIHouse3D != null )
+					currUIHouse3D.ShowPanel( strPanel, bShow );
+			}
+			else {
+				
+				if( currUIHouse2D != null )
+					currUIHouse2D.ShowPanel( strPanel, bShow );
+			}
+		}
+	}
+	
+	public void ShowPanel( string strUIHouse, string strPanel, bool bShow ) {		
 		
-		guiHouse.ShowAllPanel(bShow);	
+		bool bLoad = bShow ? true : false;
+		UIHouse uiHouse = GetUIHouse( strUIHouse, bLoad );		
+		if( uiHouse != null )		
+			uiHouse.ShowPanel(strPanel, bShow);			
+	}
+	
+	public void ShowMainPanel( bool bShow, bool b3D = false ) {		
+		
+		if( b3D ) {
+				
+			if( currUIHouse3D != null )
+				currUIHouse3D.ShowMainPanel( bShow );
+		}
+		else {
+			
+			if( currUIHouse2D != null )
+				currUIHouse2D.ShowMainPanel( bShow );
+		}		
+	}
+	
+	public void ShowAllPanel( bool bShow, bool b3D = false ) {
+		
+		if( b3D ) {
+			
+			if( currUIHouse3D != null )
+				currUIHouse3D.ShowAllPanel( bShow );
+		}
+		else {
+			
+			if( currUIHouse2D != null )
+				currUIHouse2D.ShowAllPanel( bShow );
+		}		
+	}
+	
+	public void ShowAllPanel( string strUIHouse, bool bShow ) {
+		
+		bool bLoad = bShow ? true : false;
+		UIHouse uiHouse = GetUIHouse( strUIHouse, bLoad );		
+		if( uiHouse != null )
+			uiHouse.ShowAllPanel(bShow);	
+	}
+	
+	public void SetCurrentUIHouse( string strUIHouse, bool bUnloadPrev, bool bShowMainPanel = true ) {
+		
+		bool bLoad = bShowMainPanel ? true : false;
+		UIHouse uiHouse = GetUIHouse( strUIHouse, bLoad );		
+		if( uiHouse != null ) {
+			
+			if( uiHouse.is3DUI ) {
+				
+				if( bUnloadPrev )					
+					RemoveUIHouse( currUIHouse3D );				
+			
+				currUIHouse3D = uiHouse;						
+			}
+			else {
+				
+				if( bUnloadPrev )					
+					RemoveUIHouse( currUIHouse2D );	
+				
+				currUIHouse2D = uiHouse;				
+			}
+			
+			uiHouse.ShowMainPanel( bShowMainPanel );
+		}
 	}	
+	
+	
+	// common panel
+	
+	
+	// modal/message dialog method
+	public void ShowModal( ModalType modalType, string strMessage, params UIEventListener.VoidDelegate[] btnDelegates ) {
+		
+		modalDialogs.ShowModal( modalType, strMessage, btnDelegates );
+	}
+	
+	
+	
+	
+	
+	// utility method
+	public void AttachToRoot( UIHouse uiHouse ) {		
+		
+		if( uiHouse != null )
+		{
+			GameObject parent = uiHouse.is3DUI ? UIAnchor3D.gameObject : UIAnchor2D.gameObject;
+			if( parent != null ) {
+			
+				Transform t = uiHouse.gameObject.transform;
+				t.parent = parent.transform;
+				t.localPosition = Vector3.zero;
+				t.localRotation = Quaternion.identity;
+				t.localScale = Vector3.one;
+				uiHouse.gameObject.layer = parent.layer;				
+				Object.DontDestroyOnLoad( uiHouse.gameObject );				
+			}
+		}	
+	}
+	
+	public UIHouse InstantiateToRoot( UIHouseRef uiHouseRef ) {		
+		
+		if( uiHouseRef.uiHousePrefab != null ) {
+			
+			GameObject go = Instantiate( uiHouseRef.uiHousePrefab ) as GameObject;	
+			if( go != null )
+			{	
+				UIHouse uiHouse = go.GetComponent<UIHouse>();				
+				if( uiHouse ) {
+					
+					GameObject parent = uiHouse.is3DUI ? UIAnchor3D.gameObject : UIAnchor2D.gameObject;				
+					if( parent ) {
+						
+						Transform t = go.transform;
+						t.parent = parent.transform;
+						t.localPosition = Vector3.zero;
+						t.localRotation = Quaternion.identity;
+						t.localScale = Vector3.one;
+						go.layer = parent.layer;
+						go.name = uiHouse.nameID;
+						Object.DontDestroyOnLoad( go );						
+						
+						return uiHouse;
+					}
+				}				
+			}		
+		}
+		
+		return null;
+	}
+	
+	public GameObject InstantiateModalToParent( GameObject parent, string strPrefab ) {
+	
+		if( mapModalRef.ContainsKey( strPrefab ) == false ) {
+			
+			Debug.Log( "GUIManager.InstantiateModalToParent() - Has no Modal prefab reference" );
+			return null;
+		}
+		
+		GameObject modal = Instantiate( mapModalRef[strPrefab].uiHousePrefab ) as GameObject;
+
+		if( modal != null && parent != null )
+		{
+			Transform t = modal.transform;
+			t.parent = parent.transform;
+			// scale
+			t.localScale = Vector3.one;				
+			// rotation
+			t.rotation = Quaternion.identity;				
+			// position and depth
+			t.position = new Vector3( t.position.x, t.position.y, CommonZDepth.ModalDialogF );	
+			
+			modal.layer = parent.layer;						
+			
+			// add whole screen size box collider
+			NGUITools.AddWidgetCollider( modal );				
+			modal.GetComponent<BoxCollider>().size = new Vector3( Screen.width, Screen.height, 0 );					
+			modal.GetComponent<BoxCollider>().center = new Vector3( 0, 0, CommonZDepth.ModalDialogF + 1 );
+			
+			Object.DontDestroyOnLoad( modal );	
+		}
+		
+		return modal;
+	}
+	
+	
+	
+	
+	
 	
 	
 	// static
+	// attach to parent	
+	public static void AttachToParent( GameObject parent, GameObject child ) {	
+
+		if( parent != null )
+		{
+			Transform t = child.transform;
+			t.parent = parent.transform;
+			t.localPosition = Vector3.zero;
+			t.localRotation = Quaternion.identity;
+			t.localScale = Vector3.one;
+			child.layer = parent.layer;
+			
+			Object.DontDestroyOnLoad( child );	
+		}	
+	}
+	
+	public static GameObject InstantiateToParent( GameObject parent, GameObject prefab ) {
+	
+		GameObject go = GameObject.Instantiate(prefab) as GameObject;
+
+		if( go != null && parent != null )
+		{
+			Transform t = go.transform;
+			t.parent = parent.transform;
+			t.localPosition = Vector3.zero;
+			t.localRotation = Quaternion.identity;
+			t.localScale = Vector3.one;
+			go.layer = parent.layer;
+			
+			Object.DontDestroyOnLoad( go );	
+		}
+		
+		return go;
+	}
+	
+	
+	
+	
 	public static GUIManager Instance {
 		
 		get { 

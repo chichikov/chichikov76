@@ -3,11 +3,17 @@ using System.Collections;
 
 using System.Collections.Generic;
 
+using UnityExtention;
+
 // for moblie : do not support name space, android
 //namespace BattleChess {	
 	
 	
 public class ChessBoard {	
+	
+	// BattleChessMain
+	BattleChessMain battleChessMain;
+	
 	
 	// bitboard
 	public ChessBitBoard bitBoard;
@@ -72,13 +78,17 @@ public class ChessBoard {
 	// constructor
 	public ChessBoard() {			
 		
+		battleChessMain = null;
+		
 		bitBoard = new ChessBitBoard();
-		bitBoardVirtual = new ChessBitBoard();
+		bitBoardVirtual = new ChessBitBoard();		
 	}
 	
 	
 	// interface
 	public void Init( BattleChessMain chessMain, Transform[] aPieceRef, ParticleSystem selectPSystemRef, ParticleSystem movablePSystemRef ) {
+		
+		battleChessMain = chessMain;
 		
 		// etc property		
 		CurrTurn = PlayerSide.e_White;	
@@ -120,7 +130,8 @@ public class ChessBoard {
 			for( int j=0; j<ChessData.nNumRank; j++ ){				
 				
 				// movable square effect Particle System
-				ParticleSystem movablePiecePSystem = MonoBehaviour.Instantiate( movablePSystemRef, Vector3.zero, Quaternion.identity ) as ParticleSystem;
+				//ParticleSystem movablePiecePSystem = MonoBehaviour.Instantiate( movablePSystemRef.gameObject, Vector3.zero, Quaternion.identity ) as ParticleSystem;
+				ParticleSystem movablePiecePSystem = battleChessMain.gameObject.AddChildInstantiate<ParticleSystem>( movablePSystemRef, Vector3.zero, Quaternion.identity );
 				
 				if( ChessData.aStartPiecePos[i,j] == PiecePlayerType.eNone_Piece ) {					
 					
@@ -131,7 +142,9 @@ public class ChessBoard {
 					Vector3 currPos = new Vector3( j - 3.5f, 0.0f, i - 3.5f );					
 					
 					Transform currTransform = aPieceRef[(int)ChessData.aStartPiecePos[i,j]];
-					Transform currPieceObject = MonoBehaviour.Instantiate( currTransform, currPos, currTransform.rotation ) as Transform;
+					//Transform currPieceObject = MonoBehaviour.Instantiate( currTransform, currPos, currTransform.rotation ) as Transform;
+					Transform currPieceObject = battleChessMain.gameObject.AddChildInstantiate<Transform>( currTransform, currPos, currTransform.rotation );
+					
 					
 					
 					if( i == 0 || i == 1 ) {																						
@@ -173,7 +186,8 @@ public class ChessBoard {
 		
 		// particle effect
 		currSelectedSquare = null;
-		selectPiecePSystem = MonoBehaviour.Instantiate( selectPSystemRef, Vector3.zero, Quaternion.identity ) as ParticleSystem;				
+		//selectPiecePSystem = MonoBehaviour.Instantiate( selectPSystemRef, Vector3.zero, Quaternion.identity ) as ParticleSystem;				
+		selectPiecePSystem = battleChessMain.gameObject.AddChildInstantiate<ParticleSystem>( selectPSystemRef, Vector3.zero, Quaternion.identity );
 		selectPiecePSystem.Stop();
 	}
 	
@@ -339,7 +353,12 @@ public class ChessBoard {
 			// promote move
 			if( ChessMover.IsPromoteMove( move.moveType ) ) {						
 				
-				//UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Normal Move(promote)" );				
+				//UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Normal Move(promote)" );
+				move.trgSquare.SetPiece( move.srcSquare.piece );			
+				move.srcSquare.ClearPiece();
+				
+				// show promte gui
+				//GUIManager.Instance.ShowPanelElement( "MainGameUI", "MainGamePanel", "PromotePopupMenu", true );
 			}
 			else {
 			
@@ -354,7 +373,13 @@ public class ChessBoard {
 			// promote move
 			if( ChessMover.IsPromoteMove( move.moveType ) ) {
 				
-				//UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Capture Move(promote)" );
+				//UnityEngine.Debug.LogError( "ChessBoard::MoveUpdate() - Capture Move(promote)" );				
+				CaptureSquare( move.trgSquare );
+				
+				move.trgSquare.SetPiece( move.srcSquare.piece );			
+				move.srcSquare.ClearPiece();
+				
+				//GUIManager.Instance.ShowPanelElement( "MainGameUI", "MainGamePanel", "PromotePopupMenu", true );
 			}
 			else {			
 			

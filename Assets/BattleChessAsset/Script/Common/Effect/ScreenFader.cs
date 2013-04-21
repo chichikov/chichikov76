@@ -69,8 +69,8 @@ public class ScreenFader : MonoBehaviour
 		}
 	}
 	
-	//public Color m_DeltaColor = Color.clear;				// the delta-color is basically the "speed / second" at which the current color should change
-	public int fFadeGUIDepth;					// make sure this texture is drawn on top of everything 
+	//public Color m_DeltaColor = Color.clear;	// the delta-color is basically the "speed / second" at which the current color should change
+	private int nFadeGUIDepth;					// make sure this texture is drawn on top of everything 
 	
 	private float fFadeDurTime;
 	private float fFadeStartTime;
@@ -129,7 +129,7 @@ public class ScreenFader : MonoBehaviour
 		startColor = Color.black;
 		targetColor = Color.clear;					
 		
-		fFadeGUIDepth = -1000;	 
+		nFadeGUIDepth = CommonZDepth.ScreenFaderI;	 
 		
 		fFadeDurTime = 0.0f;		
 		fFadeStartTime = 0.0f;
@@ -192,7 +192,7 @@ public class ScreenFader : MonoBehaviour
 				// Only draw the texture when the alpha value is greater than 0:
 				if (currColor.a > 0)
 				{			
-		    		GUI.depth = fFadeGUIDepth;
+		    		GUI.depth = nFadeGUIDepth;
 		    		GUI.Label(new Rect(-10, -10, Screen.width + 10, Screen.height + 10), fadeTexture, backGroundStyle);
 				}
 			}
@@ -211,7 +211,7 @@ public class ScreenFader : MonoBehaviour
 				// Only draw the texture when the alpha value is greater than 0:
 				if (currColor.a > 0)
 				{			
-		    		GUI.depth = fFadeGUIDepth;
+		    		GUI.depth = nFadeGUIDepth;
 		    		GUI.Label(new Rect(-10, -10, Screen.width + 10, Screen.height + 10), fadeTexture, backGroundStyle);
 				}
 			}

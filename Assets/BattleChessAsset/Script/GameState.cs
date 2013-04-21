@@ -34,23 +34,23 @@ public class GameState : StateMachineBehaviourEx {
 	// game state
 	
 	// Intro state
-	IEnumerator Intro_EnterState() {		
+	IEnumerator Intro_EnterState() {			
 		
-		GUIManager.Instance.ShowAllPanel( "IntroUI", false );
-		GUIManager.Instance.ShowPanel( "IntroUI", "IntroPanel", true );		
+		GUIManager.Instance.SetCurrentUIHouse( "IntroUI", true, true );
 		
 		yield return ScreenFader.Instance.StartFadeAndWait( true, 2.0f, null, null, true );	
 		yield return ScreenFader.Instance.StartFadeAndWait( false, 2.0f, null, null, true );		
 		
-		currentState = GameState.eGameState.Init;
+		//currentState = GameState.eGameState.Init;
 	}
 	
 	void Intro_Update() {
 		
 	}
 	
-	void Intro_ExitState() {				
+	IEnumerator Intro_ExitState() {				
 			
+		yield return null;
 	}
 	
 	
@@ -58,34 +58,36 @@ public class GameState : StateMachineBehaviourEx {
 	IEnumerator Init_EnterState() {			
 		
 		// remove previouse ui house
-		if( (eGameState)lastState == eGameState.Intro )
-			GUIManager.Instance.RemoveGUI( "IntroUI" );	
-		else if( (eGameState)lastState == eGameState.GamePlay ) {			
+		if( (eGameState)lastState == eGameState.Intro ) {
+			;
+		}
+		else if( (eGameState)lastState == eGameState.GamePlay ) {	
 			
-			GUIManager.Instance.RemoveGUI( "MainGameUI" );	
 			yield return ScreenFader.Instance.StartFadeAndWait( false, 2.0f, null, null, true );	
 		}
 		
 		// async Scene load		
 		yield return SceneManager.Instance.AsyncLoadLevel( "Init" );	
 		
-		// show ui
-		GUIManager.Instance.ShowAllPanel( "OffGameUI", false );
-		GUIManager.Instance.ShowPanel( "OffGameUI", "InitPanel", true );								
+		// show ui		
+		GUIManager.Instance.SetCurrentUIHouse( "OffGameUI", true, true );								
 		
 		// chess engine start	
 		if( ChessEngineManager.Instance.IsEngineRunning == false )
 			ChessEngineManager.Instance.Start();
 		
 		ScreenFader.Instance.StartFade( true, 2.0f );		
+		
+		//GUIManager.Instance.ShowMessageBox( GUIManager.MessageBoxType.MessageOK, "test", 0.5f );
 	}
 	
 	void Init_Update() {
 		
 	}
 	
-	void Init_ExitState() {	
-			
+	IEnumerator Init_ExitState() {	
+		
+		yield return null;
 	}
 	
 	
@@ -95,14 +97,13 @@ public class GameState : StateMachineBehaviourEx {
 		yield return StartCoroutine( ScreenFader.Instance.WaitingForFadeEnd() );
 		yield return ScreenFader.Instance.StartFadeAndWait( false, 2.0f, null, null, true );
 		
-		GUIManager.Instance.RemoveGUI( "OffGameUI" );	
+		//GUIManager.Instance.RemoveGUI( "OffGameUI" );	
 		
 		// async Scene load
 		yield return SceneManager.Instance.AsyncLoadLevel( "BattleChessInfinity" );		
 		
-		// first init menu select
-		GUIManager.Instance.ShowAllPanel( "MainGameUI", false );
-		GUIManager.Instance.ShowPanel( "MainGameUI", "MainGamePanel", true );	
+		// first init menu select		
+		GUIManager.Instance.SetCurrentUIHouse( "MainGameUI", true, true );		
 		
 		// send engine option
 		ChessEngineManager.Instance.SendCurrentOption();
@@ -118,8 +119,9 @@ public class GameState : StateMachineBehaviourEx {
 		
 	}
 	
-	void GamePlay_ExitState() {		
+	IEnumerator GamePlay_ExitState() {		
 			
+		yield return null;
 	}
 	
 	
@@ -145,8 +147,9 @@ public class GameState : StateMachineBehaviourEx {
 		
 	}
 	
-	void Restart_ExitState() {		
+	IEnumerator Restart_ExitState() {		
 		
+		yield return null;
 	}
 	
 	

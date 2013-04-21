@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class MainGameUI : MonoBehaviour {
+public class MainGameUI : MonoBehaviour {	
 	
 	public MainGamePanel mainGamePanelScript;
 	

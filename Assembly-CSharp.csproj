@@ -18,7 +18,7 @@
 	<DebugType>full</DebugType>
 	<Optimize>false</Optimize>
 	<OutputPath>Temp\bin\Debug\</OutputPath>
-	<DefineConstants>DEBUG;TRACE;UNITY_STANDALONE;ENABLE_MICROPHONE;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;ENABLE_AUDIO_FMOD;ENABLE_NETWORK;ENABLE_MONO;ENABLE_PHYSICS;ENABLE_TERRAIN;ENABLE_CACHING;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_CLOTH;ENABLE_MOVIES;ENABLE_AUDIO;ENABLE_WWW;ENABLE_SHADOWS;ENABLE_DUCK_TYPING;UNITY_4_0_0;UNITY_4_0;UNITY_STANDALONE_WIN;ENABLE_PROFILER;UNITY_EDITOR;UNITY_TEAM_LICENSE</DefineConstants>
+	<DefineConstants>DEBUG;TRACE;UNITY_STANDALONE_WIN;ENABLE_MICROPHONE;ENABLE_IMAGEEFFECTS;ENABLE_WEBCAM;ENABLE_AUDIO_FMOD;UNITY_STANDALONE;ENABLE_NETWORK;ENABLE_MONO;ENABLE_PHYSICS;ENABLE_TERRAIN;ENABLE_CACHING;ENABLE_SUBSTANCE;ENABLE_GENERICS;ENABLE_CLOTH;ENABLE_MOVIES;ENABLE_AUDIO;ENABLE_WWW;ENABLE_SHADOWS;ENABLE_DUCK_TYPING;UNITY_4_1_0;UNITY_4_1;ENABLE_PROFILER;UNITY_EDITOR;UNITY_TEAM_LICENSE</DefineConstants>
 	<ErrorReport>prompt</ErrorReport>
 	<WarningLevel>4</WarningLevel>
 	<NoWarn>0169</NoWarn>
@@ -59,11 +59,22 @@
      <Compile Include="Assets\BattleChessAsset\Script\ChessMain\ChessPiece.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\ChessMain\ChessPosition.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\ChessMain\ChessUtility.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\Common\Extention\GameObjectExt.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\Common\CommonDef.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\Common\Effect\ScreenFader.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\Common\Extention\UnityExt.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\Common\GUI\Common2D.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\Common\GUI\Modal2D.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\Common\GUI\NGUIExt\DraggablePanel\IDraggablePanelAdapter.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\Common\GUI\NGUIExt\DraggablePanel\SpringPanelEx.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\Common\GUI\NGUIExt\DraggablePanel\UIDragPanelContentsEx.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\Common\GUI\NGUIExt\DraggablePanel\UIDraggablePanelEx.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\Common\GUI\NGUIExt\DraggablePanel\UIGridEx.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\Common\GUI\NGUIExt\UIHouse.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\Common\GUI\NGUIExt\UIModal.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\Common\GUI\NGUIExt\UIWidgetBag.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\Common\Manager\EffectManager.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\Common\Manager\GUIManager.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\Common\Manager\SceneManager.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\Common\PostScreenEffect\ScreenFader.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\Common\Singleton.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\Common\StateMachine\StateMachineBehaviourEx.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\Common\StateMachine\StateMachineEx.cs" />
@@ -74,11 +85,7 @@
      <Compile Include="Assets\BattleChessAsset\Script\UI\IntroUI\IntroUI.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\UI\MainGameUI\MainGamePanel.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\UI\MainGameUI\MainGameUI.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\UI\NGUI Extention\IDraggablePanelAdapter.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\UI\NGUI Extention\SpringPanelEx.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\UI\NGUI Extention\UIDragPanelContentsEx.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\UI\NGUI Extention\UIDraggablePanelEx.cs" />
-     <Compile Include="Assets\BattleChessAsset\Script\UI\NGUI Extention\UIGridEx.cs" />
+     <Compile Include="Assets\BattleChessAsset\Script\UI\MainGameUI\PromotePopupMenu.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\UI\OffGameUI\EtcPanel.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\UI\OffGameUI\FriendListPanel.cs" />
      <Compile Include="Assets\BattleChessAsset\Script\UI\OffGameUI\FriendListScrollPanel.cs" />
@@ -203,6 +210,7 @@
      <Compile Include="Assets\NGUI\Scripts\UI\UITiledSprite.cs" />
      <Compile Include="Assets\NGUI\Scripts\UI\UITooltip.cs" />
      <Compile Include="Assets\NGUI\Scripts\UI\UIViewport.cs" />
+     <Compile Include="Assets\WheelPhysics.cs" />
      <None Include="Assets\NGUI\Resources\Shaders\Depth.shader" />
      <None Include="Assets\Standard Assets\Projectors\Guidelines.txt" />
      <None Include="Assets\Standard Assets\Glass Refraction (Pro Only)\Sources\Shaders\Glass-Stained-BumpDistort.shader" />

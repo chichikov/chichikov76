@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-
-
 public class BattleChessMain : MonoBehaviour, IProcessChessEngine {		
 	
 	// chess piece prefab reference

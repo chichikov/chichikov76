@@ -26,7 +26,7 @@ public class GameMain : MonoBehaviour, IProcessChessEngine {
 		SingletonGameObject<GameMain>.AddSingleton( this ); 
 		
 		// chess engine start
-		ChessEngineManager.Instance.EngineCmdExecuter = this;		
+		ChessEngineManager.Instance.EngineCmdExecuter = this;			
 	}
 	
 	// Use this for second initialization
@@ -81,7 +81,7 @@ public class GameMain : MonoBehaviour, IProcessChessEngine {
 	public bool OnUciOkCommand( CommandBase.CommandData cmdData )
 	{
 		// enable init menu's start and option button
-		OffGameUI offGameUIScript = GUIManager.Instance.GetGUIGameObjectScript<OffGameUI>( "OffGameUI" );		
+		OffGameUI offGameUIScript = GUIManager.Instance.GetUIHouseScript<OffGameUI>( "OffGameUI" );		
 		offGameUIScript.initPanelScript.startBtn.isEnabled = true;
 		offGameUIScript.initPanelScript.optionBtn.isEnabled = true;		
 		
@@ -125,7 +125,7 @@ public class GameMain : MonoBehaviour, IProcessChessEngine {
 		ChessEngineOption option = ChessEngineManager.Instance.DefaultConfigData.GetConfigOption( cmdData.GetSubCommandValue("name") );
 		if( option != null ) {
 			
-			OffGameUI offGameUIScript = GUIManager.Instance.GetGUIGameObjectScript<OffGameUI>( "OffGameUI" );			
+			OffGameUI offGameUIScript = GUIManager.Instance.GetUIHouseScript<OffGameUI>( "OffGameUI" );			
 			offGameUIScript.optionScrollPanelScript.SetOption( option );
 			return true;
 		}

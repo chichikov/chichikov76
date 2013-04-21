@@ -26,7 +26,7 @@ public class OptionPanel : MonoBehaviour {
 
 	public void OnBackClick() {		
 		
-		GUIManager.Instance.ShowPanel( "OffGameUI", gameObject.name, false );
-		GUIManager.Instance.ShowPanel( "OffGameUI", "InitPanel", true );
+		GUIManager.Instance.ShowAllPanel( false );
+		GUIManager.Instance.ShowMainPanel( true );
 	}	
 }

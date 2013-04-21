@@ -1,39 +1,52 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\BattleChessAsset\Script\UI\MainGameUI\MainGamePanel.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\BattleChessAsset\Script\GameState.cs">
     <Files>
-      <File FileName="Assets\NGUI\Scripts\Internal\NGUITools.cs" Line="367" Column="4" />
-      <File FileName="Assets\NGUI\Scripts\Interaction\UIPanelAlpha.cs" Line="15" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\UI\OffGameUI\OptionPanel.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\UI\IntroUI\IntroPanel.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\Util\UtilCommon.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\GUI\Common2D.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\GUI\NGUIExt\UIModal.cs" Line="17" Column="2" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\Manager\GUIManager.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\GUI\NGUIExt\UIHouse.cs" Line="16" Column="2" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\GUI\NGUIExt\UIWidgetBag.cs" Line="13" Column="2" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\GUI\Modal2D.cs" Line="68" Column="3" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessBoard.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\Manager\SceneManager.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\GameMain.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\UI\OffGameUI\FriendListScrollPanel.cs" Line="1" Column="1" />
+      <File FileName="Assets\NGUI\Scripts\Internal\NGUITools.cs" Line="1" Column="1" />
+      <File FileName="Assets\NGUI\Scripts\Interaction\UIPanelAlpha.cs" Line="1" Column="1" />
       <File FileName="Assets\BattleChessAsset\Script\UI\IntroUI\IntroUI.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\UI\MainGameUI\MainGamePanel.cs" Line="25" Column="16" />
-      <File FileName="Assets\BattleChessAsset\Script\UI\NGUI Extention\UIDraggablePanelEx.cs" Line="420" Column="3" />
-      <File FileName="Assets\BattleChessAsset\Script\UI\OffGameUI\FriendListScrollPanel.cs" Line="54" Column="2" />
-      <File FileName="Assets\BattleChessAsset\Script\Common\Extention\GameObjectExt.cs" Line="12" Column="59" />
-      <File FileName="Assets\BattleChessAsset\Script\GameState.cs" Line="60" Column="14" />
+      <File FileName="Assets\BattleChessAsset\Script\UI\MainGameUI\MainGamePanel.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\GameState.cs" Line="37" Column="25" />
       <File FileName="Assets\BattleChessAsset\Script\Common\Singleton.cs" Line="1" Column="1" />
       <File FileName="Assets\BattleChessAsset\Script\ChessEngine\ChessEngineManager.cs" Line="1" Column="1" />
       <File FileName="Assets\BattleChessAsset\Script\Common\StateMachine\StateMachineBehaviourEx.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\GameMain.cs" Line="85" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\ChessEngine\IProcessChessEngine.cs" Line="1" Column="1" />
       <File FileName="Assets\BattleChessAsset\Script\ChessMain\BattleChessMain.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\Common\PostScreenEffect\ScreenFader.cs" Line="191" Column="5" />
       <File FileName="Assets\BattleChessAsset\Script\ChessEngine\ChessEngineCmdParser.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\UI\MainGameUI\MainGameUI.cs" Line="24" Column="3" />
-      <File FileName="Assets\BattleChessAsset\Script\Common\Manager\GUIManager.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\UI\NGUI Extention\SpringPanelEx.cs" Line="17" Column="30" />
-      <File FileName="Assets\BattleChessAsset\Script\UI\NGUI Extention\UIGridEx.cs" Line="19" Column="3" />
-      <File FileName="Assets\BattleChessAsset\Script\UI\NGUI Extention\UIDragPanelContentsEx.cs" Line="19" Column="39" />
-      <File FileName="Assets\BattleChessAsset\Script\UI\OffGameUI\InitPanel.cs" Line="14" Column="18" />
-      <File FileName="Assets\BattleChessAsset\Script\UI\OffGameUI\EtcPanel.cs" Line="19" Column="2" />
-      <File FileName="Assets\BattleChessAsset\Script\UI\OffGameUI\FriendListPanel.cs" Line="17" Column="2" />
-      <File FileName="Assets\BattleChessAsset\Script\UI\OffGameUI\OffGameUI.cs" Line="14" Column="13" />
-      <File FileName="Assets\BattleChessAsset\Script\UI\OffGameUI\OptionScrollPanel.cs" Line="29" Column="12" />
-      <File FileName="Assets\BattleChessAsset\Script\UI\OffGameUI\ModePanel.cs" Line="34" Column="3" />
+      <File FileName="Assets\BattleChessAsset\Script\UI\MainGameUI\MainGameUI.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\UI\OffGameUI\InitPanel.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\UI\OffGameUI\EtcPanel.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\UI\MainGameUI\PromotePopupMenu.cs" Line="37" Column="19" />
+      <File FileName="Assets\BattleChessAsset\Script\UI\OffGameUI\FriendListPanel.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\UI\OffGameUI\OffGameUI.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\UI\OffGameUI\ModePanel.cs" Line="1" Column="1" />
       <File FileName="Assets\BattleChessAsset\Script\Common\StateMachine\StateMachineEx.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\UI\OffGameUI\OptionPanel.cs" Line="1" Column="1" />
-      <File FileName="Assets\NGUI\Scripts\Interaction\UIDraggablePanel.cs" Line="1" Column="1" />
-      <File FileName="Assets\BattleChessAsset\Script\Common\Util\UtilCommon.cs" Line="17" Column="2" />
-      <File FileName="Assets\BattleChessAsset\Script\UI\NGUI Extention\IDraggablePanelAdapter.cs" Line="8" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\CommonDef.cs" Line="16" Column="26" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessData.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\ChessMain\ChessBitBoard.cs" Line="1" Column="1" />
+      <File FileName="Assets\NGUI\Scripts\Interaction\UIGrid.cs" Line="1" Column="1" />
+      <File FileName="Assets\NGUI\Scripts\Interaction\UIPopupList.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\GUI\NGUIExt\DraggablePanel\UIDraggablePanelEx.cs" Line="19" Column="6" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\GUI\NGUIExt\DraggablePanel\UIGridEx.cs" Line="251" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\Manager\EffectManager.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\UI\OffGameUI\OptionScrollPanel.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\Extention\UnityExt.cs" Line="52" Column="12" />
+      <File FileName="Assets\NGUI\Scripts\Internal\UIWidget.cs" Line="1" Column="1" />
+      <File FileName="Assets\NGUI\Scripts\Internal\UIEventListener.cs" Line="1" Column="1" />
+      <File FileName="Assets\BattleChessAsset\Script\Common\Effect\ScreenFader.cs" Line="12" Column="2" />
+      <File FileName="Assets\WheelPhysics.cs" Line="18" Column="18" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
